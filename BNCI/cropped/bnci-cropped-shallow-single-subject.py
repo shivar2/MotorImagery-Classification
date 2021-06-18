@@ -2,12 +2,17 @@
 subject_id = 1
 
 # load data
-import torch
-dataset = torch.load('data-file/BNCI2014001/' + str(subject_id) + '.pt')
+from braindecode.datautil.serialization import load_concat_dataset
+dataset = load_concat_dataset(
+    path='../../data-file/bnci-raw/' + str(subject_id),
+    preload=True,
+    target_name=None,
+)
+
 
 # *input window samples*
-
 input_window_samples = 1000
+
 
 # Create model
 

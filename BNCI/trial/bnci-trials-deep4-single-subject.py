@@ -2,8 +2,13 @@
 subject_id = 3
 
 # load data
-import torch
-dataset = torch.load('data-file/BNCI2014001/' + str(subject_id) + '.pt')
+from braindecode.datautil.serialization import load_concat_dataset
+dataset = load_concat_dataset(
+    path='../../data-file/bnci-raw/' + str(subject_id),
+    preload=True,
+    target_name=None,
+)
+
 
 # Cut Compute Windows
 # for trials
