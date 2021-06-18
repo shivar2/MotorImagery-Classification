@@ -6,7 +6,6 @@ subject_id_list = [1]
 from braindecode.datautil.serialization import load_concat_dataset
 from braindecode.datasets.base import BaseConcatDataset
 
-
 datasets = []
 for subject_id in subject_id_list:
     datasets.append(
@@ -17,7 +16,6 @@ for subject_id in subject_id_list:
             )
     )
 dataset = BaseConcatDataset(datasets)
-
 
 
 # Cut Compute Windows
