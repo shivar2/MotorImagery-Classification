@@ -2,8 +2,12 @@
 subject_id = 1
 
 # load data
-import torch
-dataset = torch.load('data-file/Schirrmeister2017/' + str(subject_id) + '.pt')
+from braindecode.datautil.serialization import load_concat_dataset
+dataset = load_concat_dataset(
+    path='../../data-file/hgd-raw/' + str(subject_id),
+    preload=True,
+    target_name=None,
+)
 
 
 # Cut Compute Windows (for trials)
