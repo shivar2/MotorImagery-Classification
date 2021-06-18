@@ -1,7 +1,6 @@
 # set MNE config
 import mne
-
-mne.set_config('MNE_DATASETS_BNCI_PATH', 'mne_data')
+mne.set_config('MNE_DATASETS_BNCI_PATH', '../../mne_data')
 
 
 # download or load dataset
