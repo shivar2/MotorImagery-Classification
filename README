@@ -1,0 +1,10 @@
+something is wrong with moabb Schirrmeister, so coudn't use .save for this dataset
+for solve this issue check this link:
+https://www.gitmemory.com/issue/NeuroTechX/moabb/153/802229147
+
+(
+    change this file moabb/datasets/schirrmeister2017.py
+    "cnt.info["events"] = np.array(event_arr).T"
+    to
+    "cnt.info["events"] = [dict(list=np.array(event_arr).T, channels=None), ] "
+)
