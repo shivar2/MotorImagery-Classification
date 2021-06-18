@@ -1,16 +1,24 @@
-# subject
-subject_id = 1
+# subjects
+subject_id_list = [1]
 
 # load data
 from braindecode.datautil.serialization import load_concat_dataset
-dataset = load_concat_dataset(
-    path='../../data-file/bnci-raw/' + str(subject_id),
-    preload=True,
-    target_name=None,
-)
+from braindecode.datasets.base import BaseConcatDataset
 
-# Cut Compute Windows
-# for trials
+
+datasets = []
+for subject_id in subject_id_list:
+    datasets.append(
+            load_concat_dataset(
+            path='../../data-file/bnci-raw/' + str(subject_id),
+            preload=True,
+            target_name=None,
+            )
+    )
+dataset = BaseConcatDataset(datasets)
+
+
+# Cut Compute Windows (for trials)
 from braindecode.datautil.windowers import create_windows_from_events
 
 trial_start_offset_seconds = -0.5
@@ -92,6 +100,7 @@ clf = EEGClassifier(
 # Model training for a specified number of epochs. `y` is None as it is already supplied
 # in the dataset.
 clf.fit(train_set, y=None, epochs=n_epochs)
+
 
 # Plot Results
 import matplotlib.pyplot as plt

@@ -1,13 +1,23 @@
-# subject
-subject_id = 3
+# subjects
+subject_id_list = [1]
+
 
 # load data
 from braindecode.datautil.serialization import load_concat_dataset
-dataset = load_concat_dataset(
-    path='../../data-file/bnci-raw/' + str(subject_id),
-    preload=True,
-    target_name=None,
-)
+from braindecode.datasets.base import BaseConcatDataset
+
+
+datasets = []
+for subject_id in subject_id_list:
+    datasets.append(
+            load_concat_dataset(
+            path='../../data-file/bnci-raw/' + str(subject_id),
+            preload=True,
+            target_name=None,
+            )
+    )
+dataset = BaseConcatDataset(datasets)
+
 
 
 # Cut Compute Windows
