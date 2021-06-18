@@ -136,8 +136,12 @@ clf = EEGClassifier(
 # in the dataset.
 clf.fit(train_set, y=None, epochs=n_epochs)
 
-# Plot Results
 
+# Save Model Weights
+# torch.save(model.state_dict(), '../../models-weights/deep4/bnci/' + str(subject_id_list).strip('[]') + '.pth')
+
+
+# Plot Results
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 import pandas as pd

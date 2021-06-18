@@ -104,7 +104,7 @@ lr = 0.0625 * 0.01
 weight_decay = 0
 
 batch_size = 64
-n_epochs = 50
+n_epochs = 2
 
 clf = EEGClassifier(
     model,
@@ -125,6 +125,11 @@ clf = EEGClassifier(
 # Model training for a specified number of epochs. `y` is None as it is already supplied
 # in the dataset.
 clf.fit(train_set, y=None, epochs=n_epochs)
+
+
+# Save Model Weights
+# torch.save(model.state_dict(), '../../models-weights/shallow/bnci/' + str(subject_id_list).strip('[]') + '.pth')
+
 
 # Plot Results
 import matplotlib.pyplot as plt
