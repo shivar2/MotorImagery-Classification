@@ -5,7 +5,7 @@ mne.set_config('MNE_DATASETS_SCHIRRMEISTER2017_PATH', '../../mne_data')
 
 # download or load dataset
 from braindecode.datasets.moabb import MOABBDataset
-subject_id = 1
+subject_id = 2
 dataset = MOABBDataset(dataset_name="Schirrmeister2017", subject_ids=[subject_id])
 
 
