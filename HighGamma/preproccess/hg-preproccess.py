@@ -37,4 +37,4 @@ if not os.path.exists(path):
     os.makedirs(path)
 
 # save sets
-dataset.save(path='../../data-file/hgd-raw/' + str(subject_id))
+dataset.save(path='../../data-file/hgd-raw/' + str(subject_id), overwrite=True)
