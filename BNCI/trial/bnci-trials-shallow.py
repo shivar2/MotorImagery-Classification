@@ -82,7 +82,7 @@ lr = 0.0625 * 0.01
 weight_decay = 0
 
 batch_size = 64
-n_epochs = 50
+n_epochs = 10
 
 clf = EEGClassifier(
     model,
