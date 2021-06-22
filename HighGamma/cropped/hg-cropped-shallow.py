@@ -15,7 +15,7 @@ for subject_id in subject_id_list:
             target_name=None,
             )
     )
-dataset = BaseConcatDataeposet(datasets)
+dataset = BaseConcatDataset(datasets)
 
 
 # *input window samples*
