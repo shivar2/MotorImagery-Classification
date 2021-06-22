@@ -84,7 +84,7 @@ windows_dataset = create_windows_from_events(
     trial_stop_offset_samples=0,
     window_size_samples=input_window_samples,
     window_stride_samples=n_preds_per_input,
-    drop_last_window=False,
+    drop_last_window=True,
     preload=True
 )
 
