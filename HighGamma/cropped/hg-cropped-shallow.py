@@ -129,7 +129,7 @@ clf.fit(train_set, y=None, epochs=n_epochs)
 
 
 # Save Model Weights
-torch.save(model.state_dict(), '../../saved_models/cropped/shallow/hgd/' + str(subject_id_list).strip('[]') + '.pth')
+torch.save(model.state_dict(), '../../models-weights/shallow/hgd/' + str(subject_id_list).strip('[]') + '.pth')
 
 
 
