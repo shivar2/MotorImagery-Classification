@@ -95,7 +95,7 @@ path = '../../saved_models/BNCI/trials/deep4/'
 f_params = str(subject_id_list).strip('[]') + '.pt'
 
 # Checkpoint will save the model with the lowest valid_loss
-cp = Checkpoint(dirname=path, f_params=f_params, f_criterion=None, f_optimizer=None, f_history=None)
+cp = Checkpoint(dirname=path, f_params=f_params, f_criterion=None, f_optimizer=None)
 
 # Early_stopping
 early_stopping = EarlyStopping(patience=5)
@@ -104,7 +104,7 @@ callbacks = [
     "accuracy",
     ('cp', cp),
     ('patience', early_stopping),
-    ("lr_scheduler", LRScheduler('CosineAnnealingLR', T_max=n_epochs - 1))
+    ("lr_scheduler", LRScheduler('CosineAnnealingLR', T_max=n_epochs - 1)),
 ]
 
 clf = EEGClassifier(
@@ -162,3 +162,7 @@ handles.append(Line2D([0], [0], color='black', linewidth=1, linestyle='-', label
 handles.append(Line2D([0], [0], color='black', linewidth=1, linestyle=':', label='Valid'))
 plt.legend(handles, [h.get_label() for h in handles], fontsize=14)
 plt.tight_layout()
+
+# Image path
+image_path = path + str(subject_id_list).strip('[]')
+plt.savefig(fname=image_path)
