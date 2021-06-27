@@ -102,7 +102,8 @@ valid_set = splitted['session_E']
 
 # Training
 # train model for cropped trials
-from skorch.callbacks import LRScheduler, EarlyStopping
+
+from skorch.callbacks import LRScheduler, Checkpoint, EarlyStopping
 from skorch.helper import predefined_split
 
 from braindecode import EEGClassifier
@@ -115,10 +116,19 @@ weight_decay = 0.5 * 0.001
 batch_size = 64
 n_epochs = 10
 
+# Path to saving models
+path = '../../saved_models/cropped/deep4/bnci/'
+f_params = str(subject_id_list).strip('[]') + '.pt'
+
+# Checkpoint will save the model with the lowest valid_loss
+cp = Checkpoint(dirname=path, f_params=f_params, f_criterion=None, f_optimizer=None, f_history=None)
+
+# Early_stopping
 early_stopping = EarlyStopping(patience=5)
 
 callbacks = [
     "accuracy",
+    ('cp', cp),
     ('patience', early_stopping),
     ("lr_scheduler", LRScheduler('CosineAnnealingLR', T_max=n_epochs - 1))
 ]
@@ -143,10 +153,7 @@ clf = EEGClassifier(
 # in the dataset.
 clf.fit(train_set, y=None)
 
-
-# Save Model Weights
-torch.save(model.state_dict(), '../../saved_models/cropped/deep4/bnci/' + str(subject_id_list).strip('[]') + '.pth')
-
+# clf.load_params(checkpoint=cp)  # Load the model with the lowest valid_loss
 
 # Plot Results
 import matplotlib.pyplot as plt
