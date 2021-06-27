@@ -91,7 +91,7 @@ path = '../../saved_models/HGD/trials/shallow/'
 f_params = str(subject_id_list).strip('[]') + '.pt'
 
 # Checkpoint will save the model with the lowest valid_loss
-cp = Checkpoint(dirname=path, f_params=f_params, f_criterion=None, f_optimizer=None)
+cp = Checkpoint(dirname=path, f_params=f_params, f_criterion=None)
 
 # Early_stopping
 early_stopping = EarlyStopping(patience=5)
