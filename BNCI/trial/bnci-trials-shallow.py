@@ -72,7 +72,7 @@ if cuda:
     model.cuda()
 
 # Training
-from skorch.callbacks import LRScheduler
+from skorch.callbacks import LRScheduler, EarlyStopping
 from skorch.helper import predefined_split
 
 from braindecode import EEGClassifier
@@ -84,22 +84,29 @@ weight_decay = 0
 batch_size = 64
 n_epochs = 10
 
+early_stopping = EarlyStopping(patience=5)
+
+callbacks = [
+    "accuracy",
+    ('patience', early_stopping),
+    ("lr_scheduler", LRScheduler('CosineAnnealingLR', T_max=n_epochs - 1))
+]
+
 clf = EEGClassifier(
     model,
+    max_epochs=n_epochs,
     criterion=torch.nn.NLLLoss,
     optimizer=torch.optim.AdamW,
     train_split=predefined_split(valid_set),  # using valid_set for validation
     optimizer__lr=lr,
     optimizer__weight_decay=weight_decay,
     batch_size=batch_size,
-    callbacks=[
-        "accuracy", ("lr_scheduler", LRScheduler('CosineAnnealingLR', T_max=n_epochs - 1)),
-    ],
+    callbacks=callbacks,
     device=device,
 )
 # Model training for a specified number of epochs. `y` is None as it is already supplied
 # in the dataset.
-clf.fit(train_set, y=None, epochs=n_epochs)
+clf.fit(train_set, y=None)
 
 
 # Save Model Weights

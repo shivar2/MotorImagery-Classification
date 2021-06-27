@@ -1,5 +1,5 @@
 # subjects
-subject_id_list = [1, 2]
+subject_id_list = [1]
 
 # load data
 from braindecode.datautil.serialization import load_concat_dataset
@@ -93,7 +93,7 @@ valid_set = splitted['session_E']
 
 # Training
 # train model for cropped trials
-from skorch.callbacks import LRScheduler
+from skorch.callbacks import LRScheduler, EarlyStopping
 from skorch.helper import predefined_split
 
 from braindecode import EEGClassifier
@@ -106,9 +106,18 @@ weight_decay = 0
 batch_size = 64
 n_epochs = 10
 
+early_stopping = EarlyStopping(patience=5)
+
+callbacks = [
+    "accuracy",
+    ('patience', early_stopping),
+    ("lr_scheduler", LRScheduler('CosineAnnealingLR', T_max=n_epochs - 1))
+]
+
 clf = EEGClassifier(
     model,
     cropped=True,
+    max_epochs=n_epochs,
     criterion=CroppedLoss,
     criterion__loss_function=torch.nn.functional.nll_loss,
     optimizer=torch.optim.AdamW,
@@ -117,14 +126,12 @@ clf = EEGClassifier(
     optimizer__weight_decay=weight_decay,
     iterator_train__shuffle=True,
     batch_size=batch_size,
-    callbacks=[
-        "accuracy", ("lr_scheduler", LRScheduler('CosineAnnealingLR', T_max=n_epochs - 1)),
-    ],
+    callbacks=callbacks,
     device=device,
 )
 # Model training for a specified number of epochs. `y` is None as it is already supplied
 # in the dataset.
-clf.fit(train_set, y=None, epochs=n_epochs)
+clf.fit(train_set, y=None)
 
 
 # Save Model Weights
