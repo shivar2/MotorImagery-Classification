@@ -1,6 +1,14 @@
 # subjects
 subject_id_list = [1]
 
+# Path to saving models
+# mkdir path to save
+import os
+save_path = os.path.join('../../saved_models/BNCI/trials/shallow/' + str(subject_id_list).strip('[]')) + '/'
+
+if not os.path.exists(save_path):
+    os.makedirs(save_path)
+
 # load data
 from braindecode.datautil.serialization import load_concat_dataset
 from braindecode.datasets.base import BaseConcatDataset
@@ -84,12 +92,8 @@ weight_decay = 0
 batch_size = 64
 n_epochs = 10
 
-# Path to saving models
-path = '../../saved_models/BNCI/trials/shallow/'
-f_params = str(subject_id_list).strip('[]') + '.pt'
-
 # Checkpoint will save the model with the lowest valid_loss
-cp = Checkpoint(dirname=path, f_params=f_params, f_criterion=None)
+cp = Checkpoint(dirname=save_path, f_criterion=None)
 
 # Early_stopping
 early_stopping = EarlyStopping(patience=5)
@@ -158,5 +162,5 @@ plt.legend(handles, [h.get_label() for h in handles], fontsize=14)
 plt.tight_layout()
 
 # Image path
-image_path = path + str(subject_id_list).strip('[]')
+image_path = save_path + 'result'
 plt.savefig(fname=image_path)
