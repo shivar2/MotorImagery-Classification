@@ -93,7 +93,7 @@ batch_size = 64
 n_epochs = 10
 
 # Path to saving models
-path = '../../saved_models/trials/deep4/hgd/'
+path = '../../saved_models/HGD/trials/deep4/'
 f_params = str(subject_id_list).strip('[]') + '.pt'
 
 # Checkpoint will save the model with the lowest valid_loss

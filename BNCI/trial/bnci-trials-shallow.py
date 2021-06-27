@@ -85,7 +85,7 @@ batch_size = 64
 n_epochs = 10
 
 # Path to saving models
-path = '../../saved_models/trials/shallow/bnci/'
+path = '../../saved_models/BNCI/trials/shallow/'
 f_params = str(subject_id_list).strip('[]') + '.pt'
 
 # Checkpoint will save the model with the lowest valid_loss
