@@ -1,6 +1,14 @@
 # subjects
 subject_id_list = [1]
 
+# Path to saving models
+# mkdir path to save
+import os
+save_path = os.path.join('../../saved_models/HGD/trials/shallow/' + str(subject_id_list).strip('[]')) + '/'
+
+if not os.path.exists(save_path):
+    os.makedirs(save_path)
+
 # load data
 from braindecode.datautil.serialization import load_concat_dataset
 from braindecode.datasets.base import BaseConcatDataset
@@ -51,7 +59,9 @@ from braindecode.models import ShallowFBCSPNet
 cuda = torch.cuda.is_available()  # check if GPU is available, if True chooses to use it
 device = 'cuda' if cuda else 'cpu'
 if cuda:
-    torch.backends.cudnn.benchmark = True
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+
 seed = 20200220  # random seed to make results reproducible
 # Set random seed to be able to reproduce results
 set_random_seeds(seed=seed, cuda=cuda)
@@ -74,7 +84,8 @@ if cuda:
 
 
 # Training
-from skorch.callbacks import LRScheduler
+
+from skorch.callbacks import LRScheduler, Checkpoint, EarlyStopping
 from skorch.helper import predefined_split
 
 from braindecode import EEGClassifier
@@ -85,22 +96,36 @@ weight_decay = 0
 batch_size = 64
 n_epochs = 10
 
+# Checkpoint will save the model with the lowest valid_loss
+cp = Checkpoint(dirname=save_path, f_criterion=None)
+
+# Early_stopping
+early_stopping = EarlyStopping(patience=5)
+
+callbacks = [
+    "accuracy",
+    ('cp', cp),
+    ('patience', early_stopping),
+    ("lr_scheduler", LRScheduler('CosineAnnealingLR', T_max=n_epochs - 1)),
+]
+
 clf = EEGClassifier(
     model,
+    max_epochs=n_epochs,
     criterion=torch.nn.NLLLoss,
     optimizer=torch.optim.AdamW,
     train_split=predefined_split(valid_set),  # using valid_set for validation
     optimizer__lr=lr,
     optimizer__weight_decay=weight_decay,
     batch_size=batch_size,
-    callbacks=[
-        "accuracy", ("lr_scheduler", LRScheduler('CosineAnnealingLR', T_max=n_epochs - 1)),
-    ],
+    callbacks=callbacks,
     device=device,
 )
 # Model training for a specified number of epochs. `y` is None as it is already supplied
 # in the dataset.
-clf.fit(train_set, y=None, epochs=n_epochs)
+clf.fit(train_set, y=None)
+
+# clf.load_params(checkpoint=cp)  # Load the model with the lowest valid_loss
 
 
 # Plot Results
@@ -140,3 +165,7 @@ handles.append(Line2D([0], [0], color='black', linewidth=1, linestyle='-', label
 handles.append(Line2D([0], [0], color='black', linewidth=1, linestyle=':', label='Valid'))
 plt.legend(handles, [h.get_label() for h in handles], fontsize=14)
 plt.tight_layout()
+
+# Image path
+image_path = save_path + 'result'
+plt.savefig(fname=image_path)

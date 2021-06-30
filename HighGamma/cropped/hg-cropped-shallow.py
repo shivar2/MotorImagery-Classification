@@ -1,6 +1,14 @@
 # subjects
 subject_id_list = [1]
 
+# Path to saving models
+# mkdir path to save
+import os
+save_path = os.path.join('../../saved_models/HGD/cropped/shallow/' + str(subject_id_list).strip('[]')) + '/'
+
+if not os.path.exists(save_path):
+    os.makedirs(save_path)
+
 # load data
 from braindecode.datautil.serialization import load_concat_dataset
 from braindecode.datasets.base import BaseConcatDataset
@@ -30,7 +38,9 @@ from braindecode.models import ShallowFBCSPNet
 cuda = torch.cuda.is_available()  # check if GPU is available, if True chooses to use it
 device = 'cuda' if cuda else 'cpu'
 if cuda:
-    torch.backends.cudnn.benchmark = True
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+
 seed = 20200220  # random seed to make results reproducible
 # Set random seed to be able to reproduce results
 set_random_seeds(seed=seed, cuda=cuda)
@@ -80,7 +90,7 @@ windows_dataset = create_windows_from_events(
     trial_stop_offset_samples=0,
     window_size_samples=input_window_samples,
     window_stride_samples=n_preds_per_input,
-    drop_last_window=False,
+    drop_last_window=True,
     preload=True
 )
 
@@ -94,7 +104,7 @@ valid_set = splitted['test']
 # Training
 # train model for cropped trials
 
-from skorch.callbacks import LRScheduler
+from skorch.callbacks import LRScheduler, Checkpoint, EarlyStopping
 from skorch.helper import predefined_split
 
 from braindecode import EEGClassifier
@@ -105,11 +115,25 @@ lr = 0.0625 * 0.01
 weight_decay = 0
 
 batch_size = 64
-n_epochs = 50
+n_epochs = 10
+
+# Checkpoint will save the model with the lowest valid_loss
+cp = Checkpoint(dirname=save_path, f_criterion=None)
+
+# Early_stopping
+early_stopping = EarlyStopping(patience=5)
+
+callbacks = [
+    "accuracy",
+    ('cp', cp),
+    ('patience', early_stopping),
+    ("lr_scheduler", LRScheduler('CosineAnnealingLR', T_max=n_epochs - 1)),
+]
 
 clf = EEGClassifier(
     model,
     cropped=True,
+    max_epochs=n_epochs,
     criterion=CroppedLoss,
     criterion__loss_function=torch.nn.functional.nll_loss,
     optimizer=torch.optim.AdamW,
@@ -118,19 +142,14 @@ clf = EEGClassifier(
     optimizer__weight_decay=weight_decay,
     iterator_train__shuffle=True,
     batch_size=batch_size,
-    callbacks=[
-        "accuracy", ("lr_scheduler", LRScheduler('CosineAnnealingLR', T_max=n_epochs - 1)),
-    ],
+    callbacks=callbacks,
     device=device,
 )
 # Model training for a specified number of epochs. `y` is None as it is already supplied
 # in the dataset.
-clf.fit(train_set, y=None, epochs=n_epochs)
+clf.fit(train_set, y=None)
 
-
-# Save Model Weights
-torch.save(model.state_dict(), '../../models-weights/shallow/hgd/' + str(subject_id_list).strip('[]') + '.pth')
-
+# clf.load_params(checkpoint=cp)  # Load the model with the lowest valid_loss
 
 
 # Plot Results
@@ -170,3 +189,7 @@ handles.append(Line2D([0], [0], color='black', linewidth=1, linestyle='-', label
 handles.append(Line2D([0], [0], color='black', linewidth=1, linestyle=':', label='Valid'))
 plt.legend(handles, [h.get_label() for h in handles], fontsize=14)
 plt.tight_layout()
+
+# Image path
+image_path = save_path + 'result'
+plt.savefig(fname=image_path)
