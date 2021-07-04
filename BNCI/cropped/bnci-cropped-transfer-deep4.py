@@ -125,8 +125,9 @@ valid_set = splitted['session_E']
 from skorch.callbacks import LRScheduler, Checkpoint, EarlyStopping
 from skorch.helper import predefined_split
 
-from braindecode import EEGTransferLearningClassifier
 from braindecode.training.losses import CroppedLoss
+
+from Classifier.EEGTransferLearningClassifier import EEGTransferLearningClassifier
 
 # For deep4 they should be:
 lr = 1 * 0.01
