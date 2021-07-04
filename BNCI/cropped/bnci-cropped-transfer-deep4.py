@@ -1,17 +1,15 @@
 # subjects
-from sklearn import logger
-
 subject_id_list = [1]
 
 # Path to saving models
 # mkdir path to save
 import os
-# save_path = os.path.join('../../saved_models/BNCI/cropped/deep4/'+ str(subject_id_list).strip('[]')) + '/'
-#
-# if not os.path.exists(save_path):
-#     os.makedirs(save_path)
+save_path = os.path.join('../../saved_models/BNCI/cropped/deep4/TL/' + str(subject_id_list).strip('[]')) + '/'
 
-load_path = os.path.join('../../saved_models/HGD/cropped/deep4/1/')
+if not os.path.exists(save_path):
+    os.makedirs(save_path)
+
+load_path = os.path.join('../../saved_models/HGD/selected_channels/cropped/deep4/1/')
 
 
 # load data
@@ -21,13 +19,13 @@ from braindecode.datasets.base import BaseConcatDataset
 
 datasets = []
 for subject_id in subject_id_list:
-    datasets.append(
-            load_concat_dataset(
+    data = load_concat_dataset(
             path='../../data-file/bnci-raw/' + str(subject_id),
             preload=True,
             target_name=None,
             )
-    )
+    datasets.append(data)
+
 dataset = BaseConcatDataset(datasets)
 
 
@@ -52,19 +50,19 @@ seed = 20200220  # random seed to make results reproducible
 set_random_seeds(seed=seed, cuda=cuda)
 
 n_classes=4
-# Extract number of chans and time steps from dataset
-n_chans = dataset[0][0].shape[0]
-input_chans = 128
+# HGD selected channels has 44 channel ( motor imagery channels)
+n_chans = 44
+
 model = Deep4Net(
-        in_chans=input_chans,
+        in_chans=n_chans,
         n_classes=n_classes,
         input_window_samples=input_window_samples,
         n_filters_time=25,
         n_filters_spat=25,
         stride_before_pool=True,
-        n_filters_2=int(input_chans * 2),
-        n_filters_3=int(input_chans * (2 ** 2.0)),
-        n_filters_4=int(input_chans * (2 ** 3.0)),
+        n_filters_2=int(n_chans * 2),
+        n_filters_3=int(n_chans * (2 ** 2.0)),
+        n_filters_4=int(n_chans * (2 ** 3.0)),
         final_conv_length='auto',
     )
 
@@ -73,8 +71,8 @@ model = Deep4Net(
 state_dict = torch.load(load_path+'params.pt', map_location=device)
 model.load_state_dict(state_dict, strict=False)
 
-model.requires_grad_(requires_grad=False)
-model.conv_classifier = torch.nn.Conv2d(1024, 4, (5, 1), (1, 1), bias=True)
+# model.requires_grad_(requires_grad=False)
+# model.conv_classifier = torch.nn.Conv2d(1024, 4, (5, 1), (1, 1), bias=True)
 
 # Send model to GPU
 if cuda:
@@ -89,7 +87,7 @@ to_dense_prediction_model(model)
 
 # To know the models’ receptive field, we calculate the shape of model output for a dummy input.
 
-n_preds_per_input = get_output_shape(model, input_chans, input_window_samples)[2]
+n_preds_per_input = get_output_shape(model, n_chans, input_window_samples)[2]
 
 
 # Cut Compute Windows
@@ -115,7 +113,6 @@ windows_dataset = create_windows_from_events(
     preload=True
 )
 
-
 # Split dataset into train and valid
 splitted = windows_dataset.split('session')
 train_set = splitted['session_T']
@@ -128,7 +125,7 @@ valid_set = splitted['session_E']
 from skorch.callbacks import LRScheduler, Checkpoint, EarlyStopping
 from skorch.helper import predefined_split
 
-from braindecode import EEGClassifier
+from braindecode import EEGTransferLearningClassifier
 from braindecode.training.losses import CroppedLoss
 
 # For deep4 they should be:
@@ -139,19 +136,19 @@ batch_size = 64
 n_epochs = 10
 
 # Checkpoint will save the model with the lowest valid_loss
-# cp = Checkpoint(dirname=save_path, f_criterion=None)
+cp = Checkpoint(dirname=save_path, f_criterion=None)
 
 # Early_stopping
 early_stopping = EarlyStopping(patience=5)
 
 callbacks = [
     "accuracy",
-    # ('cp', cp),
+    ('cp', cp),
     ('patience', early_stopping),
     ("lr_scheduler", LRScheduler('CosineAnnealingLR', T_max=n_epochs - 1)),
 ]
 
-clf = EEGClassifier(
+clf = EEGTransferLearningClassifier(
     model,
     warm_start=True,
     cropped=True,
@@ -167,17 +164,9 @@ clf = EEGClassifier(
     callbacks=callbacks,
     device=device,
 )
-
-# clf.load_params(f_params='../../saved_models/HGD/cropped/deep4/1/params.pt',
-#                 f_optimizer='../../saved_models/HGD/cropped/deep4/1/optimizer.pt')
-#
-# clf.module.requires_grad_(requires_grad=False)
-
-# Model training for a specified number of epochs. `y` is None as it is already supplied
-# in the dataset.
+# Model training for a specified number of epochs. `y` is None as it is already supplied in the dataset.
 clf.fit(train_set, y=None)
 
-# clf.load_params(checkpoint=cp)  # Load the model with the lowest valid_loss
 
 # Plot Results
 import matplotlib.pyplot as plt
@@ -186,8 +175,7 @@ import pandas as pd
 
 # Extract loss and accuracy values for plotting from history object
 results_columns = ['train_loss', 'valid_loss', 'train_accuracy', 'valid_accuracy']
-df = pd.DataFrame(clf.history[:, results_columns], columns=results_columns,
-                  index=clf.history[:, 'epoch'])
+df = pd.DataFrame(clf.history[:, results_columns], columns=results_columns, index=clf.history[:, 'epoch'])
 
 # get percent of misclass for better visual comparison to loss
 df = df.assign(train_misclass=100 - 100 * df.train_accuracy,
@@ -218,5 +206,5 @@ plt.legend(handles, [h.get_label() for h in handles], fontsize=14)
 plt.tight_layout()
 
 # Image path
-# image_path = save_path + 'result'
-# plt.savefig(fname=image_path)
+image_path = save_path + 'result'
+plt.savefig(fname=image_path)
