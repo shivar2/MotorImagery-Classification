@@ -71,9 +71,8 @@ model = Deep4Net(
 state_dict = torch.load(load_path+'params.pt', map_location=device)
 model.load_state_dict(state_dict, strict=False)
 
-# model.requires_grad_(requires_grad=False)
-# model.conv_classifier = torch.nn.Conv2d(1024, 4, (5, 1), (1, 1), bias=True)
-
+model.requires_grad_(requires_grad=False)
+model.conv_classifier = torch.nn.Conv2d(int(n_chans * (2 ** 3.0)), n_classes, (5, 1), stride=(1, 1), bias=True)
 # Send model to GPU
 if cuda:
     model.cuda()
@@ -152,7 +151,6 @@ callbacks = [
 clf = EEGTLClassifier(
     model,
     double_channel=True,
-    warm_start=True,
     cropped=True,
     max_epochs=n_epochs,
     criterion=CroppedLoss,
