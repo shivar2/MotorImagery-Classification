@@ -151,6 +151,7 @@ callbacks = [
 
 clf = EEGTransferLearningClassifier(
     model,
+    double_channel=True,
     warm_start=True,
     cropped=True,
     max_epochs=n_epochs,

@@ -12,8 +12,9 @@ from skorch.dataset import uses_placeholder_y, unpack_data, get_len
 
 class EEGTransferLearningClassifier(NeuralNetClassifier):
     def __init__(self, *args, cropped=False, callbacks=None,
-                 iterator_train__shuffle=True, **kwargs):
+                 iterator_train__shuffle=True, double_channel=False, **kwargs):
         self.cropped = cropped
+        self.double_channel = double_channel
         callbacks = self._parse_callbacks(callbacks)
 
         super().__init__(*args,
@@ -46,7 +47,8 @@ class EEGTransferLearningClassifier(NeuralNetClassifier):
         batch_count = 0
         for data in self.get_iterator(dataset, training=training):
             Xi, yi = unpack_data(data)
-            Xi = np.repeat(Xi, 2, 1)        # change channel number (22 to 44)
+            if self.double_channel:
+                Xi = np.repeat(Xi, 2, 1)        # change channel number (22 to 44)
             yi_res = yi if not is_placeholder_y else None
             self.notify("on_batch_begin", X=Xi, y=yi_res, training=training)
             step = step_fn(Xi, yi, **fit_params)
@@ -65,7 +67,8 @@ class EEGTransferLearningClassifier(NeuralNetClassifier):
         for X, y, i in self.get_iterator(dataset, drop_index=False):
             i_window_in_trials.append(i[0].cpu().numpy())
             i_window_stops.append(i[2].cpu().numpy())
-            X = np.repeat(X, 2, 1)          # change channel number (22 to 44)
+            if self.double_channel:
+                X = np.repeat(X, 2, 1)          # change channel number (22 to 44)
             preds.append(to_numpy(self.forward(X)))
             window_ys.append(y.cpu().numpy())
         preds = np.concatenate(preds)
