@@ -6,7 +6,7 @@ from braindecode.datautil.preprocess import (
     exponential_moving_standardize, preprocess, Preprocessor)
 
 
-def set_mne_path(dataset_name="BNCI", mne_data_path='../../Dataset-Files/mne_data'):
+def set_mne_path(dataset_name="BNCI", mne_data_path='../Dataset-Files/mne_data'):
     # set MNE config
     dataset_config = 'MNE_DATASETS_' + dataset_name + '_PATH'
     mne.set_config(dataset_config, mne_data_path)
