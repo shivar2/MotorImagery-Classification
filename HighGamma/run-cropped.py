@@ -1,6 +1,6 @@
 import os
 
-from Models.cropped import run_model
+from Classification.cropped import run_model
 
 
 # example of HGD shallow - subject 1
