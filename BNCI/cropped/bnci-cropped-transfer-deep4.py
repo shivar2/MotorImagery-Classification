@@ -67,12 +67,19 @@ model = Deep4Net(
     )
 
 # Load model
-
 state_dict = torch.load(load_path+'params.pt', map_location=device)
 model.load_state_dict(state_dict, strict=False)
 
+# Freezing model
 model.requires_grad_(requires_grad=False)
-model.conv_classifier = torch.nn.Conv2d(int(n_chans * (2 ** 3.0)), n_classes, (5, 1), stride=(1, 1), bias=True)
+
+# Final_conv_length
+final_conv_length = model.final_conv_length
+
+# Change conv_classifier layer to fine-tune
+model.conv_classifier = torch.nn.Conv2d(int(n_chans * (2 ** 3.0)), n_classes, (final_conv_length, 1),
+                                        stride=(1, 1), bias=True)
+
 # Send model to GPU
 if cuda:
     model.cuda()
