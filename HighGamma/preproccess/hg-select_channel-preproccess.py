@@ -31,6 +31,12 @@ C_sensors = ['FC5', 'FC1', 'FC2', 'FC6', 'C3', 'C4', 'CP5',
              'CCP1h',
              'CCP2h', 'CPP1h', 'CPP2h']
 
+# bci channel
+BCI_sensors = ['Fz', 'FC3', 'FC1', 'FCz', 'FC2', 'FC4',
+               'C5', 'C3', 'C1', 'Cz', 'C2', 'C4', 'C6',
+               'CP3', 'CP1', 'CPz', 'CP2', 'CP4',
+               'P1', 'Pz', 'P2', 'POz']
+
 preprocessors = [
     Preprocessor('pick_types', eeg=True, meg=False, stim=False),  # Keep EEG sensors
     Preprocessor('pick_channels', ch_names=C_sensors),  # Pick Channels
