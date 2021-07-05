@@ -10,7 +10,7 @@ from braindecode.util import ThrowAwayIndexLoader
 from skorch.dataset import uses_placeholder_y, unpack_data, get_len
 
 
-class EEGTransferLearningClassifier(NeuralNetClassifier):
+class EEGTLClassifier(NeuralNetClassifier):
     def __init__(self, *args, cropped=False, callbacks=None,
                  iterator_train__shuffle=True, double_channel=False, **kwargs):
         self.cropped = cropped
