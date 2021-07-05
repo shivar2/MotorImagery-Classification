@@ -17,7 +17,7 @@ datasets = []
 for subject_id in subject_id_list:
     datasets.append(
             load_concat_dataset(
-            path='../../data-file/hgd-raw/' + str(subject_id),
+            path='../../Dataset-Files/data-file/hgd-raw/' + str(subject_id),
             preload=True,
             target_name=None,
             )
