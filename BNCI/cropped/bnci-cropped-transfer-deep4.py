@@ -127,7 +127,7 @@ from skorch.helper import predefined_split
 
 from braindecode.training.losses import CroppedLoss
 
-from Classifier.EEGTransferLearningClassifier import EEGTransferLearningClassifier
+from Classifier.EEGTLClassifier import EEGTLClassifier
 
 # For deep4 they should be:
 lr = 1 * 0.01
@@ -149,7 +149,7 @@ callbacks = [
     ("lr_scheduler", LRScheduler('CosineAnnealingLR', T_max=n_epochs - 1)),
 ]
 
-clf = EEGTransferLearningClassifier(
+clf = EEGTLClassifier(
     model,
     double_channel=True,
     warm_start=True,
