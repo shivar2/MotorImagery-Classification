@@ -13,7 +13,6 @@ from braindecode.util import set_random_seeds
 from braindecode.models import ShallowFBCSPNet, Deep4Net
 from braindecode.datautil.windowers import create_windows_from_events
 from braindecode import EEGClassifier
-from braindecode.training.losses import CroppedLoss
 
 
 def detect_device():
