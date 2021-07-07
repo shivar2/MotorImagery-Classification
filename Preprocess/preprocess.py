@@ -52,10 +52,12 @@ def basic_preprocess(dataset, low_cut_hz=4., high_cut_hz=38., factor_new=1e-3, i
 
 def select_22_channels(dataset):
     # bci channel
-    BCI_sensors = ['Fz', 'FC3', 'FC1', 'FCz', 'FC2', 'FC4',
+    BCI_sensors = ['Fz',
+                   'FC3', 'FC1', 'FCz', 'FC2', 'FC4',
                    'C5', 'C3', 'C1', 'Cz', 'C2', 'C4', 'C6',
                    'CP3', 'CP1', 'CPz', 'CP2', 'CP4',
-                   'P1', 'Pz', 'P2', 'POz']
+                   'P1', 'Pz', 'P2',
+                   'POz']
 
     preprocessors = [Preprocessor('pick_channels', ch_names=BCI_sensors)]  # Pick Channels
     preprocess(dataset, preprocessors)
@@ -79,6 +81,21 @@ def select_44_channels(dataset):
                       'POz']
 
     preprocessors = [Preprocessor('pick_channels', ch_names=BCI_44_sensors)]  # Pick Channels
+    preprocess(dataset, preprocessors)
+
+    return dataset
+
+
+def reorder(dataset):
+    # bci channel
+    BCI_sensors = ['Fz',
+                   'FC3', 'FC1', 'FCz', 'FC2', 'FC4',
+                   'C5', 'C3', 'C1', 'Cz', 'C2', 'C4', 'C6',
+                   'CP3', 'CP1', 'CPz', 'CP2', 'CP4',
+                   'P1', 'Pz', 'P2',
+                   'POz']
+
+    preprocessors = [Preprocessor('reorder_channels', ch_names=BCI_sensors)]  # Reorder Channels
     preprocess(dataset, preprocessors)
 
     return dataset
