@@ -39,7 +39,7 @@ def basic_preprocess(dataset, low_cut_hz=4., high_cut_hz=38., factor_new=1e-3, i
     return dataset
 
 
-def select_BCI_channels(dataset):
+def select_22_channels(dataset):
     # bci channel
     BCI_sensors = ['Fz', 'FC3', 'FC1', 'FCz', 'FC2', 'FC4',
                    'C5', 'C3', 'C1', 'Cz', 'C2', 'C4', 'C6',
@@ -52,7 +52,7 @@ def select_BCI_channels(dataset):
     return dataset
 
 
-def select_C_channels(dataset):
+def select_44_channels(dataset):
     # pick only sensors with C in their name
     # as they cover motor cortex
     BCI_44_sensors = ['Fz',
