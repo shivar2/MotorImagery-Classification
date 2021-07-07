@@ -5,6 +5,8 @@ from braindecode.datasets.moabb import MOABBDataset
 from braindecode.datautil.preprocess import (
     exponential_moving_standardize, preprocess, Preprocessor)
 
+from braindecode.datautil.serialization import load_concat_dataset
+
 
 def set_mne_path(dataset_name="BNCI", mne_data_path='../Dataset-Files/mne_data'):
     # set MNE config
@@ -15,6 +17,15 @@ def set_mne_path(dataset_name="BNCI", mne_data_path='../Dataset-Files/mne_data')
 def load_data_moabb(dataset_name="BNCI2014001", subject_id=1):
     # download or load dataset
     dataset = MOABBDataset(dataset_name=dataset_name, subject_ids=[subject_id])
+    return dataset
+
+
+def load_preprocessed_data(data_path='../Dataset-Files/data-file/', dataset_folder='hgd-raw/', subject_id=1):
+    dataset = load_concat_dataset(
+        path=data_path + dataset_folder + str(subject_id),
+        preload=True,
+        target_name=None,
+    )
     return dataset
 
 
