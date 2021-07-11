@@ -121,7 +121,10 @@ def train_cropped_trials(train_set, valid_set, model, save_path, model_name='sha
     n_epochs = 10
 
     # Checkpoint will save the model with the lowest valid_loss
-    cp = Checkpoint(dirname=save_path, f_criterion=None)
+    cp = Checkpoint(monitor=None,
+                    f_params="params_{last_epoch[epoch]}.pt",
+                    f_optimizer="optimizer_{last_epoch[epoch]}.pt",
+                    dirname=save_path, f_criterion=None)
 
     # Early_stopping
     early_stopping = EarlyStopping(patience=5)
