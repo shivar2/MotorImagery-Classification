@@ -77,7 +77,7 @@ def select_44_channels(dataset):
                       'CP3', 'CP1', 'CPz', 'CP2', 'CP4',
                       'CPP3h', 'CPP1h', 'CPP2h', 'CPP4h',
                       'P1', 'Pz', 'P2',
-                      'PPO1h', 'PPO2h',
+                      'PPO1', 'PPO2',
                       'POz']
 
     preprocessors = [Preprocessor('pick_channels', ch_names=BCI_44_sensors)]  # Pick Channels
