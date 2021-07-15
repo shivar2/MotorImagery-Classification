@@ -74,7 +74,7 @@ def run_model(data_directory, subject_id_list, dataset_name, model_name, double_
         model = create_model_deep4(input_window_samples, n_chans, n_classes)
 
     # Load model
-    state_dict = torch.load(load_path + 'params.pt', map_location=device)
+    state_dict = torch.load(load_path + 'params_6.pt', map_location=device)
     model.load_state_dict(state_dict, strict=False)
 
     # Freezing model
