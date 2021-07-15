@@ -15,8 +15,13 @@ def tl_classifier(train_set, valid_set, model, save_path, double_channel=True, m
     batch_size = 64
     n_epochs = 10
 
-    # Checkpoint will save the model with the lowest valid_loss
-    cp = Checkpoint(dirname=save_path, f_criterion=None)
+    # Checkpoint will save the history 
+    cp = Checkpoint(dirname=save_path,
+                    monitor=None,
+                    f_params=None,
+                    f_optimizer=None,
+                    f_criterion=None,
+                    )
 
     # Early_stopping
     early_stopping = EarlyStopping(patience=5)
@@ -74,7 +79,7 @@ def run_model(data_directory, subject_id_list, dataset_name, model_name, double_
         model = create_model_deep4(input_window_samples, n_chans, n_classes)
 
     # Load model
-    state_dict = torch.load(load_path + 'params.pt', map_location=device)
+    state_dict = torch.load(load_path + 'params_6.pt', map_location=device)
     model.load_state_dict(state_dict, strict=False)
 
     # Freezing model

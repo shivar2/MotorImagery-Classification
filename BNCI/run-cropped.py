@@ -8,7 +8,7 @@ subject_id_list = [1]
 
 # Path to saving models
 # mkdir path to save
-save_path = os.path.join('../../saved_models/BNCI/cropped/shallow/' + str(subject_id_list).strip('[]')) + '/'
+save_path = os.path.join('../saved_models/BNCI/cropped/shallow/' + str(subject_id_list).strip('[]')) + '/'
 
 if not os.path.exists(save_path):
     os.makedirs(save_path)
@@ -25,7 +25,7 @@ run_model(data_directory='bnci-raw/',
 #
 # # Path to saving models
 # # mkdir path to save
-# save_path = os.path.join('../../saved_models/BNCI/cropped/deep4/' + str(subject_id_list).strip('[]')) + '/'
+# save_path = os.path.join('../saved_models/BNCI/cropped/deep4/' + str(subject_id_list).strip('[]')) + '/'
 #
 # if not os.path.exists(save_path):
 #     os.makedirs(save_path)
