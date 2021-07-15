@@ -2,6 +2,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.parallel
+import torch.utils.data
 
 
 class DCGAN_D(nn.Module):
