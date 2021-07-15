@@ -15,8 +15,13 @@ def tl_classifier(train_set, valid_set, model, save_path, double_channel=True, m
     batch_size = 64
     n_epochs = 10
 
-    # Checkpoint will save the model with the lowest valid_loss
-    cp = Checkpoint(dirname=save_path, f_criterion=None)
+    # Checkpoint will save the history 
+    cp = Checkpoint(dirname=save_path,
+                    monitor=None,
+                    f_params=None,
+                    f_optimizer=None,
+                    f_criterion=None,
+                    )
 
     # Early_stopping
     early_stopping = EarlyStopping(patience=5)
