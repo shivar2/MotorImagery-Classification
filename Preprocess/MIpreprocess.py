@@ -50,6 +50,16 @@ def basic_preprocess(dataset, low_cut_hz=4., high_cut_hz=38., factor_new=1e-3, i
     return dataset
 
 
+def select_3_channels(dataset):
+    # c channel for testing gan
+    C_sensors = ['C3', 'Cz', 'C4']
+
+    preprocessors = [Preprocessor('pick_channels', ch_names=C_sensors)]  # Pick Channels
+    preprocess(dataset, preprocessors)
+
+    return dataset
+
+
 def select_22_channels(dataset):
     # bci channel
     BCI_sensors = ['Fz',
