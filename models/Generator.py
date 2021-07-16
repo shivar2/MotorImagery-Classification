@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os
 
 import random
@@ -12,10 +13,7 @@ from torch.autograd import Variable
 import numpy as np
 import matplotlib.pyplot as plt
 
-from braindecode.datautil.windowers import create_windows_from_events
-from braindecode.datautil.serialization import load_concat_dataset
-
-from DCGan import DCGAN_G, DCGAN_D
+from models.DCGan import DCGAN_G, DCGAN_D
 
 
 def weights_init(m):
@@ -27,60 +25,29 @@ def weights_init(m):
         m.bias.data.fill_(0)
 
 
-def get_data(imageSize):
+class DCGenerator(nn.Module):
 
-    # Dataset
-    dataset = load_concat_dataset(
-        path='../Dataset-Files/data-file/bnci-raw/1',
-        preload=True,
-        target_name=None,
-
-    )
-    sfreq = dataset.datasets[0].raw.info['sfreq']
-    assert all([ds.raw.info['sfreq'] == sfreq for ds in dataset.datasets])
-
-    # Calculate the trial start offset in samples.
-    trial_start_offset_samples = int(-0.5 * sfreq)
-
-    # Create windows using braindecode function for this. It needs parameters to define how
-    # trials should be used.
-
-    data = create_windows_from_events(
-        dataset,
-        trial_start_offset_samples=trial_start_offset_samples,
-        trial_stop_offset_samples=0,
-        preload=True,
-        window_size_samples=imageSize,
-        window_stride_samples=1,
-        drop_bad_windows=True,
-    )
-
-    return data
-
-
-class Generator(nn.Module):
-
-    def __init__(self, nc=22):
-        super(Generator, self).__init__()
+    def __init__(self, imageSize, nc=22):
+        super(DCGenerator, self).__init__()
 
         # Training parm
         self.batchSize = 64
         self.nz = 100                           # size of the latent z vector
         self.ngf = 64
         self.ndf = 64
-        self.niter = 25                         # number of epochs to training for
+        self.niter = 5                         # number of epochs to training for
         self.gen_iterations = 0
         self.clamp_lower = -0.01
         self.clamp_upper = 0.01
 
         # Dataset features:
         self.nc = nc                            # input image channels
-        self.imageSize = 1024                   # the height / width of the input image to network
+        self.imageSize = imageSize              # the height / width of the input image to network
 
         # Model specific parameters (Noise generation, Dropout for overfitting reduction, etc...):
         self.netG = ''                          # path to netG (to continue training)
         self.netD = ''                          # path to netD (to continue training)
-        self.Diters = 5,                        # number of D iters per each G iter
+        self.Diters = 1                        # number of D iters per each G iter
 
         self.n_extra_layers = 0      # Number of extra layers on gen and disc
 
@@ -293,19 +260,14 @@ class Generator(nn.Module):
         #
         #         plt.savefig("%s/%d.png" % (self.dir, epoch))
         #         plt.close()
-        #
-        # # Plot the generator and discriminator losses for all the epochs
-        # plt.figure()
-        # plt.plot(g_tot, 'r')
-        # plt.plot(d_tot, 'b')
-        # plt.title('Loss history')
-        # plt.xlabel('Epochs')
-        # plt.ylabel('Loss')
-        # plt.legend(['Generator', 'Discriminator'])
-        # plt.grid()
-        # plt.show()
 
-dataset = get_data(imageSize=1024)
-
-net = Generator(nc=22)
-net.train(dataset)
+        # Plot the generator and discriminator losses for all the epochs
+        plt.figure()
+        plt.plot(g_tot, 'r')
+        plt.plot(d_tot, 'b')
+        plt.title('Loss history')
+        plt.xlabel('Epochs')
+        plt.ylabel('Loss')
+        plt.legend(['Generator', 'Discriminator'])
+        plt.grid()
+        plt.show()
