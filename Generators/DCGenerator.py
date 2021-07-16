@@ -32,7 +32,7 @@ class DCGenerator(nn.Module):
 
         # Training parm
         self.batchSize = 64
-        self.nz = 100                           # size of the latent z vector
+        self.nz = 100                          # size of the latent z vector
         self.ngf = 64
         self.ndf = 64
         self.niter = 5                         # number of epochs to training for
@@ -47,12 +47,12 @@ class DCGenerator(nn.Module):
         # Model specific parameters (Noise generation, Dropout for overfitting reduction, etc...):
         self.netG = ''                          # path to netG (to continue training)
         self.netD = ''                          # path to netD (to continue training)
-        self.Diters = 1                        # number of D iters per each G iter
+        self.Diters = 1                         # number of D iters per each G iter
 
-        self.n_extra_layers = 0      # Number of extra layers on gen and disc
+        self.n_extra_layers = 0                 # Number of extra layers on gen and disc
 
         # GPU
-        self.ngpu = 1                # number of GPUs to use
+        self.ngpu = 1                           # number of GPUs to use
 
         # Store model
         self.experiment = None,                 # Where to store samples and models
