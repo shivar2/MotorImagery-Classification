@@ -4,17 +4,26 @@ from skorch.callbacks import EpochTimer, BatchScoring, PrintLog, EpochScoring
 from skorch.classifier import NeuralNet
 from skorch.classifier import NeuralNetClassifier
 from skorch.utils import train_loss_score, valid_loss_score, noop, to_numpy
+from skorch.dataset import uses_placeholder_y, unpack_data, get_len
+from skorch.setter import optimizer_setter
 
 from braindecode.training.scoring import PostEpochTrainScoring, CroppedTrialEpochScoring
 from braindecode.util import ThrowAwayIndexLoader
-from skorch.dataset import uses_placeholder_y, unpack_data, get_len
 
 
 class EEGTLClassifier(NeuralNetClassifier):
-    def __init__(self, *args, cropped=False, callbacks=None,
-                 iterator_train__shuffle=True, double_channel=False, **kwargs):
+    def __init__(self, *args,
+                 cropped=False,
+                 callbacks=None,
+                 iterator_train__shuffle=True,
+                 double_channel=False,
+                 is_freezing=True,
+                 **kwargs):
+
         self.cropped = cropped
         self.double_channel = double_channel
+        self.is_freezing = is_freezing
+
         callbacks = self._parse_callbacks(callbacks)
 
         super().__init__(*args,
@@ -261,3 +270,41 @@ class EEGTLClassifier(NeuralNetClassifier):
         """
         return self.predict_proba(X).argmax(1)
 
+    def initialize_optimizer(self, triggered_directly=True):
+        """Initialize the model optimizer. If ``self.optimizer__lr``
+        is not set, use ``self.lr`` instead.
+
+        Parameters
+        ----------
+        triggered_directly : bool (default=True)
+          Only relevant when optimizer is re-initialized.
+          Initialization of the optimizer can be triggered directly
+          (e.g. when lr was changed) or indirectly (e.g. when the
+          module was re-initialized). If and only if the former
+          happens, the user should receive a message informing them
+          about the parameters that caused the re-initialization.
+
+        """
+
+        if not self.is_freezing:
+            named_parameters = self.module_.named_parameters()
+        else:
+            named_parameters = self.module.get_named_parameters()
+
+        args, kwargs = self.get_params_for_optimizer(
+                'optimizer', named_parameters)
+
+        if self.initialized_ and self.verbose:
+            msg = self._format_reinit_msg(
+                "optimizer", kwargs, triggered_directly=triggered_directly)
+            print(msg)
+
+        if 'lr' not in kwargs:
+            kwargs['lr'] = self.lr
+
+        self.optimizer_ = self.optimizer(*args, **kwargs)
+
+        self._register_virtual_param(
+            ['optimizer__param_groups__*__*', 'optimizer__*', 'lr'],
+            optimizer_setter,
+        )
