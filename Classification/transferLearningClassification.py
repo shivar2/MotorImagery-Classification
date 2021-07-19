@@ -1,7 +1,3 @@
-
-from skorch.callbacks import Freezer
-
-
 from Classifier.EEGTLClassifier import EEGTLClassifier
 from Classification.cropped import *
 from Models.PretrainedDeep4Model import PretrainedDeep4Model
