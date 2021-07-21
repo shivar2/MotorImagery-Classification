@@ -84,12 +84,12 @@ def run_model(data_directory, subject_id_list, dataset_name, model_name, double_
         model = PretrainedDeep4Model(n_chans=n_chans,
                                      n_classes=n_classes,
                                      input_window_samples=input_window_samples,
-                                     params_path=load_path + 'params_10.pt')
+                                     params_path=load_path + 'params_12.pt')
     else:
         model = PretrainedDeep4Model(n_chans=n_chans,
                                      n_classes=n_classes,
                                      input_window_samples=input_window_samples,
-                                     params_path=load_path + 'params_10.pt')
+                                     params_path=load_path + 'params_12.pt')
     # Send model to GPU
     if cuda:
         model.cuda()
