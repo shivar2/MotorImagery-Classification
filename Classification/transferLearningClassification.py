@@ -19,7 +19,7 @@ def tl_classifier(train_set, valid_set,
             weight_decay = 0.5 * 0.001
 
     batch_size = 64
-    n_epochs = 10
+    n_epochs = 30
 
     # Checkpoint will save the history 
     cp = Checkpoint(dirname=save_path,
@@ -30,7 +30,7 @@ def tl_classifier(train_set, valid_set,
                     )
 
     # Early_stopping
-    early_stopping = EarlyStopping(patience=5)
+    early_stopping = EarlyStopping(patience=30)
 
     callbacks = [
         "accuracy",

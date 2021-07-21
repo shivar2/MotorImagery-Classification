@@ -8,7 +8,7 @@ subject_id_list = [1]
 
 # Path to saving models
 # mkdir path to save
-save_path = os.path.join('../saved_models/BNCI/cropped/deep4/TL/22/' + str(subject_id_list).strip('[]')) + '/'
+save_path = os.path.join('../saved_models/BNCI/pre-trained/22/lr0.00625' + str(subject_id_list).strip('[]')) + '/'
 
 if not os.path.exists(save_path):
     os.makedirs(save_path)
