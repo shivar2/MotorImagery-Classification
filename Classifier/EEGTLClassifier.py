@@ -2,6 +2,7 @@ import numpy as np
 
 from skorch.dataset import uses_placeholder_y, unpack_data, get_len
 from skorch.setter import optimizer_setter
+from skorch.utils import to_numpy
 
 from braindecode.classifier import EEGClassifier
 
@@ -60,6 +61,25 @@ class EEGTLClassifier(EEGClassifier):
             batch_count += 1
 
         self.history.record(prefix + "_batch_count", batch_count)
+
+    def predict_with_window_inds_and_ys(self, dataset):
+            preds = []
+            i_window_in_trials = []
+            i_window_stops = []
+            window_ys = []
+            for X, y, i in self.get_iterator(dataset, drop_index=False):
+                i_window_in_trials.append(i[0].cpu().numpy())
+                i_window_stops.append(i[2].cpu().numpy())
+                X = np.repeat(X, 2, 1)  # change channel number (22 to 44)
+                preds.append(to_numpy(self.forward(X)))
+                window_ys.append(y.cpu().numpy())
+            preds = np.concatenate(preds)
+            i_window_in_trials = np.concatenate(i_window_in_trials)
+            i_window_stops = np.concatenate(i_window_stops)
+            window_ys = np.concatenate(window_ys)
+            return dict(
+                preds=preds, i_window_in_trials=i_window_in_trials,
+                i_window_stops=i_window_stops, window_ys=window_ys)
 
     def initialize_optimizer(self, triggered_directly=True):
         """Initialize the model optimizer. If ``self.optimizer__lr``
