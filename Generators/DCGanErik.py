@@ -44,7 +44,7 @@ class DCGAN(nn.Module):
 
         # Initialize generator and discriminator
         self.generator = Generator(img_size=self.img_size, latent_dim=self.latent_dim, channels=self.channels)
-        self.discriminator = Discriminator(img_size=self.img_size, channels=self.img_size)
+        self.discriminator = Discriminator(img_size=self.img_size, channels=self.channels)
 
         if self.cuda:
             self.generator.cuda()

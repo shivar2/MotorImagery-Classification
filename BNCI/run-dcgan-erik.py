@@ -9,7 +9,7 @@ def get_data(subject_id=1, img_size=32):
 
     # Dataset
     dataset = load_concat_dataset(
-        path='../Dataset-Files/data-file/bnci-raw/' + str(subject_id),
+        path='../Dataset-Files/data-file/bnci-3channels-raw/' + str(subject_id),
         preload=True,
         target_name=None,
 
@@ -33,10 +33,10 @@ def get_data(subject_id=1, img_size=32):
     return train_set[0]
 
 
-img_size = 1024
+img_size = 32
 subject_id = 1
 
 dataset = get_data(subject_id=subject_id, img_size=img_size)
 
-net = DCGAN(img_size=1024, channels=22)
+net = DCGAN(img_size=32, channels=3)
 net.train(dataset)
