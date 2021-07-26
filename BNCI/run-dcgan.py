@@ -2,7 +2,7 @@
 from braindecode.datautil.windowers import create_windows_from_events
 from braindecode.datautil.serialization import load_concat_dataset
 
-from Generators.DCGenerator import DCGenerator
+from models.Generator import DCGenerator
 
 
 def get_data(subject_id, image_size):
