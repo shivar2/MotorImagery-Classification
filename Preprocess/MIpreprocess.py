@@ -1,5 +1,7 @@
 import os
 import mne
+import numpy as np
+
 
 from braindecode.datasets.moabb import MOABBDataset
 from braindecode.datautil.preprocess import (
@@ -134,3 +136,39 @@ def save_data(dataset, saving_path, subject_id=1):
     # save sets
     dataset.save(path=saving_path + str(subject_id), overwrite=True)
     return 1
+
+
+def get_normalized_cwt_data(dataset, low_cut_hz=4., high_cut_hz=38., n_channels=22, windows_time=1000):
+
+    i = 0
+    data = np.empty(shape=(6*96, n_channels, windows_time))
+    for x, y, window_ind in dataset:
+            data[i] = x
+            i += 1
+
+    f_num = high_cut_hz - low_cut_hz
+    freqs = np.logspace(*np.log10([low_cut_hz, high_cut_hz]), num=int(f_num))
+    n_cycles = freqs / 2.
+    sfreq = 250
+
+    data_MEpoch = mne.time_frequency.tfr_array_morlet(data,
+                                                      sfreq=sfreq,
+                                                      freqs=freqs,
+                                                      n_cycles=n_cycles,
+                                                      use_fft=True,
+                                                      decim=1,
+                                                      output='complex',
+                                                      n_jobs=1)
+
+    # Perform a Morlet CWT on each epoch for feature extraction
+    data_MEpoch = np.abs(data_MEpoch)
+
+    # Swap the axes to feed into GAN models later
+    data_MEpoch = np.swapaxes(np.swapaxes(data_MEpoch, 1, 3), 1, 2)
+
+    # ... then normalise the data for faster training
+    norm_data_MEpoch = 2 * (data_MEpoch - np.min(data_MEpoch, axis=0)) / \
+                       (np.max(data_MEpoch, axis=0) - np.min(data_MEpoch, axis=0)) - 1
+
+    return norm_data_MEpoch
+

@@ -20,20 +20,20 @@ def weights_init_normal(m):
 
 
 class DCGAN(nn.Module):
-    def __init__(self, time_sample=32, channels=3):
+    def __init__(self, n_epochs=10, batch_size=64, time_sample=32, channels=3, sample_interval=400):
 
         super(DCGAN, self).__init__()
 
-        self.n_epochs = 10              # number of epochs of training
-        self.batch_size = 64            # size of the batches
-        self.lr = 0.0002                # adam: learning rate
-        self.b1 = 0.5                   # adam: decay of first order momentum of gradient
-        self.b2 = 0.999                 # adam: decay of first order momentum of gradient
-        self.n_cpu = 8                  # number of cpu threads to use during batch generation
-        self.noise = 100               # dimensionality of the latent space
-        self.time_sample = time_sample  # size of each image dimension
-        self.channels = channels        # number of image channels
-        self.sample_interval = 400      # interval between image sampling
+        self.n_epochs = n_epochs                            # number of epochs of training
+        self.batch_size = batch_size                        # size of the batches
+        self.lr = 0.0002                                    # adam: learning rate
+        self.b1 = 0.5                                       # adam: decay of first order momentum of gradient
+        self.b2 = 0.999                                     # adam: decay of first order momentum of gradient
+        self.n_cpu = 8                                      # number of cpu threads to use during batch generation
+        self.noise = 100                                    # dimensionality of the latent space
+        self.time_sample = time_sample                      # size of each image dimension
+        self.channels = channels                            # number of image channels
+        self.sample_interval = sample_interval              # Stride between windows, in samples
 
         self.cuda = True if torch.cuda.is_available() else False
 
