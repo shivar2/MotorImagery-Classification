@@ -5,7 +5,7 @@ class Generator(nn.Module):
     def __init__(self, time_sample=1000, noise=100, channels=3, freq_sample=34):
         super(Generator, self).__init__()
 
-        self.sfreq = 256
+        self.sfreq = 250
         self.time_sample = time_sample
         self.channels = channels
         self.freq_sample = freq_sample
@@ -24,18 +24,18 @@ class Generator(nn.Module):
 
             nn.Upsample(scale_factor=2),
 
-            nn.Conv2d(self.sfreq, self.sfreq // 2, (3, 3), stride=1, padding='same'),
+            nn.Conv2d(self.sfreq, self.sfreq // 2, (3, 3), stride=1, padding=1),
             # nn.Conv2d(in_channels=1, out_channels=1,kernel_size=1,stride=1, padding=1),
             nn.BatchNorm2d(self.sfreq // 2, 0.8),
             nn.LeakyReLU(0.2, inplace=True),
 
             nn.Upsample(scale_factor=2),
 
-            nn.Conv2d(self.sfreq // 2, self.sfreq // 4, (3, 3), stride=1, padding='same'),
+            nn.Conv2d(self.sfreq // 2, self.sfreq // 4, (3, 3), stride=1, padding=1),
             nn.BatchNorm2d(self.sfreq // 4, 0.8),
             nn.LeakyReLU(0.2, inplace=True),
 
-            nn.Conv2d(self.sfreq // 4, self.channels, (3, 3), stride=1, padding='same'),
+            nn.Conv2d(self.sfreq // 4, self.channels, (3, 3), stride=1, padding=1),
             nn.Tanh(),
         )
 

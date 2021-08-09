@@ -11,7 +11,7 @@ def get_data(data_directory='bnci-raw/', subject_id=1, time_sample=32, low_cut_h
     # Dataset
     dataset = load_concat_dataset(
         path='../Dataset-Files/data-file/' + data_directory + str(subject_id),
-        preload=True,
+        preload=False,
         target_name=None,
 
     )
@@ -24,7 +24,7 @@ def get_data(data_directory='bnci-raw/', subject_id=1, time_sample=32, low_cut_h
         dataset,
         trial_start_offset_samples=trial_start_offset_samples,
         trial_stop_offset_samples=0,
-        preload=True,
+        preload=False,
         window_size_samples=time_sample,
         window_stride_samples=window_stride_samples,
         drop_bad_windows=True,
@@ -52,7 +52,7 @@ subject_id = 1
 low_cut_hz = 4.
 high_cut_hz = 38.
 
-time_sample = 1000
+time_sample = 250
 window_stride_samples = 467
 
 # cuda, device = detect_device()
@@ -60,7 +60,7 @@ window_stride_samples = 467
 # seed = 20200220  # random seed to make results reproducible
 # set_random_seeds(seed=seed, cuda=cuda)
 
-cwt_data, n_chans = get_data(data_directory='bnci-raw/',
+cwt_data, n_chans = get_data(data_directory=data_directory,
                              subject_id=subject_id,
                              time_sample=time_sample,
                              low_cut_hz=low_cut_hz,
