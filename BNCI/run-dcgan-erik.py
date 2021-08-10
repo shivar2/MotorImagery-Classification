@@ -11,7 +11,7 @@ def get_data(data_directory='bnci-raw/', subject_id=1, time_sample=32, low_cut_h
     # Dataset
     dataset = load_concat_dataset(
         path='../Dataset-Files/data-file/' + data_directory + str(subject_id),
-        preload=False,
+        preload=True,
         target_name=None,
 
     )
@@ -24,7 +24,7 @@ def get_data(data_directory='bnci-raw/', subject_id=1, time_sample=32, low_cut_h
         dataset,
         trial_start_offset_samples=trial_start_offset_samples,
         trial_stop_offset_samples=0,
-        preload=False,
+        preload=True,
         window_size_samples=time_sample,
         window_stride_samples=window_stride_samples,
         drop_bad_windows=True,
