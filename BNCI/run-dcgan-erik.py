@@ -52,7 +52,7 @@ subject_id = 1
 low_cut_hz = 4.
 high_cut_hz = 38.
 
-time_sample = 250
+time_sample = 500
 window_stride_samples = 467
 
 # cuda, device = detect_device()

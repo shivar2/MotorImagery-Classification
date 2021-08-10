@@ -11,52 +11,51 @@ class Generator(nn.Module):
         self.freq_sample = freq_sample
         self.eeg_shape = (self.freq_sample, self.time_sample, self.channels)
 
-        self.init_size = (self.sfreq * self.time_sample) * 4
+        self.init_time_sample = self.time_sample // 4
+        self.init_freq_sample = self.freq_sample // 4
 
         self.noise = noise
 
-        # self.l1 = nn.Sequential(nn.Linear(self.channels, self.time_sample*128))
-        # self.l1 = nn.Sequential(nn.Linear(self.noise, self.init_size * self.channels))
-        self.l1 = nn.Sequential(nn.Linear(self.noise, self.init_size))
+        self.l1 = nn.Sequential(nn.Linear(self.noise, self.sfreq * self.init_time_sample * self.init_freq_sample))
 
         self.conv_blocks = nn.Sequential(
             nn.BatchNorm2d(self.sfreq),
 
             nn.Upsample(scale_factor=2),
 
-            nn.Conv2d(self.sfreq, self.sfreq // 2, (3, 3), stride=1, padding=1),
+            nn.Conv2d(self.sfreq, self.sfreq // 2, (5, 5), stride=1, padding='same'),
             # nn.Conv2d(in_channels=1, out_channels=1,kernel_size=1,stride=1, padding=1),
             nn.BatchNorm2d(self.sfreq // 2, 0.8),
             nn.LeakyReLU(0.2, inplace=True),
 
             nn.Upsample(scale_factor=2),
 
-            nn.Conv2d(self.sfreq // 2, self.sfreq // 4, (3, 3), stride=1, padding=1),
+            nn.Conv2d(self.sfreq // 2, self.sfreq // 4, (5, 5), stride=1, padding='same'),
             nn.BatchNorm2d(self.sfreq // 4, 0.8),
             nn.LeakyReLU(0.2, inplace=True),
 
-            nn.Conv2d(self.sfreq // 4, self.channels, (3, 3), stride=1, padding=1),
+            nn.Conv2d(self.sfreq // 4, self.channels, (5, 5), stride=1, padding='same'),
             nn.Tanh(),
         )
 
     def forward(self, z):
         out = self.l1(z)
-        # out =  out.view(out.shape[0], 128, self.init_size, self.init_size)
-        out = out.view(-1, self.sfreq, self.time_sample, 4)
+        out = out.view(-1, self.sfreq, self.init_time_sample, self.init_freq_sample)
         img = self.conv_blocks(out)
+        img = img.view(-1, self.freq_sample, self.time_sample, self.channels)
         return img
 
 
 class Discriminator(nn.Module):
     def __init__(self, time_sample=1000, channels=3, freq_sample=34):
         super(Discriminator, self).__init__()
-        self.sfreq = 256
+        self.sfreq = 250
         self.time_sample = time_sample
         self.channels = channels
         self.freq_sample = freq_sample
 
         def discriminator_block(in_filters, out_filters, bn=True):
-            block = [nn.Conv2d(in_filters, out_filters, self.channels, 2, 1),
+            block = [nn.Conv2d(in_filters, out_filters, 3, 2, 1),
                      nn.LeakyReLU(0.2, inplace=True),
                      nn.Dropout2d(0.25)]
             if bn:

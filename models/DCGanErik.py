@@ -66,10 +66,10 @@ class DCGAN(nn.Module):
         # ----------
         #  Training
         # ----------
+        data_batches = torch.utils.data.DataLoader(dataset, batch_size=self.batch_size, shuffle=True)
 
         for epoch in range(self.n_epochs):
-            for data in dataset:
-                for i, signal_batch in enumerate(data):
+            for i, signal_batch in enumerate(data_batches):
 
                     # Adversarial ground truths
                     valid = Variable(Tensor(signal_batch.shape[0], 1).fill_(1.0), requires_grad=False)
