@@ -20,7 +20,7 @@ def weights_init_normal(m):
 
 
 class DCGAN(nn.Module):
-    def __init__(self, n_epochs=10, batch_size=64, time_sample=32, channels=3, sample_interval=400):
+    def __init__(self, n_epochs=10, batch_size=64, time_sample=32, channels=3, sample_interval=400, freq_sample=34):
 
         super(DCGAN, self).__init__()
 
@@ -34,6 +34,7 @@ class DCGAN(nn.Module):
         self.time_sample = time_sample                      # size of each image dimension
         self.channels = channels                            # number of image channels
         self.sample_interval = sample_interval              # Stride between windows, in samples
+        self.freq_sample = freq_sample
 
         self.cuda = True if torch.cuda.is_available() else False
 
@@ -43,8 +44,8 @@ class DCGAN(nn.Module):
         self.adversarial_loss = torch.nn.BCELoss()
 
         # Initialize generator and discriminator
-        self.generator = Generator(time_sample=self.time_sample, channels=self.channels)
-        self.discriminator = Discriminator(time_sample=self.time_sample, channels=self.channels)
+        self.generator = Generator(time_sample=self.time_sample, channels=self.channels, freq_sample=freq_sample)
+        self.discriminator = Discriminator(time_sample=self.time_sample, channels=self.channels, freq_sample=freq_sample)
 
         if self.cuda:
             self.generator.cuda()
@@ -76,7 +77,8 @@ class DCGAN(nn.Module):
                     fake = Variable(Tensor(signal_batch.shape[0], 1).fill_(0.0), requires_grad=False)
 
                     # Configure input
-                    real_imgs = Variable(torch.tensor(signal_batch))
+                    real_imgs = Variable(signal_batch.type(Tensor))
+                    # real_imgs = Variable(torch.tensor(signal_batch))
 
                     # -----------------
                     #  Train Generator
@@ -112,9 +114,9 @@ class DCGAN(nn.Module):
 
                     print(
                         "[Epoch %d/%d] [Batch %d/%d] [D loss: %f] [G loss: %f]"
-                        % (epoch, self.n_epochs, i, len(data), d_loss.item(), g_loss.item())
+                        % (epoch, self.n_epochs, i, len(data_batches), d_loss.item(), g_loss.item())
                     )
 
-                    batches_done = epoch * len(data) + i
+                    batches_done = epoch * len(data_batches) + i
                     if batches_done % self.sample_interval == 0:
                         save_image(gen_imgs.data[:25], "images/%d.png" % batches_done, nrow=5, normalize=True)

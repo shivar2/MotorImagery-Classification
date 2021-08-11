@@ -5,7 +5,7 @@ class Generator(nn.Module):
     def __init__(self, time_sample=1000, noise=100, channels=3, freq_sample=34):
         super(Generator, self).__init__()
 
-        self.sfreq = 250
+        self.sfreq = 256
         self.time_sample = time_sample
         self.channels = channels
         self.freq_sample = freq_sample
@@ -49,7 +49,7 @@ class Generator(nn.Module):
 class Discriminator(nn.Module):
     def __init__(self, time_sample=1000, channels=3, freq_sample=34):
         super(Discriminator, self).__init__()
-        self.sfreq = 250
+        self.sfreq = 256
         self.time_sample = time_sample
         self.channels = channels
         self.freq_sample = freq_sample
@@ -62,7 +62,7 @@ class Discriminator(nn.Module):
                 block.append(nn.BatchNorm2d(out_filters, 0.8))
             return block
 
-        if (self.channels < self.sfreq // 8):
+        if (self.channels < (self.sfreq // 8)):
 
             self.model = nn.Sequential(
                 *discriminator_block(self.channels, self.sfreq // 8, bn=False),
@@ -78,12 +78,14 @@ class Discriminator(nn.Module):
             )
 
         # The height and width of downsampled image
-        ds_size_time = self.time_sample // 2
-        ds_size_freq = self.freq_sample // 2
-        ds_size = (ds_size_time * ds_size_freq) ** 2
-        self.adv_layer = nn.Sequential(nn.Linear(self.sfreq * ds_size ** 2, 1), nn.Sigmoid())
+        ds_size_time = self.time_sample // (2 ** 4)
+        ds_size_freq = self.freq_sample // (2 ** 4)
+        ds_size = (ds_size_time * ds_size_freq)
+        self.adv_layer = nn.Sequential(nn.Linear(self.sfreq * 32 * 3, 1), nn.Sigmoid())
+        self.sigmoid = nn.Sequential(nn.Sigmoid())
 
     def forward(self, img):
+        img = img.view(-1, self.channels, self.time_sample, self.freq_sample)
         out = self.model(img)
         out = out.view(out.shape[0], -1)
         validity = self.adv_layer(out)

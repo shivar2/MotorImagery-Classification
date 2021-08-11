@@ -11,7 +11,7 @@ def get_data(data_directory='bnci-raw/', subject_id=1, time_sample=32, low_cut_h
     # Dataset
     dataset = load_concat_dataset(
         path='../Dataset-Files/data-file/' + data_directory + str(subject_id),
-        preload=True,
+        preload=False,
         target_name=None,
 
     )
@@ -24,7 +24,7 @@ def get_data(data_directory='bnci-raw/', subject_id=1, time_sample=32, low_cut_h
         dataset,
         trial_start_offset_samples=trial_start_offset_samples,
         trial_stop_offset_samples=0,
-        preload=True,
+        preload=False,
         window_size_samples=time_sample,
         window_stride_samples=window_stride_samples,
         drop_bad_windows=True,
@@ -50,7 +50,7 @@ data_directory = 'bnci-raw/'
 subject_id = 1
 
 low_cut_hz = 4.
-high_cut_hz = 38.
+high_cut_hz = 40.
 
 time_sample = 500
 window_stride_samples = 467
@@ -74,5 +74,11 @@ cwt_data, n_chans = get_data(data_directory=data_directory,
 batchsize = 64
 epochs = 2500
 
-net = DCGAN(n_epochs=epochs, batch_size=batchsize, time_sample=time_sample, channels=n_chans, sample_interval=window_stride_samples)
+net = DCGAN(n_epochs=epochs,
+            batch_size=batchsize,
+            time_sample=time_sample,
+            channels=n_chans,
+            sample_interval=window_stride_samples,
+            freq_sample=int(high_cut_hz - low_cut_hz))
+
 net.train(cwt_data)
