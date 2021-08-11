@@ -78,9 +78,9 @@ class Discriminator(nn.Module):
             )
 
         # The height and width of downsampled image
-        ds_size_time = self.time_sample // (2 ** 4)
-        ds_size_freq = self.freq_sample // (2 ** 4)
-        ds_size = (ds_size_time * ds_size_freq)
+        # ds_size_time = self.time_sample // (2 ** 4)
+        # ds_size_freq = self.freq_sample // (2 ** 4)
+        # ds_size = (ds_size_time * ds_size_freq)
         self.adv_layer = nn.Sequential(nn.Linear(self.sfreq * 32 * 3, 1), nn.Sigmoid())
         self.sigmoid = nn.Sequential(nn.Sigmoid())
 

@@ -74,7 +74,8 @@ cwt_data, n_chans = get_data(data_directory=data_directory,
 batchsize = 64
 epochs = 2500
 
-net = DCGAN(n_epochs=epochs,
+net = DCGAN(subject=subject_id,
+            n_epochs=epochs,
             batch_size=batchsize,
             time_sample=time_sample,
             channels=n_chans,
