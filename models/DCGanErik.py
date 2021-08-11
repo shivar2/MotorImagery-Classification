@@ -144,7 +144,7 @@ class DCGAN(nn.Module):
                         fig.tight_layout()
 
                         gen_imgs = Variable(gen_imgs, requires_grad=True)
-                        gen_imgs = gen_imgs.detach().numpy()
+                        gen_imgs = gen_imgs.detach().cpu().numpy()
 
                         axs[0].imshow(gen_imgs[0, :, :, channel], aspect='auto')
                         axs[0].set_title('Generated Signal', size=10)
@@ -152,7 +152,7 @@ class DCGAN(nn.Module):
                         axs[0].set_ylabel('Frequency Sample')
 
                         real_imgs = Variable(real_imgs, requires_grad=True)
-                        real_imgs = real_imgs.detach().numpy()
+                        real_imgs = real_imgs.detach().cpu().numpy()
 
                         axs[1].imshow(real_imgs[0, :, :, channel], aspect='auto')
                         axs[1].set_title('Fake Signal', size=10)
