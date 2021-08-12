@@ -155,10 +155,9 @@ class DCGAN(nn.Module):
                         real_imgs = real_imgs.detach().cpu().numpy()
 
                         axs[1].imshow(real_imgs[0, :, :, channel], aspect='auto')
-                        axs[1].set_title('Fake Signal', size=10)
+                        axs[1].set_title('Real Signal', size=10)
                         axs[1].set_xlabel('Time Sample')
                         axs[1].set_ylabel('Frequency Sample')
-                        plt.show()
 
                         # Save the generated samples within the current working dir
                         # in a folder called 'EEG Samples', every 100 epochs.
@@ -166,6 +165,7 @@ class DCGAN(nn.Module):
                             os.makedirs(self.dir)
 
                         plt.savefig("%s/%d.png" % (self.dir, epoch))
+                        plt.show()
                         plt.close()
 
             # from https://github.com/basel-shehabi/EEG-Synthetic-Data-Using-GANs/blob/master/WasserGAN_Final.py
@@ -187,6 +187,7 @@ class DCGAN(nn.Module):
         plt.ylabel('Loss')
         plt.legend(['Generator', 'Discriminator'])
         plt.grid()
+        plt.savefig("%s/%d-.png" % (self.dir, self.subject))
         plt.show()
 
         # Save subject and task data such that it can be used to generate
