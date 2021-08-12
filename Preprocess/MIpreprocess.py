@@ -141,7 +141,11 @@ def save_data(dataset, saving_path, subject_id=1):
 def get_normalized_cwt_data(dataset, low_cut_hz=4., high_cut_hz=38., n_channels=22, windows_time=1000):
 
     i = 0
-    data = np.empty(shape=(6*144, n_channels, windows_time))
+    events_num = dataset.datasets[0].windows.events.shape[0]
+    runs_num = len(dataset.datasets)
+    epochs_num = events_num * runs_num
+
+    data = np.empty(shape=(epochs_num, n_channels, windows_time))
     for x, y, window_ind in dataset:
             data[i] = x
             i += 1
