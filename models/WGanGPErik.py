@@ -49,7 +49,6 @@ class WGANGP(nn.Module):
         if self.cuda:
             self.generator.cuda()
             self.discriminator.cuda()
-            self.adversarial_loss.cuda()
 
         # Optimizers
         self.optimizer_G = torch.optim.Adam(self.generator.parameters(), lr=self.lr, betas=(self.b1, self.b2))
