@@ -6,7 +6,7 @@ from braindecode.datautil.windowers import create_windows_from_events
 from braindecode.datautil.serialization import load_concat_dataset
 
 from models.DCGanErik import DCGAN
-from Preprocess.MIpreprocess import get_normalized_cwt_data
+from Preprocess.MIpreprocess import get_normalized_cwt_data, get_data_from_channels
 
 
 def get_data(data_directory='bnci-raw/', subject_id=1, time_sample=32, low_cut_hz=4., high_cut_hz=38., window_stride_samples=1):
@@ -14,10 +14,11 @@ def get_data(data_directory='bnci-raw/', subject_id=1, time_sample=32, low_cut_h
     # Dataset
     dataset = load_concat_dataset(
         path='../Dataset-Files/data-file/' + data_directory + str(subject_id),
-        preload=False,
+        preload=True,
         target_name=None,
 
     )
+    dataset = get_data_from_channels(dataset, channel_names=['C3'])
     sfreq = dataset.datasets[0].raw.info['sfreq']
     assert all([ds.raw.info['sfreq'] == sfreq for ds in dataset.datasets])
 
@@ -27,7 +28,7 @@ def get_data(data_directory='bnci-raw/', subject_id=1, time_sample=32, low_cut_h
         dataset,
         trial_start_offset_samples=trial_start_offset_samples,
         trial_stop_offset_samples=0,
-        preload=False,
+        preload=True,
         window_size_samples=time_sample,
         window_stride_samples=window_stride_samples,
         drop_bad_windows=True,

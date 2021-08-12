@@ -172,3 +172,46 @@ def get_normalized_cwt_data(dataset, low_cut_hz=4., high_cut_hz=38., n_channels=
 
     return norm_data_MEpoch
 
+    def get_trials_from_channel(self, channel=7):
+
+        # Channel default is C3
+
+        startrial_code = 768
+        starttrial_events = self.events_type == startrial_code
+        idxs = [i for i, x in enumerate(starttrial_events[0]) if x]
+
+        trials = []
+        classes = []
+
+        for index in idxs:
+            try:
+                type_e = self.events_type[0, index + 1]
+                class_e = self.mi_types[type_e]
+                classes.append(class_e)
+
+                start = self.events_position[0, index]
+                stop = start + self.events_duration[0, index]
+                trial = self.raw[channel, start:stop]
+                trial = trial.reshape((1, -1))
+                trials.append(trial)
+
+            except:
+                continue
+
+        return trials, classes
+
+
+def get_data_from_channels(dataset, channel_names=['C3', 'Cz', 'C4']):
+    """
+    Suggest for channel names:
+                   'Fz',
+                   'FC3', 'FC1', 'FCz', 'FC2', 'FC4',
+                   'C5', 'C3', 'C1', 'Cz', 'C2', 'C4', 'C6',
+                   'CP3', 'CP1', 'CPz', 'CP2', 'CP4',
+                   'P1', 'Pz', 'P2',
+                   'POz'
+    """
+
+    preprocessors = [Preprocessor('pick_channels', ch_names=channel_names)]  # Pick Channels
+    preprocess(dataset, preprocessors)
+    return dataset
