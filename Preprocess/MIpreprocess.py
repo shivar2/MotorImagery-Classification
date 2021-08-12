@@ -143,7 +143,7 @@ def get_normalized_cwt_data(dataset, low_cut_hz=4., high_cut_hz=38., n_channels=
     i = 0
     events_num = dataset.datasets[0].windows.events.shape[0]
     runs_num = len(dataset.datasets)
-    epochs_num = events_num * uns_num
+    epochs_num = events_num * runs_num
 
     data = np.empty(shape=(epochs_num, n_channels, windows_time))
     for x, y, window_ind in dataset:
