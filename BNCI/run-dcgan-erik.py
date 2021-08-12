@@ -1,4 +1,7 @@
-
+"""
+main base code:
+    https://github.com/eriklindernoren/PyTorch-GAN/blob/master/implementations/dcgan/dcgan.py
+"""
 from braindecode.datautil.windowers import create_windows_from_events
 from braindecode.datautil.serialization import load_concat_dataset
 
