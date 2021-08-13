@@ -21,7 +21,7 @@ def weights_init_normal(m):
 
 class DCGAN(nn.Module):
     def __init__(self, subject=1, n_epochs=10, batch_size=64, time_sample=32, channels=3, sample_interval=400,
-                 freq_sample=34):
+                 freq_sample=34, result_path=''):
 
         super(DCGAN, self).__init__()
 
@@ -36,12 +36,11 @@ class DCGAN(nn.Module):
         self.time_sample = time_sample                      # size of each image dimension
         self.channels = channels                            # number of image channels
         self.sample_interval = sample_interval              # Stride between windows, in samples
-        self.dir = 'EEG_samples'
-
         self.freq_sample = freq_sample
 
         self.cuda = True if torch.cuda.is_available() else False
 
+        self.dir = result_path
 
         # Loss function
         self.adversarial_loss = torch.nn.BCELoss()
@@ -193,11 +192,11 @@ class DCGAN(nn.Module):
         plt.ylabel('Loss')
         plt.legend(['Generator', 'Discriminator'])
         plt.grid()
-        plt.savefig("%s/%d-.png" % (self.dir, self.subject))
+        plt.savefig("%s/%s-.png" % (self.dir, 'results-plot'))
         plt.show()
 
         # Save subject and task data such that it can be used to generate
         # Fake samples later
-        # fp = os.path.join(os.getcwd(), 'EEG_Samples')
-        # sp = os.path.join(fp, 'Subject{}WGAN_Model_Data_For_Task{}.h5'.format(self.subject, self.task))
+        # fp = os.path.join(os.getcwd(), self.dir)
+        # sp = os.path.join(fp, 'Subject{}DCGAN_Model_Data_For_Task{}.h5'.format(self.subject, self.task))
         # self.generator.save(sp)

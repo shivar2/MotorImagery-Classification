@@ -10,7 +10,8 @@ from models.WGanGPErik import WGANGP
 from Preprocess.MIpreprocess import get_normalized_cwt_data
 
 
-def get_data(data_directory='bnci-raw/', subject_id=1, time_sample=32, low_cut_hz=4., high_cut_hz=38., window_stride_samples=1):
+def get_data(data_directory='bnci-raw/', subject_id=1, time_sample=32, low_cut_hz=4., high_cut_hz=38.,
+             window_stride_samples=1, mapping=None, pick_channels=None):
 
     # Dataset
     dataset = load_concat_dataset(
@@ -24,13 +25,6 @@ def get_data(data_directory='bnci-raw/', subject_id=1, time_sample=32, low_cut_h
     assert all([ds.raw.info['sfreq'] == sfreq for ds in dataset.datasets])
 
     trial_start_offset_samples = int(-0.5 * sfreq)
-
-    pick_channels = ['C3', 'C4']              # For All channels set None
-
-    mapping = {
-        # Select just 'feet' task
-        'feet': 0,
-    }
 
     windows_dataset = create_windows_from_events(
         dataset,
@@ -63,11 +57,32 @@ def get_data(data_directory='bnci-raw/', subject_id=1, time_sample=32, low_cut_h
 data_directory = 'bnci-raw/'
 subject_id = 1
 
+mapping = {
+    # Select just 'feet' task
+    'feet': 0,
+}
+
+pick_channels = ['C3', 'C4']              # For All channels set None
+
 low_cut_hz = 4.
 high_cut_hz = 40.
 
 time_sample = 500
 window_stride_samples = 467
+
+tasks_name = ''
+for key, value in mapping.items():
+    tasks_name += key
+    tasks_name += '_'
+
+channels_name = ''
+for ch in pick_channels:
+    channels_name += ch
+    channels_name += '_'
+
+save_result_path = 'results/WGanGP_EEG_samples/' + str(subject_id) + '/' + channels_name + '/' + tasks_name
+if not os.path.exists(save_result_path):
+    os.makedirs(save_result_path)
 
 save_model_path = '../saved_models/WGan-Gp/' + str(subject_id) + '/'
 if not os.path.exists(save_model_path):
@@ -83,7 +98,10 @@ cwt_data, n_chans = get_data(data_directory=data_directory,
                              time_sample=time_sample,
                              low_cut_hz=low_cut_hz,
                              high_cut_hz=high_cut_hz,
-                             window_stride_samples=window_stride_samples)
+                             window_stride_samples=window_stride_samples,
+                             mapping=mapping,
+                             pick_channels=pick_channels
+                             )
 
 #########################
 # Running params        #
@@ -98,6 +116,8 @@ net = WGANGP(subject=subject_id,
              time_sample=time_sample,
              channels=n_chans,
              sample_interval=window_stride_samples,
-             freq_sample=int(high_cut_hz - low_cut_hz))
+             freq_sample=int(high_cut_hz - low_cut_hz),
+             result_path=save_result_path,
+             )
 
 net.train(cwt_data, save_model_path=save_model_path)

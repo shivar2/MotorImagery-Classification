@@ -16,7 +16,7 @@ from models.WGanGPModels import Generator, Discriminator
 
 class WGANGP(nn.Module):
     def __init__(self, subject=1, n_epochs=10, batch_size=64, time_sample=32, channels=3, sample_interval=400,
-                 freq_sample=34):
+                 freq_sample=34, result_path=''):
 
         super(WGANGP, self).__init__()
 
@@ -36,11 +36,11 @@ class WGANGP(nn.Module):
         self.lambda_gp = 10                                 # Loss weight for gradient penalty
 
         self.sample_interval = sample_interval              # Stride between windows, in samples
-        self.dir = 'WGanGP_EEG_samples'
-
         self.freq_sample = freq_sample
 
         self.cuda = True if torch.cuda.is_available() else False
+
+        self.dir = result_path
 
         # Initialize generator and discriminator
         self.generator = Generator(time_sample=self.time_sample, channels=self.channels, freq_sample=freq_sample)
@@ -185,8 +185,6 @@ class WGANGP(nn.Module):
 
                         # Save the generated samples within the current working dir
                         # in a folder called 'EEG Samples', every 100 epochs.
-                        if not os.path.exists(self.dir):
-                            os.makedirs(self.dir)
 
                         plt.savefig("%s/%d.png" % (self.dir, epoch))
                         plt.show()
@@ -218,11 +216,11 @@ class WGANGP(nn.Module):
         plt.ylabel('Loss')
         plt.legend(['Generator', 'Discriminator'])
         plt.grid()
-        plt.savefig("%s/%d-.png" % (self.dir, self.subject))
+        plt.savefig("%s/%s-.png" % (self.dir, 'results-plot'))
         plt.show()
 
         # Save subject and task data such that it can be used to generate
         # Fake samples later
-        # fp = os.path.join(os.getcwd(), 'EEG_Samples')
+        # fp = os.path.join(os.getcwd(), self.dir)
         # sp = os.path.join(fp, 'Subject{}WGAN_Model_Data_For_Task{}.h5'.format(self.subject, self.task))
         # self.generator.save(sp)
