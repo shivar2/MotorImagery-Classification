@@ -77,7 +77,7 @@ def select_44_channels(dataset):
                       'CP3', 'CP1', 'CPz', 'CP2', 'CP4',
                       'CPP3h', 'CPP1h', 'CPP2h', 'CPP4h',
                       'P1', 'Pz', 'P2',
-                      'PPO1h', 'PPO2h',
+                      'PPO1', 'PPO2',
                       'POz']
 
     preprocessors = [Preprocessor('pick_channels', ch_names=BCI_44_sensors)]  # Pick Channels
@@ -98,6 +98,20 @@ def reorder(dataset):
     preprocessors = [Preprocessor('reorder_channels', ch_names=BCI_sensors)]  # Reorder Channels
     preprocess(dataset, preprocessors)
 
+    return dataset
+
+
+def reorder_based_hgd_channels(dataset):
+    # bci channel
+    HGD_oredr = ['Fz',
+                 'FC1', 'FC2',
+                 'C3', 'Cz', 'C4', 'CP1', 'CP2',
+                 'Pz', 'POz', 'FC3', 'FCz', 'FC4',
+                 'C5', 'C1', 'C2', 'C6', 'CP3', 'CPz', 'CP4',
+                 'P1', 'P2']
+
+    preprocessors = [Preprocessor('reorder_channels', ch_names=HGD_oredr)]  # Pick Channels
+    preprocess(dataset, preprocessors)
     return dataset
 
 

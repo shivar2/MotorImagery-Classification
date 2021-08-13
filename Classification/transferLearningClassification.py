@@ -1,8 +1,14 @@
 from Classifier.EEGTLClassifier import EEGTLClassifier
 from Classification.cropped import *
+from Models.PretrainedDeep4Model import PretrainedDeep4Model
 
 
-def tl_classifier(train_set, valid_set, model, save_path, double_channel=True, model_name='deep4', device='cpu'):
+def tl_classifier(train_set, valid_set,
+                  save_path,
+                  model, model_name='deep4',
+                  double_channel=True,
+                  device='cpu'):
+    
     if model_name == 'shallow':
             # These values we found good for shallow network:
             lr = 0.0625 * 0.01
@@ -13,13 +19,18 @@ def tl_classifier(train_set, valid_set, model, save_path, double_channel=True, m
             weight_decay = 0.5 * 0.001
 
     batch_size = 64
-    n_epochs = 10
+    n_epochs = 30
 
-    # Checkpoint will save the model with the lowest valid_loss
-    cp = Checkpoint(dirname=save_path, f_criterion=None)
+    # Checkpoint will save the history 
+    cp = Checkpoint(dirname=save_path,
+                    monitor=None,
+                    f_params=None,
+                    f_optimizer=None,
+                    f_criterion=None,
+                    )
 
     # Early_stopping
-    early_stopping = EarlyStopping(patience=5)
+    early_stopping = EarlyStopping(patience=30)
 
     callbacks = [
         "accuracy",
@@ -31,6 +42,7 @@ def tl_classifier(train_set, valid_set, model, save_path, double_channel=True, m
     clf = EEGTLClassifier(
         model,
         double_channel=double_channel,
+        is_freezing=True,
         cropped=True,
         max_epochs=n_epochs,
         criterion=CroppedLoss,
@@ -69,24 +81,15 @@ def run_model(data_directory, subject_id_list, dataset_name, model_name, double_
         n_chans = dataset[0][0].shape[0]
 
     if model_name == 'shallow':
-        model = create_model_shallow(input_window_samples, n_chans, n_classes)
+        model = PretrainedDeep4Model(n_chans=n_chans,
+                                     n_classes=n_classes,
+                                     input_window_samples=input_window_samples,
+                                     params_path=load_path + 'params_12.pt')
     else:
-        model = create_model_deep4(input_window_samples, n_chans, n_classes)
-
-    # Load model
-    state_dict = torch.load(load_path + 'params.pt', map_location=device)
-    model.load_state_dict(state_dict, strict=False)
-
-    # Freezing model
-    model.requires_grad_(requires_grad=False)
-
-    # Final_conv_length
-    final_conv_length = model.final_conv_length
-
-    # Change conv_classifier layer to fine-tune
-    model.conv_classifier = torch.nn.Conv2d(int(n_chans * (2 ** 3.0)), n_classes, (final_conv_length, 1),
-                                            stride=(1, 1), bias=True)
-
+        model = PretrainedDeep4Model(n_chans=n_chans,
+                                     n_classes=n_classes,
+                                     input_window_samples=input_window_samples,
+                                     params_path=load_path + 'params_12.pt')
     # Send model to GPU
     if cuda:
         model.cuda()
