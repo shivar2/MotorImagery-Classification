@@ -1,63 +1,82 @@
-from __future__ import print_function
-import argparse
-import random
-import torch
-import torch.nn as nn
-import torch.nn.parallel
-import torch.backends.cudnn as cudnn
-import torch.optim as optim
-import torch.utils.data
-import torchvision.datasets as dset
-import torchvision.transforms as transforms
-import torchvision.utils as vutils
-from torch.autograd import Variable
+
 import os
-import json
+import numpy as np
+import matplotlib.pyplot as plt
 
-import models.DCGan as dcgan
+import torch.utils.data
+from torch.autograd import Variable
 
-if __name__ == "__main__":
+import models.DCModels as dcgan
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-c', '--config', required=True, type=str, help='path to generator config .json file')
-    parser.add_argument('-w', '--weights', required=True, type=str, help='path to generator weights .pth file')
-    parser.add_argument('-o', '--output_dir', required=True, type=str, help="path to to output directory")
-    parser.add_argument('-n', '--nimages', required=True, type=int, help="number of images to generate", default=1)
-    parser.add_argument('--cuda', action='store_true', help='enables cuda')
-    opt = parser.parse_args()
+subject_id = 1
+task = 1
 
-    with open(opt.config, 'r') as gencfg:
-        generator_config = json.loads(gencfg.read())
+# number of images to generate
+nimages = 1
 
-    imageSize = generator_config["imageSize"]
-    nz = generator_config["nz"]
-    nc = generator_config["nc"]
-    ngf = generator_config["ngf"]
-    # noBN = generator_config["noBN"]
-    ngpu = generator_config["ngpu"]
-    mlp_G = generator_config["mlp_G"]
-    n_extra_layers = generator_config["n_extra_layers"]
+# path to generator weights .pth file
+weights = '../saved_models/DCGan/' + str(subject_id) + '/generator_state_dict.pth'
 
-    # if noBN:
-    #     netG = dcgan.DCGAN_G_nobn(imageSize, nz, nc, ngf, ngpu, n_extra_layers)
-    # elif mlp_G:
-    #     netG = mlp.MLP_G(imageSize, nz, nc, ngf, ngpu)
-    # else:
-    netG = dcgan.DCGAN_G(imageSize, nz, nc, ngf, ngpu, n_extra_layers)
+# path to to output directory
+output_dir = '../Dataset-Files/fake-data/DCGan/' + str(subject_id) + '/'
+if not os.path.exists(output_dir):
+    os.makedirs(output_dir)
 
-    # load weights -tl
-    netG.load_state_dict(torch.load(opt.weights))
 
-    # initialize noise
-    fixed_noise = torch.FloatTensor(opt.nimages, nz, 1, 1).normal_(0, 1)
+channels = 2
+time_sample = 500
+freq_sample = 36
+noise = 100
 
-    if opt.cuda:
-        netG.cuda()
-        fixed_noise = fixed_noise.cuda()
+cuda = True if torch.cuda.is_available() else False
 
-    fake = netG(fixed_noise)
-    fake.data = fake.data.mul(0.5).add(0.5)
+Tensor = torch.cuda.FloatTensor if cuda else torch.FloatTensor
 
-    for i in range(opt.nimages):
-        vutils.save_image(fake.data[i, ...].reshape((1, nc, imageSize, imageSize)),
-                          os.path.join(opt.output_dir, "generated_%02d.png" % i))
+netG = dcgan.Generator(time_sample=time_sample, noise=noise, channels=channels, freq_sample=freq_sample)
+
+# load weights -tl
+netG.load_state_dict(torch.load(weights))
+
+if cuda:
+    netG.cuda()
+
+# initialize noise
+z = Variable(Tensor(np.random.normal(0, 1, (nimages, noise))))
+
+gen_imgs = netG(z)
+# fake.data = fake.data.mul(0.5).add(0.5)         # why?
+
+# ---------------------
+#  PLOT
+# ---------------------
+
+# from https://github.com/basel-shehabi/EEG-Synthetic-Data-Using-GANs/blob/master/WasserGAN_Final.py
+
+# Plots the generated samples for the selected channels.
+# Recall the channels are chosen during the Load_and_Preprocess Script
+
+# Here they just correspond to C3 only (channel 7 was selected).
+channel = 0
+
+fig, axs = plt.subplots(1, 1)
+fig.suptitle('Fake signal for subject ' + str(subject_id))
+fig.tight_layout()
+
+gen_imgs = Variable(gen_imgs, requires_grad=True)
+gen_imgs = gen_imgs.detach().cpu().numpy()
+
+axs.imshow(gen_imgs[0, :, :, channel], aspect='auto')
+axs.set_title('Generated Signal', size=10)
+axs.set_xlabel('Time Sample')
+axs.set_ylabel('Frequency Sample')
+
+# Save the generated samples within the current working dir
+# in a folder called 'EEG Samples', every 100 epochs.
+
+plt.savefig("%s/%d.png" % (output_dir, subject_id))
+plt.show()
+plt.close()
+
+fp = os.path.join(os.getcwd(), 'EEG_Samples')
+sp = os.path.join(fp, 'Subject{}WGAN_Model_Data_For_Task{}.h5'.format(subject_id, task))
+netG.save(sp)
