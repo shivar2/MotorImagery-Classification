@@ -2,6 +2,7 @@
 main base code:
     https://github.com/eriklindernoren/PyTorch-GAN/blob/master/implementations/dcgan/dcgan.py
 """
+import os
 from braindecode.datautil.windowers import create_windows_from_events
 from braindecode.datautil.serialization import load_concat_dataset
 
@@ -68,6 +69,10 @@ high_cut_hz = 40.
 time_sample = 500
 window_stride_samples = 467
 
+save_model_path = '../saved_models/DCGan/' + str(subject_id) + '/'
+if not os.path.exists(save_model_path):
+    os.makedirs(save_model_path)
+
 # cuda, device = detect_device()
 #
 # seed = 20200220  # random seed to make results reproducible
@@ -85,7 +90,7 @@ cwt_data, n_chans = get_data(data_directory=data_directory,
 #########################
 
 batchsize = 64
-epochs = 2500
+epochs = 1
 
 net = DCGAN(subject=subject_id,
             n_epochs=epochs,
@@ -95,4 +100,4 @@ net = DCGAN(subject=subject_id,
             sample_interval=window_stride_samples,
             freq_sample=int(high_cut_hz - low_cut_hz))
 
-net.train(cwt_data)
+net.train(cwt_data, save_model_path=save_model_path)

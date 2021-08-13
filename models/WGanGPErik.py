@@ -80,7 +80,7 @@ class WGANGP(nn.Module):
         gradient_penalty = ((gradients.norm(2, dim=1) - 1) ** 2).mean()
         return gradient_penalty
 
-    def train(self, dataset):
+    def train(self, dataset, save_model_path='saved_models/WGan-Gp/1/'):
 
         batches_done = 0
         gen_loss, disc_loss = [], []
@@ -202,6 +202,11 @@ class WGANGP(nn.Module):
             d_tot.append(d_loss)
 
         # ---------------------
+        #  Save Generator
+        # ---------------------
+        torch.save(self.generator.state_dict(), save_model_path)
+
+        # ---------------------
         #  PLOT
         # ---------------------
         # Plot the generator and discriminator losses for all the epochs
@@ -218,6 +223,6 @@ class WGANGP(nn.Module):
 
         # Save subject and task data such that it can be used to generate
         # Fake samples later
-        fp = os.path.join(os.getcwd(), 'EEG_Samples')
-        sp = os.path.join(fp, 'Subject{}WGAN_Model_Data_For_Task{}.h5'.format(self.subject, self.task))
-        self.generator.save(sp)
+        # fp = os.path.join(os.getcwd(), 'EEG_Samples')
+        # sp = os.path.join(fp, 'Subject{}WGAN_Model_Data_For_Task{}.h5'.format(self.subject, self.task))
+        # self.generator.save(sp)
