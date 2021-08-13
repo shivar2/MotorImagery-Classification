@@ -84,7 +84,7 @@ save_result_path = 'results/WGanGP_EEG_samples/' + str(subject_id) + '/' + chann
 if not os.path.exists(save_result_path):
     os.makedirs(save_result_path)
 
-save_model_path = '../saved_models/WGan-Gp/' + str(subject_id) + '/'
+save_model_path = '../saved_models/WGan-Gp/' + str(subject_id) + '/' + channels_name + '/' + tasks_name
 if not os.path.exists(save_model_path):
     os.makedirs(save_model_path)
 

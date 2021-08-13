@@ -83,7 +83,7 @@ save_result_path = 'results/DCGan_EEG_samples/' + str(subject_id) + '/' + channe
 if not os.path.exists(save_result_path):
     os.makedirs(save_result_path)
 
-save_model_path = '../saved_models/DCGan/' + str(subject_id) + '/'
+save_model_path = '../saved_models/DCGan/' + str(subject_id) + '/' + channels_name + '/' + tasks_name
 if not os.path.exists(save_model_path):
     os.makedirs(save_model_path)
 
@@ -107,7 +107,7 @@ cwt_data, n_chans = get_data(data_directory=data_directory,
 #########################
 
 batchsize = 64
-epochs = 1
+epochs = 2500
 
 net = DCGAN(subject=subject_id,
             n_epochs=epochs,
