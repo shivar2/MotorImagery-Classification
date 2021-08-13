@@ -107,7 +107,7 @@ cwt_data, n_chans = get_data(data_directory=data_directory,
 # Running params        #
 #########################
 
-batchsize = 64
+batchsize = 4
 epochs = 2500
 
 net = WGANGP(subject=subject_id,
@@ -115,7 +115,7 @@ net = WGANGP(subject=subject_id,
              batch_size=batchsize,
              time_sample=time_sample,
              channels=n_chans,
-             sample_interval=window_stride_samples,
+             channels_name=pick_channels,
              freq_sample=int(high_cut_hz - low_cut_hz),
              result_path=save_result_path,
              )

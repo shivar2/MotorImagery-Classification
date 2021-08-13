@@ -15,7 +15,7 @@ from models.WGanGPModels import Generator, Discriminator
 
 
 class WGANGP(nn.Module):
-    def __init__(self, subject=1, n_epochs=10, batch_size=64, time_sample=32, channels=3, sample_interval=400,
+    def __init__(self, subject=1, n_epochs=10, batch_size=64, time_sample=32, channels=1, channels_name='C3',
                  freq_sample=34, result_path=''):
 
         super(WGANGP, self).__init__()
@@ -29,14 +29,15 @@ class WGANGP(nn.Module):
         self.n_cpu = 8                                      # number of cpu threads to use during batch generation
         self.noise = 100                                    # dimensionality of the latent space
         self.time_sample = time_sample                      # size of each image dimension
+        self.freq_sample = freq_sample
         self.channels = channels                            # number of image channels
+        self.channels_name = channels_name
 
         self.n_critic = 5                                   # number of training steps for discriminator per iter
         self.clip_value = 0.01                              # lower and upper clip value for disc. weights
         self.lambda_gp = 10                                 # Loss weight for gradient penalty
 
-        self.sample_interval = sample_interval              # Stride between windows, in samples
-        self.freq_sample = freq_sample
+        self.sample_interval = 100                          # Stride between windows, in samples
 
         self.cuda = True if torch.cuda.is_available() else False
 
@@ -160,35 +161,37 @@ class WGANGP(nn.Module):
                         # Plots the generated samples for the selected channels.
                         # Recall the channels are chosen during the Load_and_Preprocess Script
 
-                        # Here they just correspond to C3 only (channel 7 was selected).
-                        channel = 0
-
-                        fig, axs = plt.subplots(1, 2)
-                        fig.suptitle('Comparison of Generated vs. Real Signal (Spectrogram) for one trial, one channel')
-                        fig.tight_layout()
-
+                        # Here they just correspond to All channel.
+                        # for find out the order of channel , see preprocess.py
                         fake_imgs = Variable(fake_imgs, requires_grad=True)
                         fake_imgs = fake_imgs.detach().cpu().numpy()
-
-                        axs[0].imshow(fake_imgs[0, :, :, channel], aspect='auto')
-                        axs[0].set_title('Generated Signal', size=10)
-                        axs[0].set_xlabel('Time Sample')
-                        axs[0].set_ylabel('Frequency Sample')
 
                         real_imgs = Variable(real_imgs, requires_grad=True)
                         real_imgs = real_imgs.detach().cpu().numpy()
 
-                        axs[1].imshow(real_imgs[0, :, :, channel], aspect='auto')
-                        axs[1].set_title('Real Signal', size=10)
-                        axs[1].set_xlabel('Time Sample')
-                        axs[1].set_ylabel('Frequency Sample')
+                        for channel_ind in range(self.channels):
+                            fig, axs = plt.subplots(1, 2)
+                            fig.suptitle('Comparison of Generated vs. Real Signal for one trial, channel %s '
+                                         % self.channels_name[channel_ind])
 
-                        # Save the generated samples within the current working dir
-                        # in a folder called 'EEG Samples', every 100 epochs.
+                            fig.tight_layout()
 
-                        plt.savefig("%s/%d.png" % (self.dir, epoch))
-                        plt.show()
-                        plt.close()
+                            axs[0].imshow(fake_imgs[0, :, :, channel_ind], aspect='auto')
+                            axs[0].set_title('Generated Signal', size=10)
+                            axs[0].set_xlabel('Time Sample')
+                            axs[0].set_ylabel('Frequency Sample')
+
+                            axs[1].imshow(real_imgs[0, :, :, channel_ind], aspect='auto')
+                            axs[1].set_title('Real Signal', size=10)
+                            axs[1].set_xlabel('Time Sample')
+                            axs[1].set_ylabel('Frequency Sample')
+
+                            # Save the generated samples within the current working dir
+                            # in a folder called 'EEG Samples', every 100 epochs.
+
+                            plt.savefig("%s/%d---%s.png" % (self.dir, epoch, self.channels_name[channel_ind]))
+                            plt.show()
+                            plt.close()
 
                     batches_done += self.n_critic
 
