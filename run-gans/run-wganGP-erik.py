@@ -111,7 +111,7 @@ cwt_data, n_chans = get_data(data_directory=data_directory,
 #########################
 
 batchsize = 16
-epochs = 2500
+epochs = 950
 
 net = WGANGP(subject=subject_id,
              n_epochs=epochs,
