@@ -69,7 +69,7 @@ mapping = {
 }
 
 low_cut_hz = 4.
-high_cut_hz = 40.
+high_cut_hz = 38.
 
 time_sample = 500
 window_stride_samples = 467
@@ -86,12 +86,15 @@ cuda = True if torch.cuda.is_available() else False
 seed = 20200220  # random seed to make results reproducible
 set_random_seeds(seed=seed, cuda=cuda)
 for channel in all_channels:
-    for key in mapping.items():
+    for key, value in mapping.items():
 
         tasks_name = key
         channels_name = channel
 
         pick_channels = [channel]
+        task_mapping = {
+            key: value
+        }
 
         save_result_path = 'results/WGanGP_EEG_samples/' + str(subject_id) + '/' + channels_name + '/' + tasks_name
         if not os.path.exists(save_result_path):
@@ -107,7 +110,7 @@ for channel in all_channels:
                                      low_cut_hz=low_cut_hz,
                                      high_cut_hz=high_cut_hz,
                                      window_stride_samples=window_stride_samples,
-                                     mapping=mapping,
+                                     mapping=task_mapping,
                                      pick_channels=pick_channels
                                      )
 
