@@ -3,8 +3,11 @@ main base code:
     https://github.com/eriklindernoren/PyTorch-GAN/blob/master/implementations/dcgan/dcgan.py
 """
 import os
+import torch
+
 from braindecode.datautil.windowers import create_windows_from_events
 from braindecode.datautil.serialization import load_concat_dataset
+from braindecode.util import set_random_seeds
 
 from models.DCGanErik import DCGAN
 from Preprocess.MIpreprocess import get_normalized_cwt_data
@@ -87,10 +90,10 @@ save_model_path = '../saved_models/DCGan/' + str(subject_id) + '/' + channels_na
 if not os.path.exists(save_model_path):
     os.makedirs(save_model_path)
 
-# cuda, device = detect_device()
-#
-# seed = 20200220  # random seed to make results reproducible
-# set_random_seeds(seed=seed, cuda=cuda)
+cuda = True if torch.cuda.is_available() else False
+
+seed = 20200220  # random seed to make results reproducible
+set_random_seeds(seed=seed, cuda=cuda)
 
 cwt_data, n_chans = get_data(data_directory=data_directory,
                              subject_id=subject_id,

@@ -3,8 +3,11 @@ main base code:
     https://github.com/eriklindernoren/PyTorch-GAN/blob/master/implementations/wgan_gp/wgan_gp.py
 """
 import os
+import torch
+
 from braindecode.datautil.windowers import create_windows_from_events
 from braindecode.datautil.serialization import load_concat_dataset
+from braindecode.util import set_random_seeds
 
 from models.WGanGPErik import WGANGP
 from Preprocess.MIpreprocess import get_normalized_cwt_data
@@ -59,10 +62,10 @@ subject_id = 1
 
 mapping = {
     # Select just 'feet' task
-    'feet': 0,
+    'right_hand': 2,
 }
 
-pick_channels = ['C3', 'C4']              # For All channels set None
+pick_channels = ['C3']              # For All channels set None
 
 low_cut_hz = 4.
 high_cut_hz = 40.
@@ -88,10 +91,10 @@ save_model_path = '../saved_models/WGan-Gp/' + str(subject_id) + '/' + channels_
 if not os.path.exists(save_model_path):
     os.makedirs(save_model_path)
 
-# cuda, device = detect_device()
-#
-# seed = 20200220  # random seed to make results reproducible
-# set_random_seeds(seed=seed, cuda=cuda)
+cuda = True if torch.cuda.is_available() else False
+
+seed = 20200220  # random seed to make results reproducible
+set_random_seeds(seed=seed, cuda=cuda)
 
 cwt_data, n_chans = get_data(data_directory=data_directory,
                              subject_id=subject_id,
@@ -107,7 +110,7 @@ cwt_data, n_chans = get_data(data_directory=data_directory,
 # Running params        #
 #########################
 
-batchsize = 4
+batchsize = 16
 epochs = 2500
 
 net = WGANGP(subject=subject_id,
