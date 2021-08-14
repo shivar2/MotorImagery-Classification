@@ -207,6 +207,8 @@ class WGANGP(nn.Module):
         #  PLOT
         # ---------------------
         # Plot the generator and discriminator losses for all the epochs
+        g_tot = torch.FloatTensor(g_tot)
+        d_tot = torch.FloatTensor(d_tot)
         plt.figure()
         plt.plot(g_tot, 'r')
         plt.plot(d_tot, 'b')
