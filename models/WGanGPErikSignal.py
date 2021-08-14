@@ -186,7 +186,7 @@ class WGANGP(nn.Module):
                         # in a folder called 'EEG Samples', every 100 epochs.
 
                         plt.savefig("%s/%d.png" % (self.dir, epoch))
-                        plt.show()
+                        # plt.show()
                         plt.close()
 
                     batches_done += self.n_critic
