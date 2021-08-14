@@ -85,11 +85,11 @@ for ch in pick_channels:
     channels_name += ch
     channels_name += '_'
 
-save_result_path = 'results/WGanGP_EEG_samples/' + str(subject_id) + '/' + channels_name + '/' + tasks_name
+save_result_path = 'results/WGanGP_Signal_EEG_samples/' + str(subject_id) + '/' + channels_name + '/' + tasks_name
 if not os.path.exists(save_result_path):
     os.makedirs(save_result_path)
 
-save_model_path = '../saved_models/WGan-Gp/' + str(subject_id) + '/' + channels_name + '/' + tasks_name
+save_model_path = '../saved_models/WGan-Gp-Signal/' + str(subject_id) + '/' + channels_name + '/' + tasks_name
 if not os.path.exists(save_model_path):
     os.makedirs(save_model_path)
 
