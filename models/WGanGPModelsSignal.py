@@ -3,14 +3,13 @@ import numpy as np
 
 
 class Generator(nn.Module):
-    def __init__(self, time_sample=1000, noise=100, channels=3, freq_sample=34):
+    def __init__(self, time_sample=1000, noise=100, channels=3,):
         super(Generator, self).__init__()
 
         self.noise = noise
         self.time_sample = time_sample
         self.channels = channels
-        self.freq_sample = freq_sample
-        self.eeg_shape = (self.freq_sample, self.time_sample, self.channels)
+        self.eeg_shape = (self.channels, self.time_sample)
         # img_shape = (opt.channels, opt.img_size, opt.img_size)
 
         def block(in_feat, out_feat, normalize=True):
@@ -32,19 +31,17 @@ class Generator(nn.Module):
     def forward(self, z):
         img = self.model(z)
         img = img.view(img.shape[0], * self.eeg_shape)
-        # img = img.view(-1, self.freq_sample, self.time_sample, self.channels)
         return img
 
 
 class Discriminator(nn.Module):
-    def __init__(self, time_sample=1000, channels=3, freq_sample=34):
+    def __init__(self, time_sample=1000, channels=3):
 
         super(Discriminator, self).__init__()
 
         self.time_sample = time_sample
         self.channels = channels
-        self.freq_sample = freq_sample
-        self.eeg_shape = (self.freq_sample, self.time_sample, self.channels)
+        self.eeg_shape = (self.channels, self.time_sample)
 
         self.model = nn.Sequential(
             nn.Linear(int(np.prod(self.eeg_shape)), 512),
