@@ -71,7 +71,7 @@ mapping = {
 low_cut_hz = 4.
 high_cut_hz = 38.
 
-time_sample = 500
+time_sample = 250
 window_stride_samples = 467
 
 all_channels = ['Fz',
@@ -96,11 +96,11 @@ for channel in all_channels:
             key: value
         }
 
-        save_result_path = 'results/WGanGP_EEG_samples/' + str(subject_id) + '/' + channels_name + '/' + tasks_name
+        save_result_path = 'results/WGanGP_EEG_samples/' + str(subject_id) + '/' + tasks_name + '/' + channels_name
         if not os.path.exists(save_result_path):
             os.makedirs(save_result_path)
 
-        save_model_path = '../saved_models/WGan-Gp/' + str(subject_id) + '/' + channels_name + '/' + tasks_name
+        save_model_path = '../saved_models/WGan-Gp/' + str(subject_id) + '/' + tasks_name + '/' + channels_name
         if not os.path.exists(save_model_path):
             os.makedirs(save_model_path)
 
@@ -118,8 +118,8 @@ for channel in all_channels:
         # Running params        #
         #########################
 
-        batchsize = 16
-        epochs = 950
+        batchsize = 32
+        epochs = 1500
 
         net = WGANGP(subject=subject_id,
                      n_epochs=epochs,
