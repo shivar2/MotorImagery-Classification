@@ -142,8 +142,8 @@ class WGANGP(nn.Module):
                     g_loss_batch.backward()
                     self.optimizer_G.step()
 
-                    gen_loss.append(d_loss_batch)
-                    disc_loss.append(g_loss_batch)
+                    gen_loss.append(g_loss_batch)
+                    disc_loss.append(d_loss_batch)
 
                     print(
                         "[Epoch %d/%d] [Batch %d/%d] [D loss: %f] [G loss: %f]"

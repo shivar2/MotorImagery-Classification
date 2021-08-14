@@ -44,7 +44,7 @@ class Discriminator(nn.Module):
         self.time_sample = time_sample
         self.channels = channels
         self.freq_sample = freq_sample
-        self.eeg_shape = (self.channels, self.freq_sample, self.time_sample)
+        self.eeg_shape = (self.freq_sample, self.time_sample, self.channels)
 
         self.model = nn.Sequential(
             nn.Linear(int(np.prod(self.eeg_shape)), 512),
