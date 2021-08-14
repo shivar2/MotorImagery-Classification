@@ -201,7 +201,7 @@ class WGANGP(nn.Module):
         # ---------------------
         #  Save Generator
         # ---------------------
-        torch.save(self.generator.state_dict(), save_model_path)
+        torch.save(self.generator.state_dict(), save_model_path + 'generator_state_dict.pth')
 
         # ---------------------
         #  PLOT
