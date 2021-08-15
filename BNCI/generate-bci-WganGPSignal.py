@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import torch.utils.data
 from torch.autograd import Variable
 
-from models.WGanGPModelsSignal import Generator
+from models.WGanGPSignalModels import Generator
 
 # for macOS
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'

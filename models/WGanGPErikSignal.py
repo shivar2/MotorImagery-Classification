@@ -11,7 +11,7 @@ import torch
 import matplotlib.pyplot as plt
 
 from skorch.dataset import unpack_data
-from models.WGanGPModelsSignal import Generator, Discriminator
+from models.WGanGPSignalModels import Generator, Discriminator
 
 
 class WGANGP(nn.Module):
