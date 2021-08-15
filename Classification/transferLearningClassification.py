@@ -1,6 +1,6 @@
 from Classifier.EEGTLClassifier import EEGTLClassifier
 from Classification.cropped import *
-from Models.PretrainedDeep4Model import PretrainedDeep4Model
+from models.PretrainedDeep4Model import PretrainedDeep4Model
 
 
 def tl_classifier(train_set, valid_set,
