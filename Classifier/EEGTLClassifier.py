@@ -70,7 +70,8 @@ class EEGTLClassifier(EEGClassifier):
             for X, y, i in self.get_iterator(dataset, drop_index=False):
                 i_window_in_trials.append(i[0].cpu().numpy())
                 i_window_stops.append(i[2].cpu().numpy())
-                X = np.repeat(X, 2, 1)  # change channel number (22 to 44)
+                if self.double_channel:
+                    X = np.repeat(X, 2, 1)  # change channel number (22 to 44)
                 preds.append(to_numpy(self.forward(X)))
                 window_ys.append(y.cpu().numpy())
             preds = np.concatenate(preds)
