@@ -18,7 +18,7 @@ nimages = 1
 weights = '../saved_models/DCGan/' + str(subject_id) + '/generator_state_dict.pth'
 
 # path to to output directory
-output_dir = '../Dataset-Files/fake-data/DCGan/' + str(subject_id) + '/'
+output_dir = '../Dataset-Files/fake-data/WGan-GP-Signal' + str(subject_id) + '/'
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
 
