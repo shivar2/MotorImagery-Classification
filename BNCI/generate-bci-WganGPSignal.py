@@ -8,7 +8,7 @@ import mne
 import torch.utils.data
 from torch.autograd import Variable
 
-from braindecode.datasets.base import WindowsDataset
+from braindecode.datasets.base import WindowsDataset, BaseConcatDataset
 
 from models.WGanGPSignalModels import Generator
 
@@ -56,11 +56,6 @@ for task in tasks:
         # path to generator weights .pth file
         saved_models_path = '../saved_models/WGan-GP-Signal/' + str(subject_id) + '/' + task + '/'
         saved_models_path += channel + 'generator_state_dict.pth'
-
-        # path to to fake eeg directory
-        fake_data_path = '../Dataset-Files/fake-data/WGan-GP-Signal/' + str(subject_id) + '/' + 'Runs' + '/'
-        if not os.path.exists(fake_data_path):
-            os.makedirs(fake_data_path)
 
         netG = Generator(time_sample=time_sample, noise=noise, channels=1)
 
@@ -121,8 +116,17 @@ for task in tasks:
 
 random.shuffle(task_trials_epoch)
 session = mne.concatenate_epochs(task_trials_epoch)
-session.save(fname=fake_data_path + 'Run 4.fif', overwrite=True)
 
-# For use fake eeg and generate fake dataset
-fake_dataset = WindowsDataset(session)
+# Save fake dataset as BaseConcatDataset obj
+wdataset = WindowsDataset(session)
+fake_dataset = BaseConcatDataset([wdataset])
+
+
+# path to to fake eeg directory
+fake_data_path = '../Dataset-Files/fake-data/WGan-GP-Signal/' + str(subject_id) + '/' + 'Runs' + '/' + '4/'
+if not os.path.exists(fake_data_path):
+    os.makedirs(fake_data_path)
+
+fake_dataset.save(path=fake_data_path, overwrite=True)
+
 
