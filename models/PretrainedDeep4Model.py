@@ -37,23 +37,6 @@ class PretrainedDeep4Model(nn.Module):
         # Freezing model
         model.requires_grad_(requires_grad=False)
 
-        # Add layers
-        model.drop_4 = nn.Dropout(p=0.5)
-        model.conv_4 = nn.Conv2d(176, 352, (10, 1),
-                    stride=(3, 1),
-                    bias=False,
-                )
-        model.bnorm_4 = nn.BatchNorm2d(
-                        352,
-                        momentum=1e-05,
-                        affine=True,
-                        eps=1e-5,
-                    )
-        model.nonlin_4 = Expression(elu)
-        model.pool_4 = nn.MaxPool2d( kernel_size=(3, 1),
-                    stride=(1, 1),)
-        model.pool_nonlin_4 = Expression(identity)
-
         # Final_conv_length
         final_conv_length = model.final_conv_length
 
