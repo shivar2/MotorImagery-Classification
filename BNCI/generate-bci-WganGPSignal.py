@@ -8,6 +8,8 @@ import mne
 import torch.utils.data
 from torch.autograd import Variable
 
+from braindecode.datasets.base import WindowsDataset
+
 from models.WGanGPSignalModels import Generator
 
 # for macOS
@@ -122,5 +124,5 @@ session = mne.concatenate_epochs(task_trials_epoch)
 session.save(fname=fake_data_path + 'Run 4.fif', overwrite=True)
 
 # For use fake eeg and generate fake dataset
-# fake_dataset = WindowsDataset(session)
+fake_dataset = WindowsDataset(session)
 
