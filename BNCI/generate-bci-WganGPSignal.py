@@ -58,7 +58,7 @@ for task in tasks:
         saved_models_path += channel + 'generator_state_dict.pth'
 
         # path to to fake eeg directory
-        fake_data_path = '../Dataset-Files/fake-data/WGan-GP-Signal/' + str(subject_id) + '/' + task + '/'
+        fake_data_path = '../Dataset-Files/fake-data/WGan-GP-Signal/' + str(subject_id) + '/' + 'Runs' + '/'
         if not os.path.exists(fake_data_path):
             os.makedirs(fake_data_path)
 
@@ -121,6 +121,8 @@ for task in tasks:
 
 random.shuffle(task_trials_epoch)
 session = mne.concatenate_epochs(task_trials_epoch)
+session.save(fname=fake_data_path + 'Run 1.fif', overwrite=True)
 
-fake_dataset = WindowsDataset(session)
+# For use fake eeg and generate fake dataset
+# fake_dataset = WindowsDataset(session)
 
