@@ -50,7 +50,7 @@ all_channels = ['Fz',
 start = 0
 task_trials_epoch = []
 for task in tasks:
-    task_channels_trials = np.empty(shape=(batch_size, 0, time_sample))
+    task_channels_trials = np.empty(shape=(batch_size, 0, time_sample * 2))
 
     for channel in all_channels:
         # path to generator weights .pth file
@@ -66,9 +66,15 @@ for task in tasks:
             netG.cuda()
 
         # initialize noise
-        z = Variable(Tensor(np.random.normal(0, 1, (batch_size, noise))))
+        z_1 = Variable(Tensor(np.random.normal(0, 1, (batch_size, noise))))
 
-        gen_sig = netG(z)
+        gen_sig_1sec = netG(z_1)
+
+        z_2 = Variable(Tensor(np.random.normal(0, 1, (batch_size, noise))))
+        gen_sig_2sec = netG(z_2)
+
+        # merg 2 tensor to create signal with 1000 time sample ( we do this for run classification )
+        gen_sig = torch.cat((gen_sig_1sec, gen_sig_2sec), 2)
 
         task_channels_trials = np.append(task_channels_trials, gen_sig.detach().cpu().numpy(), axis=1)
 
@@ -101,7 +107,7 @@ for task in tasks:
         })
 
         epoch_data = np.array(task_channels_trial)
-        epoch_data = np.reshape(epoch_data, newshape=(-1, len(all_channels), 500))
+        epoch_data = np.reshape(epoch_data, newshape=(-1, len(all_channels), time_sample * 2))
 
         simulated_epoch = mne.EpochsArray(epoch_data, info, tmin=-0.5, events=events, event_id=event_dict, metadata=metadata)
         # simulated_epoch.plot(show_scrollbars=False, events=events, event_id=event_dict)
@@ -123,7 +129,7 @@ fake_dataset = BaseConcatDataset([wdataset])
 
 
 # path to to fake eeg directory
-fake_data_path = '../Dataset-Files/fake-data/WGan-GP-Signal/' + str(subject_id) + '/' + 'Runs' + '/' + '4/'
+fake_data_path = '../Dataset-Files/fake-data/WGan-GP-Signal/' + str(subject_id) + '/' + 'Runs' + '/' + '3/'
 if not os.path.exists(fake_data_path):
     os.makedirs(fake_data_path)
 
