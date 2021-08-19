@@ -19,7 +19,6 @@ from braindecode.models.util import to_dense_prediction_model, get_output_shape
 from braindecode.datautil.windowers import create_windows_from_events
 from braindecode import EEGClassifier
 from braindecode.training.losses import CroppedLoss
-from braindecode.datautil import create_from_mne_epochs
 
 
 def detect_device():
@@ -55,10 +54,6 @@ def load_fake_data(subject_id_list):
         fake_data_path = '../Dataset-Files/fake-data/WGan-GP-Signal/' + str(subject_id) + '/' + 'Runs' + '/'
 
         for folder in range(0, 5):
-            # for f in fake_data_path:
-            # fake_session = mne.read_epochs(fake_data_path, preload=True)
-            # fake_dataset = WindowsDataset(fake_session)
-            # test = BaseConcatDataset(fake_session)
             folder_path = fake_data_path + str(folder) + '/'
             ds_loaded = load_concat_dataset(
                 path=folder_path,
@@ -97,7 +92,6 @@ def create_model_deep4(input_window_samples=1000, n_chans=4, n_classes=4):
 
 
 def cut_compute_windows(dataset, n_preds_per_input, input_window_samples=1000, trial_start_offset_seconds=-0.5):
-
     # Extract sampling frequency, check that they are same in all datasets
     sfreq = dataset.datasets[0].raw.info['sfreq']
     assert all([ds.raw.info['sfreq'] == sfreq for ds in dataset.datasets])
