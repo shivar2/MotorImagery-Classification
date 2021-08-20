@@ -1,6 +1,7 @@
-
 saved_models/
 *.png
 *.json
 *.fif
 *.pt
+*.pth
+
