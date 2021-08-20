@@ -7,11 +7,11 @@ subject_id = 1
 # dataset = basic_preprocess(dataset, low_cut_hz=4., high_cut_hz=38., factor_new=1e-3, init_block_size=1000)
 
 # Load preprocessed dataset
-dataset = load_preprocessed_data(data_path='../Dataset-Files/data-file/',
+dataset = load_preprocessed_data(data_path='../Data/Real_Data/HGD/',
                                  dataset_folder='hgd-raw/',
                                  subject_id=subject_id)
 
 dataset = select_44_channels(dataset)
 # dataset = select_22_channels(dataset)
 
-save_data(dataset, saving_path='../Dataset-Files/data-file/hgd-44channels-raw/', subject_id=subject_id)
+save_data(dataset, saving_path='../Data/Real_Data/HGD/hgd-44channels-raw/', subject_id=subject_id)
