@@ -41,22 +41,11 @@ class PretrainedDeep4Model(nn.Module):
         final_conv_length = model.final_conv_length
 
         # Change conv_classifier layer to fine-tune
-        model.conv_classifier = nn.Sequential(
-            nn.Conv2d(
-                int(n_chans * (2 ** 3.0)),
-                int(n_chans * (2 ** 3.0)),
-                (final_conv_length, 1),
-                stride=(1, 1),
-                padding='same',
-                bias=True),
-            nn.Conv2d(
-                int(n_chans * (2 ** 3.0)),
-                n_classes,
-                (final_conv_length, 1),
-                stride=(1, 1),
-                padding='same',
-                bias=True)
-        )
+        model.conv_classifier = nn.Conv2d(int(n_chans * (2 ** 3.0)),
+                                          n_classes,
+                                          (final_conv_length, 1),
+                                          stride=(1, 1),
+                                          bias=True)
 
         model.softmax = nn.LogSoftmax(dim=1)
         model.squeeze = Expression(squeeze_final_output)
