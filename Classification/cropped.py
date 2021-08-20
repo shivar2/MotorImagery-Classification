@@ -1,4 +1,3 @@
-import os
 
 import torch
 
@@ -30,7 +29,7 @@ def detect_device():
 
 def load_data_object(data_directory='bnci-raw/', subject_id_list=[1]):
 
-    data_path = '../Dataset-Files/data-file/' + data_directory
+    data_path = '../../../Data/Real_Data/' + data_directory
     datasets = []
     for subject_id in subject_id_list:
         datasets.append(
@@ -109,13 +108,13 @@ def split_data(windows_dataset, dataset_name='BNCI'):
 
 def train_cropped_trials(train_set, valid_set, model, save_path, model_name='shallow', device='cpu'):
     if model_name == 'shallow':
-            # These values we found good for shallow network:
-            lr = 0.0625 * 0.01
-            weight_decay = 0
+        # These values we found good for shallow network:
+        lr = 0.0625 * 0.01
+        weight_decay = 0
     else:
-            # For deep4 they should be:
-            lr = 1 * 0.01
-            weight_decay = 0.5 * 0.001
+        # For deep4 they should be:
+        lr = 1 * 0.01
+        weight_decay = 0.5 * 0.001
 
     batch_size = 64
     n_epochs = 10
@@ -229,17 +228,18 @@ def run_model(data_directory, subject_id_list, dataset_name, model_name, save_pa
     trial_start_offset_seconds = -0.5
 
     windows_dataset = cut_compute_windows(dataset,
-                        n_preds_per_input,
-                        input_window_samples=input_window_samples,
-                        trial_start_offset_seconds=trial_start_offset_seconds)
+                                          n_preds_per_input,
+                                          input_window_samples=input_window_samples,
+                                          trial_start_offset_seconds=trial_start_offset_seconds)
 
     train_set, valid_set = split_data(windows_dataset, dataset_name=dataset_name)
 
-    clf = train_cropped_trials(train_set, valid_set,
-                         model=model,
-                         save_path=save_path,
-                         model_name=model_name,
-                         device=device)
+    clf = train_cropped_trials(train_set,
+                               valid_set,
+                               model=model,
+                               save_path=save_path,
+                               model_name=model_name,
+                               device=device)
 
     plot(clf, save_path)
 
