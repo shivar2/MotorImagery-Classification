@@ -10,7 +10,6 @@ import torch
 
 import matplotlib.pyplot as plt
 
-from skorch.dataset import unpack_data
 from models.WGanGPSignalModels import Generator, Discriminator
 
 
