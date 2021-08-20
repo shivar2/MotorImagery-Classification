@@ -15,10 +15,10 @@ task = 1
 nimages = 1
 
 # path to generator weights .pth file
-weights = '../saved_models/DCGan/' + str(subject_id) + '/generator_state_dict.pth'
+weights = '../Model_Params/GANs/DCGan/' + str(subject_id) + '/generator_state_dict.pth'
 
 # path to to output directory
-output_dir = '../Dataset-Files/fake-data/WGan-GP-Signal' + str(subject_id) + '/'
+output_dir = '../Data/Fake_Data/DCGan/' + str(subject_id) + '/'
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
 
