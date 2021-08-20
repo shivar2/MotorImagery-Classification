@@ -10,16 +10,16 @@ def tl_classifier(train_set, valid_set,
                   device='cpu'):
     
     if model_name == 'shallow':
-            # These values we found good for shallow network:
-            lr = 0.0625 * 0.01
-            weight_decay = 0
+        # These values we found good for shallow network:
+        lr = 0.0625 * 0.01
+        weight_decay = 0
     else:
-            # For deep4 they should be:
-            lr = 1 * 0.01
-            weight_decay = 0.5 * 0.001
+        # For deep4 they should be:
+        lr = 1 * 0.01
+        weight_decay = 0.5 * 0.001
 
     batch_size = 64
-    n_epochs = 30
+    n_epochs = 15
 
     # Checkpoint will save the history 
     cp = Checkpoint(dirname=save_path,
@@ -84,12 +84,12 @@ def run_model(data_directory, subject_id_list, dataset_name, model_name, double_
         model = PretrainedDeep4Model(n_chans=n_chans,
                                      n_classes=n_classes,
                                      input_window_samples=input_window_samples,
-                                     params_path=load_path + 'params_12.pt')
+                                     params_path=load_path + 'params_10.pt')
     else:
         model = PretrainedDeep4Model(n_chans=n_chans,
                                      n_classes=n_classes,
                                      input_window_samples=input_window_samples,
-                                     params_path=load_path + 'params_12.pt')
+                                     params_path=load_path + 'params_10.pt')
     # Send model to GPU
     if cuda:
         model.cuda()

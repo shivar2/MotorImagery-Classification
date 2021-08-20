@@ -53,7 +53,7 @@ def load_fake_data(subject_id_list):
         ds_list = []
         fake_data_path = '../Dataset-Files/fake-data/WGan-GP-Signal/' + str(subject_id) + '/' + 'Runs' + '/'
 
-        for folder in range(0, 5):
+        for folder in range(0, 4):
             folder_path = fake_data_path + str(folder) + '/'
             ds_loaded = load_concat_dataset(
                 path=folder_path,
