@@ -1,4 +1,4 @@
-from Preprocess.MIpreprocess import *
+from Code.Preprocess import *
 
 subject_id = 1
 # set_mne_path(dataset_name="BNCI", mne_data_path='../Dataset-Files/mne_data')

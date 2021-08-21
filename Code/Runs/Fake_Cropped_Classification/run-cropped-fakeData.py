@@ -1,11 +1,11 @@
 import os
 
-from Classification.ganClassification import run_model
+from Code.Classification.GanClassification import run_model
 
 # example of BNCI & fake data deep4 - subject 1
 subject_id_list = [1]
 
-# Path to saving models
+# Path to saving Models
 # mkdir path to save
 save_path = os.path.join('../../../Result/Fake_Cropped_Classification/' + str(subject_id_list).strip('[]')) + '/'
 data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/' + str(subject_id_list).strip('[]')) + '/'

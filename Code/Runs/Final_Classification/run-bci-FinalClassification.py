@@ -1,6 +1,6 @@
 import os
 
-from Classification.FinalClassification import run_model
+from Code.Classification.FinalClassification import run_model
 
 
 subject_id_list = [1]

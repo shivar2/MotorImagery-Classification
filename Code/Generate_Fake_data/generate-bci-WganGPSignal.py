@@ -10,7 +10,7 @@ from torch.autograd import Variable
 
 from braindecode.datasets.base import WindowsDataset, BaseConcatDataset
 
-from models.WGanGPSignalModels import Generator
+from Code.Models.GANs.WGanGPSignalModels import Generator
 
 # for macOS
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'

@@ -1,16 +1,11 @@
 
 import os
-import random
 import numpy as np
-import pandas as pd
-import mne
 
 import torch.utils.data
 from torch.autograd import Variable
 
-from braindecode.datasets.base import WindowsDataset, BaseConcatDataset
-
-from models.WGanGPModels import Generator
+from Code.Models.GANs.WGanGPModels import Generator
 
 import matplotlib.pyplot as plt
 import pywt

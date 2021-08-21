@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import torch.utils.data
 from torch.autograd import Variable
 
-import models.DCModels as dcgan
+import Code.Models.GANs.DCModels as dcgan
 
 subject_id = 1
 task = 1

@@ -1,6 +1,6 @@
 import os
 
-from Classification.TLClassification import run_model
+from Code.Classification.TLClassification import run_model
 
 
 subject_id_list = [1]
