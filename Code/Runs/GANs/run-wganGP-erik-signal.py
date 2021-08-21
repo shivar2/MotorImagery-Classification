@@ -65,7 +65,7 @@ def get_data(data_load_path,
 subject_id = 1
 data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/' + str(subject_id).strip('[]')) + '/'
 
-time_sample = 500
+time_sample = 1000
 window_stride_samples = 467
 
 mapping = {
