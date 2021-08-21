@@ -30,49 +30,29 @@ def detect_device():
     return cuda, device
 
 
-def load_data_object(subject_id_list=[1]):
+def load_data_object(data_path):
 
-    data_path = '../Dataset-Files/data-file/bnci-raw/'
-    datasets = []
-    for subject_id in subject_id_list:
-        datasets.append(
-            load_concat_dataset(
-                path=data_path + str(subject_id),
+    dataset = load_concat_dataset(
+                path=data_path,
                 preload=True,
                 target_name=None,
             )
-        )
-    dataset = BaseConcatDataset(datasets)
-
     return dataset
 
 
-def load_fake_data(subject_id_list):
+def load_fake_data(fake_data_path):
 
-    for subject_id in subject_id_list:
-        ds_list = []
-        fake_data_path = '../Dataset-Files/fake-data/WGan-GP-Signal/' + str(subject_id) + '/' + 'Runs' + '/'
-
-        for folder in range(0, 4):
-            folder_path = fake_data_path + str(folder) + '/'
-            ds_loaded = load_concat_dataset(
+    ds_list = []
+    for folder in range(0, 4):
+        folder_path = fake_data_path + str(folder) + '/'
+        ds_loaded = load_concat_dataset(
                 path=folder_path,
                 preload=True,
                 target_name=None,
-            )
-            ds_list.append(ds_loaded)
+        )
+        ds_list.append(ds_loaded)
 
     return ds_list
-
-
-def create_model_shallow(input_window_samples=1000, n_chans=4, n_classes=4):
-    model = ShallowFBCSPNet(
-        n_chans,
-        n_classes,
-        input_window_samples=input_window_samples,
-        final_conv_length='auto',
-    )
-    return model
 
 
 def create_model_deep4(input_window_samples=1000, n_chans=4, n_classes=4):
@@ -93,6 +73,7 @@ def create_model_deep4(input_window_samples=1000, n_chans=4, n_classes=4):
 
 def cut_compute_windows(dataset, n_preds_per_input, input_window_samples=1000, trial_start_offset_seconds=-0.5):
     # Extract sampling frequency, check that they are same in all datasets
+
     sfreq = dataset.datasets[0].raw.info['sfreq']
     assert all([ds.raw.info['sfreq'] == sfreq for ds in dataset.datasets])
 
@@ -122,24 +103,19 @@ def split_data(windows_dataset):
     return train_set, valid_set
 
 
-def train_cropped_trials(train_set, valid_set, model, save_path, model_name='shallow', device='cpu'):
-    if model_name == 'shallow':
-            # These values we found good for shallow network:
-            lr = 0.0625 * 0.01
-            weight_decay = 0
-    else:
-            # For deep4 they should be:
-            lr = 1 * 0.01
-            weight_decay = 0.5 * 0.001
+def train_cropped_trials(train_set, valid_set, model, save_path, device='cpu'):
+    # For deep4 they should be:
+    lr = 1 * 0.01
+    weight_decay = 0.5 * 0.001
 
     batch_size = 64
     n_epochs = 10
 
     # Checkpoint will save the model with the lowest valid_loss
     cp = Checkpoint(monitor=None,
-                    f_params="params_{last_epoch[epoch]}.pt",
-                    f_optimizer="optimizer_{last_epoch[epoch]}.pt",
-                    dirname=save_path, f_criterion=None)
+                    f_history='history.json',
+                    dirname=save_path,
+                    f_criterion=None)
 
     # Early_stopping
     early_stopping = EarlyStopping(patience=5)
@@ -211,24 +187,21 @@ def plot(clf, save_path):
     plt.savefig(fname=image_path)
 
 
-def run_model(subject_id_list, model_name, save_path):
+def run_model(data_load_path, fake_data_load_path, save_path):
     input_window_samples = 1000
     cuda, device = detect_device()
 
     seed = 20200220
     set_random_seeds(seed=seed, cuda=cuda)
 
-    dataset = load_data_object(subject_id_list)
+    dataset = load_data_object(data_load_path)
 
-    train_set_fake = load_fake_data(subject_id_list)
+    train_set_fake = load_fake_data(fake_data_load_path)
 
     n_classes = 4
     n_chans = 22
 
-    if model_name == 'shallow':
-        model = create_model_shallow(input_window_samples, n_chans, n_classes)
-    else:
-        model = create_model_deep4(input_window_samples, n_chans, n_classes)
+    model = create_model_deep4(input_window_samples, n_chans, n_classes)
 
     # Send model to GPU
     if cuda:
@@ -256,7 +229,6 @@ def run_model(subject_id_list, model_name, save_path):
                                valid_set,
                                model=model,
                                save_path=save_path,
-                               model_name=model_name,
                                device=device)
 
     plot(clf, save_path)
