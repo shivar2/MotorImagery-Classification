@@ -5,29 +5,24 @@ from models.PretrainedDeep4Model import PretrainedDeep4Model
 
 def tl_classifier(train_set, valid_set,
                   save_path,
-                  model, model_name='deep4',
+                  model,
                   double_channel=True,
                   device='cpu'):
     
-    if model_name == 'shallow':
-        # These values we found good for shallow network:
-        lr = 0.0625 * 0.01
-        weight_decay = 0
-    else:
-        # For deep4 they should be:
-        lr = 1 * 0.01
-        weight_decay = 0.5 * 0.001
+    # For deep4 they should be:
+    lr = 1 * 0.01
+    weight_decay = 0.5 * 0.001
 
     batch_size = 64
     n_epochs = 15
 
     # Checkpoint will save the history 
-    cp = Checkpoint(dirname=save_path,
-                    monitor=None,
+    cp = Checkpoint(monitor=None,
                     f_params=None,
                     f_optimizer=None,
                     f_criterion=None,
-                    )
+                    f_history='history.json',
+                    dirname=save_path)
 
     # Early_stopping
     early_stopping = EarlyStopping(patience=30)
@@ -62,7 +57,7 @@ def tl_classifier(train_set, valid_set,
     return clf
 
 
-def run_model(data_load_path, model_name, double_channel, load_path, save_path):
+def run_model(data_load_path, double_channel, model_load_path, params_name, save_path):
 
     input_window_samples = 1000
     cuda, device = detect_device()
@@ -79,16 +74,10 @@ def run_model(data_load_path, model_name, double_channel, load_path, save_path):
     else:
         n_chans = dataset[0][0].shape[0]
 
-    if model_name == 'shallow':
-        model = PretrainedDeep4Model(n_chans=n_chans,
-                                     n_classes=n_classes,
-                                     input_window_samples=input_window_samples,
-                                     params_path=load_path + 'params_10.pt')
-    else:
-        model = PretrainedDeep4Model(n_chans=n_chans,
-                                     n_classes=n_classes,
-                                     input_window_samples=input_window_samples,
-                                     params_path=load_path + 'params_10.pt')
+    model = PretrainedDeep4Model(n_chans=n_chans,
+                                 n_classes=n_classes,
+                                 input_window_samples=input_window_samples,
+                                 params_path=model_load_path + params_name)
     # Send model to GPU
     if cuda:
         model.cuda()
@@ -109,7 +98,6 @@ def run_model(data_load_path, model_name, double_channel, load_path, save_path):
                         valid_set,
                         model=model,
                         save_path=save_path,
-                        model_name=model_name,
                         double_channel=double_channel,
                         device=device)
 

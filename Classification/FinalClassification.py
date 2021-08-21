@@ -17,12 +17,12 @@ def tl_classifier(train_set, valid_set,
     n_epochs = 30
 
     # Checkpoint will save the history 
-    cp = Checkpoint(dirname=save_path,
-                    monitor=None,
+    cp = Checkpoint(monitor=None,
                     f_params=None,
                     f_optimizer=None,
                     f_criterion=None,
-                    )
+                    f_history='history.json',
+                    dirname=save_path)
 
     # Early_stopping
     early_stopping = EarlyStopping(patience=30)
@@ -55,7 +55,7 @@ def tl_classifier(train_set, valid_set,
     return clf
 
 
-def run_model(subject_id_list, double_channel, load_path, save_path):
+def run_model(subject_id_list, double_channel, model_load_path, params_name, save_path):
 
     input_window_samples = 1000
     cuda, device = detect_device()
@@ -76,7 +76,7 @@ def run_model(subject_id_list, double_channel, load_path, save_path):
     model = PretrainedDeep4Model(n_chans=n_chans,
                                  n_classes=n_classes,
                                  input_window_samples=input_window_samples,
-                                 params_path=load_path + 'params_10.pt')
+                                 params_path=model_load_path + params_name)
     # Send model to GPU
     if cuda:
         model.cuda()
