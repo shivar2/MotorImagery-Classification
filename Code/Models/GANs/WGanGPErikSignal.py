@@ -78,7 +78,7 @@ class WGANGP(nn.Module):
         gradient_penalty = ((gradients.norm(2, dim=1) - 1) ** 2).mean()
         return gradient_penalty
 
-    def train(self, dataset, save_model_path='saved_models/WGan-Gp/1/'):
+    def train(self, dataset, save_model_path):
 
         batches_done = 0
         gen_loss, disc_loss = [], []

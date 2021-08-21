@@ -70,7 +70,7 @@ window_stride_samples = 467
 
 mapping = {
     # Select just 'feet' task
-    'right_hand': 0,
+    'feet': 0,
 }
 
 pick_channels = ['C3']              # For All channels set None
@@ -79,12 +79,10 @@ pick_channels = ['C3']              # For All channels set None
 tasks_name = ''
 for key, value in mapping.items():
     tasks_name += key
-    tasks_name += '_'
 
 channels_name = ''
 for ch in pick_channels:
     channels_name += ch
-    channels_name += '_'
 
 save_result_path = '../../../Result/GANs/WGan-GP-Signal/' + str(subject_id) + '/' + tasks_name + '/' + channels_name + '/'
 if not os.path.exists(save_result_path):
