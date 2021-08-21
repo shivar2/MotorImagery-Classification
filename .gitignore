@@ -3,4 +3,4 @@
 *.fif
 *.pt
 *.pth
-
+*.pyc
