@@ -62,16 +62,15 @@ def tl_classifier(train_set, valid_set,
     return clf
 
 
-def run_model(data_directory, subject_id_list, dataset_name, model_name, double_channel, load_path, save_path):
+def run_model(data_load_path, model_name, double_channel, load_path, save_path):
 
     input_window_samples = 1000
     cuda, device = detect_device()
 
-    seed = 20200220  # random seed to make results reproducible
-    # Set random seed to be able to reproduce results
+    seed = 20200220
     set_random_seeds(seed=seed, cuda=cuda)
 
-    dataset = load_data_object(data_directory, subject_id_list)
+    dataset = load_data_object(data_load_path)
 
     n_classes = 4
     # Extract number of chans and time steps from dataset
@@ -94,21 +93,17 @@ def run_model(data_directory, subject_id_list, dataset_name, model_name, double_
     if cuda:
         model.cuda()
 
-    # And now we transform model with strides to a model that outputs dense prediction,
-    # so we can use it to obtain predictions for all crops.
     to_dense_prediction_model(model)
-
-    # To know the models’ receptive field, we calculate the shape of model output for a dummy input.
     n_preds_per_input = get_output_shape(model, n_chans, input_window_samples)[2]
 
     trial_start_offset_seconds = -0.5
 
     windows_dataset = cut_compute_windows(dataset,
-                        n_preds_per_input,
-                        input_window_samples=input_window_samples,
-                        trial_start_offset_seconds=trial_start_offset_seconds)
+                                          n_preds_per_input,
+                                          input_window_samples=input_window_samples,
+                                          trial_start_offset_seconds=trial_start_offset_seconds)
 
-    train_set, valid_set = split_data(windows_dataset, dataset_name=dataset_name)
+    train_set, valid_set = split_data(windows_dataset)
 
     clf = tl_classifier(train_set,
                         valid_set,

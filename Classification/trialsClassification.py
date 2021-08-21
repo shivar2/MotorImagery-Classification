@@ -24,19 +24,13 @@ def detect_device():
     return cuda, device
 
 
-def load_data_object(data_directory='bnci-raw/', subject_id_list=[1]):
+def load_data_object(data_path):
 
-    data_path = '../Dataset-Files/data-file/' + data_directory
-    datasets = []
-    for subject_id in subject_id_list:
-        datasets.append(
-            load_concat_dataset(
-                path=data_path + str(subject_id),
-                preload=True,
-                target_name=None,
-            )
-        )
-    dataset = BaseConcatDataset(datasets)
+    dataset = load_concat_dataset(
+        path=data_path,
+        preload=True,
+        target_name=None,
+    )
 
     return dataset
 
@@ -103,19 +97,24 @@ def create_model_deep4(input_window_samples=1000, n_chans=4, n_classes=4):
 
 def train_trials(train_set, valid_set, model, save_path, model_name='shallow', device='cpu'):
     if model_name == 'shallow':
-            # These values we found good for shallow network:
-            lr = 0.0625 * 0.01
-            weight_decay = 0
+        # These values we found good for shallow network:
+        lr = 0.0625 * 0.01
+        weight_decay = 0
     else:
-            # For deep4 they should be:
-            lr = 1 * 0.01
-            weight_decay = 0.5 * 0.001
+        # For deep4 they should be:
+        lr = 1 * 0.01
+        weight_decay = 0.5 * 0.001
 
     batch_size = 64
     n_epochs = 10
 
     # Checkpoint will save the model with the lowest valid_loss
-    cp = Checkpoint(dirname=save_path, f_criterion=None)
+    cp = Checkpoint(monitor=None,
+                    f_params=None,
+                    f_optimizer=None,
+                    f_criterion=None,
+                    f_history='history.json',
+                    dirname=save_path)
 
     # Early_stopping
     early_stopping = EarlyStopping(patience=5)
@@ -184,14 +183,14 @@ def plot(clf, save_path):
     plt.savefig(fname=image_path)
 
 
-def run_model(data_directory, subject_id_list, dataset_name, model_name, save_path):
+def run_model(data_load_path, dataset_name, model_name, save_path):
     cuda, device = detect_device()
 
     seed = 20200220  # random seed to make results reproducible
     # Set random seed to be able to reproduce results
     set_random_seeds(seed=seed, cuda=cuda)
 
-    dataset = load_data_object(data_directory, subject_id_list)
+    dataset = load_data_object(data_path=data_load_path)
 
     trial_start_offset_seconds = -0.5
 
@@ -213,7 +212,6 @@ def run_model(data_directory, subject_id_list, dataset_name, model_name, save_pa
     # Send model to GPU
     if cuda:
         model.cuda()
-
 
     clf = train_trials(train_set,
                        valid_set,
