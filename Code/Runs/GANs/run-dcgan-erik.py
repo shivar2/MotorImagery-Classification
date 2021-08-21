@@ -74,18 +74,16 @@ pick_channels = ['C3', 'C4']              # For All channels set None
 tasks_name = ''
 for key, value in mapping.items():
     tasks_name += key
-    tasks_name += '_'
 
 channels_name = ''
 for ch in pick_channels:
     channels_name += ch
-    channels_name += '_'
 
-save_result_path = '../../../Result/GANs/DCGan/' + str(subject_id) + '/' + tasks_name + '/' + channels_name
+save_result_path = '../../../Result/GANs/DCGan/' + str(subject_id) + '/' + tasks_name + '/' + channels_name + '/'
 if not os.path.exists(save_result_path):
     os.makedirs(save_result_path)
 
-save_model_path = '../../../Model_Params/GANs/DCGan/' + str(subject_id) + '/' + tasks_name + '/' + channels_name
+save_model_path = '../../../Model_Params/GANs/DCGan/' + str(subject_id) + '/' + tasks_name + '/' + channels_name + '/'
 if not os.path.exists(save_model_path):
     os.makedirs(save_model_path)
 

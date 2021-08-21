@@ -45,8 +45,8 @@ for task in tasks:
 
     for channel in all_channels:
         # path to generator weights .pth file
-        saved_models_path = '../Data/Fake_Data/WGan-GP/' + str(subject_id) + '/' + 'C3_' + '/'
-        saved_models_path += 'right_hand_generator_state_dict.pth'
+        saved_models_path = '../Data/Fake_Data/WGan-GP/' + str(subject_id) + '/' + task + '/' + channel + '/'
+        saved_models_path += 'generator_state_dict.pth'
 
         netG = Generator(time_sample=time_sample, noise=noise, channels=1, freq_sample=36)
 

@@ -96,11 +96,11 @@ for channel in all_channels:
             key: value
         }
 
-        save_result_path = '../../../Result/GANs/WGan-GP/' + str(subject_id) + '/' + tasks_name + '/' + channels_name
+        save_result_path = '../../../Result/GANs/WGan-GP/' + str(subject_id) + '/' + tasks_name + '/' + channels_name + '/'
         if not os.path.exists(save_result_path):
             os.makedirs(save_result_path)
 
-        save_model_path = '../../../Model_Params/GANs/WGan-GP/' + str(subject_id) + '/' + tasks_name + '/' + channels_name
+        save_model_path = '../../../Model_Params/GANs/WGan-GP/' + str(subject_id) + '/' + tasks_name + '/' + channels_name + '/'
         if not os.path.exists(save_model_path):
             os.makedirs(save_model_path)
 
