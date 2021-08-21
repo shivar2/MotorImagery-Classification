@@ -27,19 +27,12 @@ def detect_device():
     return cuda, device
 
 
-def load_data_object(data_directory='bnci-raw/', subject_id_list=[1]):
+def load_data_object(data_path):
 
-    data_path = '../../../Data/Real_Data/' + data_directory
-    datasets = []
-    for subject_id in subject_id_list:
-        datasets.append(
-            load_concat_dataset(
-                path=data_path + str(subject_id),
-                preload=True,
-                target_name=None,
-            )
-        )
-    dataset = BaseConcatDataset(datasets)
+    dataset = load_concat_dataset(
+        path=data_path,
+        preload=True,
+        target_name=None,)
 
     return dataset
 
@@ -195,7 +188,7 @@ def plot(clf, save_path):
     plt.savefig(fname=image_path)
 
 
-def run_model(data_directory, subject_id_list, dataset_name, model_name, save_path):
+def run_model(data_load_path, dataset_name, model_name, save_path):
     input_window_samples = 1000
     cuda, device = detect_device()
 
@@ -203,7 +196,7 @@ def run_model(data_directory, subject_id_list, dataset_name, model_name, save_pa
     # Set random seed to be able to reproduce results
     set_random_seeds(seed=seed, cuda=cuda)
 
-    dataset = load_data_object(data_directory, subject_id_list)
+    dataset = load_data_object(data_load_path)
 
     n_classes = 4
     # Extract number of chans and time steps from dataset
