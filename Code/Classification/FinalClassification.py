@@ -55,7 +55,7 @@ def tl_classifier(train_set, valid_set,
     return clf
 
 
-def run_model(subject_id_list, double_channel, model_load_path, params_name, save_path):
+def run_model(data_load_path, fake_data_load_path, double_channel, model_load_path, params_name, save_path):
 
     input_window_samples = 1000
     cuda, device = detect_device()
@@ -63,8 +63,8 @@ def run_model(subject_id_list, double_channel, model_load_path, params_name, sav
     seed = 20200220
     set_random_seeds(seed=seed, cuda=cuda)
 
-    dataset = load_data_object(subject_id_list)
-    train_set_fake = load_fake_data(subject_id_list)
+    dataset = load_data_object(data_load_path)
+    train_set_fake = load_fake_data(fake_data_load_path)
 
     n_classes = 4
 
