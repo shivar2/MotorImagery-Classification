@@ -109,7 +109,7 @@ def train_cropped_trials(train_set, valid_set, model, save_path, device='cpu'):
     weight_decay = 0.5 * 0.001
 
     batch_size = 64
-    n_epochs = 10
+    n_epochs = 15
 
     # Checkpoint will save the model with the lowest valid_loss
     cp = Checkpoint(monitor=None,
@@ -120,7 +120,7 @@ def train_cropped_trials(train_set, valid_set, model, save_path, device='cpu'):
                     dirname=save_path)
 
     # Early_stopping
-    early_stopping = EarlyStopping(patience=5)
+    early_stopping = EarlyStopping(patience=30)
 
     callbacks = [
         "accuracy",
