@@ -150,45 +150,6 @@ def train_cropped_trials(train_set, valid_set, model, save_path, device='cpu'):
     return clf
 
 
-def plot(clf, save_path):
-    # Extract loss and accuracy values for plotting from history object
-    results_columns = ['train_loss', 'valid_loss', 'train_accuracy', 'valid_accuracy']
-    df = pd.DataFrame(clf.history[:, results_columns], columns=results_columns,
-                      index=clf.history[:, 'epoch'])
-
-    # get percent of misclass for better visual comparison to loss
-    df = df.assign(train_misclass=100 - 100 * df.train_accuracy,
-                   valid_misclass=100 - 100 * df.valid_accuracy)
-
-    plt.style.use('seaborn')
-    fig, ax1 = plt.subplots(figsize=(8, 3))
-    df.loc[:, ['train_loss', 'valid_loss']].plot(
-        ax=ax1, style=['-', ':'], marker='o', color='tab:blue', legend=False, fontsize=14)
-
-    ax1.tick_params(axis='y', labelcolor='tab:blue', labelsize=14)
-    ax1.set_ylabel("Loss", color='tab:blue', fontsize=14)
-
-    ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
-
-    df.loc[:, ['train_misclass', 'valid_misclass']].plot(
-        ax=ax2, style=['-', ':'], marker='o', color='tab:red', legend=False)
-    ax2.tick_params(axis='y', labelcolor='tab:red', labelsize=14)
-    ax2.set_ylabel("Misclassification Rate [%]", color='tab:red', fontsize=14)
-    ax2.set_ylim(ax2.get_ylim()[0], 85)  # make some room for legend
-    ax1.set_xlabel("Epoch", fontsize=14)
-
-    # where some data has already been plotted to ax
-    handles = []
-    handles.append(Line2D([0], [0], color='black', linewidth=1, linestyle='-', label='Train'))
-    handles.append(Line2D([0], [0], color='black', linewidth=1, linestyle=':', label='Valid'))
-    plt.legend(handles, [h.get_label() for h in handles], fontsize=14)
-    plt.tight_layout()
-
-    # Image path
-    image_path = save_path + 'result'
-    plt.savefig(fname=image_path)
-
-
 def run_model(data_load_path, fake_data_load_path, save_path):
     input_window_samples = 1000
     cuda, device = detect_device()
