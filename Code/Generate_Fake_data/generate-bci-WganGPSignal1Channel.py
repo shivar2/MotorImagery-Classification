@@ -50,7 +50,7 @@ all_channels = ['Fz',
 start = 0
 task_trials_epoch = []
 for task in tasks:
-    task_channels_trials = np.empty(shape=(batch_size, 0, time_sample * 2))
+    task_channels_trials = np.empty(shape=(batch_size, 0, time_sample))
 
     for channel in all_channels:
         # path to generator weights .pth file
@@ -101,7 +101,7 @@ for task in tasks:
         })
 
         epoch_data = np.array(task_channels_trial)
-        epoch_data = np.reshape(epoch_data, newshape=(-1, len(all_channels), time_sample * 2))
+        epoch_data = np.reshape(epoch_data, newshape=(-1, len(all_channels), time_sample))
 
         simulated_epoch = mne.EpochsArray(epoch_data, info, tmin=-0.5, events=events, event_id=event_dict, metadata=metadata)
         # simulated_epoch.plot(show_scrollbars=False, events=events, event_id=event_dict)
@@ -123,7 +123,7 @@ fake_dataset = BaseConcatDataset([wdataset])
 
 
 # path to to fake eeg directory
-fake_data_path = '../../Data/Fake_Data/WGan-GP-Signal/colab-data/' + str(subject_id) + '/' + 'Runs' + '/' + '0/'
+fake_data_path = '../../Data/Fake_Data/WGan-GP-Signal/' + str(subject_id) + '/' + 'Runs' + '/' + '3/'
 if not os.path.exists(fake_data_path):
     os.makedirs(fake_data_path)
 

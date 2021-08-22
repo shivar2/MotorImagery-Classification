@@ -52,7 +52,7 @@ task_trials_epoch = []
 for task in tasks:
     task_channels_trials = np.empty(shape=(batch_size, 0, time_sample * 2))
 
-    saved_models_path = '../Model_Params/GANs/WGan-GP-Signal/' + str(subject_id) + '/' + task + '/ALL_Channels/' + '/'
+    saved_models_path = '../../Model_Params/GANs/WGan-GP-Signal/' + str(subject_id) + '/' + task + '/ALL_Channels/' + '/'
     saved_models_path += 'generator_state_dict.pth'
 
     netG = Generator(time_sample=time_sample, noise=noise, channels=22)
@@ -121,7 +121,7 @@ fake_dataset = BaseConcatDataset([wdataset])
 
 
 # path to to fake eeg directory
-fake_data_path = '../Data/Fake_Data/WGan-GP-Signal/colab-data/' + str(subject_id) + '/' + 'Runs' + '/' + '0/'
+fake_data_path = '../../Data/Fake_Data/WGan-GP-Signal/' + str(subject_id) + '/' + 'Runs' + '/' + '0/'
 if not os.path.exists(fake_data_path):
     os.makedirs(fake_data_path)
 
