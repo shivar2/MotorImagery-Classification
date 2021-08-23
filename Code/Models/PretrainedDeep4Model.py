@@ -37,15 +37,22 @@ class PretrainedDeep4Model(nn.Module):
         # Freezing model
         model.requires_grad_(requires_grad=False)
 
+        # model.nonlin_4 = Expression(elu)
+        # model.pool_4 = nn.MaxPool2d(kernel_size=(3, 1),
+        #                             stride=(1, 1), )
+        # model.pool_nonlin_4 = Expression(identity)
+
         # Final_conv_length
         final_conv_length = model.final_conv_length
 
         # Change conv_classifier layer to fine-tune
-        model.conv_classifier = nn.Conv2d(int(n_chans * (2 ** 3.0)),
-                                          n_classes,
-                                          (final_conv_length, 1),
-                                          stride=(1, 1),
-                                          bias=True)
+        model.conv_classifier = nn.Conv2d(
+            int(n_chans * (2 ** 3.0)),
+            n_classes,
+            (final_conv_length, 1),
+            stride=(1, 1),
+            padding='same',
+            bias=True)
 
         model.softmax = nn.LogSoftmax(dim=1)
         model.squeeze = Expression(squeeze_final_output)
