@@ -4,6 +4,7 @@ import torch
 from sklearn.model_selection import train_test_split
 
 from skorch.callbacks import LRScheduler, Checkpoint, EarlyStopping
+from skorch.dataset import unpack_data
 from skorch.helper import predefined_split
 
 import matplotlib.pyplot as plt
@@ -101,7 +102,7 @@ def split_data(windows_dataset, dataset_name='BNCI'):
     return train_set_all, test_set
 
 
-def train_cropped_trials(train_set, valid_set, test_set, model, save_path, model_name='shallow', device='cpu'):
+def train_cropped_trials(train_set, valid_set, model, save_path, model_name='shallow', device='cpu'):
     if model_name == 'shallow':
         # These values we found good for shallow network:
         lr = 0.0625 * 0.01
@@ -112,7 +113,7 @@ def train_cropped_trials(train_set, valid_set, test_set, model, save_path, model
         weight_decay = 0.5 * 0.001
 
     batch_size = 64
-    n_epochs = 10
+    n_epochs = 2
 
     # Checkpoint will save the model with the lowest valid_loss
     cp = Checkpoint(monitor=None,
@@ -229,18 +230,26 @@ def run_model(data_load_path, dataset_name, model_name, save_path):
 
     train_set_all, test_set = split_data(windows_dataset, dataset_name=dataset_name)
 
-
     X_train, X_valid = train_test_split(train_set_all.datasets, test_size=1, train_size=5)
     train_set = BaseConcatDataset(X_train)
     valid_set = BaseConcatDataset(X_valid)
 
     clf = train_cropped_trials(train_set,
                                valid_set,
-                               test_set,
                                model=model,
                                save_path=save_path,
                                model_name=model_name,
                                device=device)
 
-    plot(clf, save_path)
+    # plot(clf, save_path)
+    # clf.save_params(f_params='model.pkl', f_optimizer='optimizer.pkl', f_history='history.json')
+    import numpy as np
+    # test_arry = np.array(test_set.datasets)
+
+    for data in test_set.datasets:
+        Xi, yi = unpack_data(data)
+        score = clf.score(Xi, y=yi)
+
+    score = clf.score(test_set, y=None)
+    print("EEG Cropped Classification Score (Accuracy) is:  " + str(score))
 
