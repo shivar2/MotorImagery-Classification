@@ -51,7 +51,6 @@ class PretrainedDeep4Model(nn.Module):
             n_classes,
             (final_conv_length, 1),
             stride=(1, 1),
-            padding='same',
             bias=True)
 
         model.softmax = nn.LogSoftmax(dim=1)
