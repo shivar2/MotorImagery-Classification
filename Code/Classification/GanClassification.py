@@ -13,6 +13,8 @@ from braindecode.datautil.windowers import create_windows_from_events
 from braindecode import EEGClassifier
 from braindecode.training.losses import CroppedLoss
 
+from Code.Classification.CroppedClassification import plot
+
 
 def detect_device():
     cuda = torch.cuda.is_available()  # check if GPU is available, if True chooses to use it
