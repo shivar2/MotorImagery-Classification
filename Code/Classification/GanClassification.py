@@ -1,20 +1,13 @@
-import os
-import mne
-import glob
 
 import torch
 
 from skorch.callbacks import LRScheduler, Checkpoint, EarlyStopping
 from skorch.helper import predefined_split
 
-import matplotlib.pyplot as plt
-from matplotlib.lines import Line2D
-import pandas as pd
-
 from braindecode.datautil.serialization import load_concat_dataset
-from braindecode.datasets.base import BaseConcatDataset, WindowsDataset
+from braindecode.datasets.base import BaseConcatDataset
 from braindecode.util import set_random_seeds
-from braindecode.models import ShallowFBCSPNet, Deep4Net
+from braindecode.models import Deep4Net
 from braindecode.models.util import to_dense_prediction_model, get_output_shape
 from braindecode.datautil.windowers import create_windows_from_events
 from braindecode import EEGClassifier
