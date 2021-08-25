@@ -1,6 +1,101 @@
+import torch
+
+from skorch.callbacks import LRScheduler, Checkpoint, EarlyStopping
+from skorch.helper import predefined_split
+
+from braindecode.datautil.serialization import load_concat_dataset
+from braindecode.datasets.base import BaseConcatDataset
+from braindecode.util import set_random_seeds
+from braindecode.models import Deep4Net
+from braindecode.models.util import to_dense_prediction_model, get_output_shape
+from braindecode.datautil.windowers import create_windows_from_events
+from braindecode.training.losses import CroppedLoss
+
 from Code.Classifier.EEGTLClassifier import EEGTLClassifier
-from Code.Classification.GanClassification import *
 from Code.Models.PretrainedDeep4Model import PretrainedDeep4Model
+from Code.Classification.CroppedClassification import plot
+
+
+def detect_device():
+    cuda = torch.cuda.is_available()  # check if GPU is available, if True chooses to use it
+    device = 'cuda' if cuda else 'cpu'
+    if cuda:
+        torch.backends.cudnn.deterministic = True
+        torch.backends.cudnn.benchmark = False
+    return cuda, device
+
+
+def load_data_object(data_path):
+
+    dataset = load_concat_dataset(
+                path=data_path,
+                preload=True,
+                target_name=None,
+            )
+    return dataset
+
+
+def load_fake_data(fake_data_path):
+
+    ds_list = []
+    for folder in range(0, 4):
+        folder_path = fake_data_path + str(folder) + '/'
+        ds_loaded = load_concat_dataset(
+                path=folder_path,
+                preload=True,
+                target_name=None,
+        )
+        ds_list.append(ds_loaded)
+
+    return ds_list
+
+
+def create_model_deep4(input_window_samples=1000, n_chans=4, n_classes=4):
+    model = Deep4Net(
+        in_chans=n_chans,
+        n_classes=n_classes,
+        input_window_samples=input_window_samples,
+        n_filters_time=25,
+        n_filters_spat=25,
+        stride_before_pool=True,
+        n_filters_2=int(n_chans * 2),
+        n_filters_3=int(n_chans * (2 ** 2.0)),
+        n_filters_4=int(n_chans * (2 ** 3.0)),
+        final_conv_length='auto',
+    )
+    return model
+
+
+def cut_compute_windows(dataset, n_preds_per_input, input_window_samples=1000, trial_start_offset_seconds=-0.5):
+    # Extract sampling frequency, check that they are same in all datasets
+
+    sfreq = dataset.datasets[0].raw.info['sfreq']
+    assert all([ds.raw.info['sfreq'] == sfreq for ds in dataset.datasets])
+
+    # Calculate the trial start offset in samples.
+    trial_start_offset_samples = int(trial_start_offset_seconds * sfreq)
+
+    # Create windows using braindecode function for this. It needs parameters to define how
+    # trials should be used.
+    windows_dataset = create_windows_from_events(
+        dataset,
+        trial_start_offset_samples=trial_start_offset_samples,
+        trial_stop_offset_samples=0,
+        window_size_samples=input_window_samples,
+        window_stride_samples=n_preds_per_input,
+        drop_last_window=False,
+        preload=True
+    )
+    return windows_dataset
+
+
+def split_data(windows_dataset):
+    # Split dataset into train and valid
+    splitted = windows_dataset.split('session')
+    train_set = splitted['session_T']
+    valid_set = splitted['session_E']
+
+    return train_set, valid_set
 
 
 def tl_classifier(train_set, valid_set,
@@ -14,7 +109,7 @@ def tl_classifier(train_set, valid_set,
     weight_decay = 0.5 * 0.001
 
     batch_size = 64
-    n_epochs = 30
+    n_epochs = 100
 
     # Checkpoint will save the history 
     cp = Checkpoint(monitor=None,
@@ -25,7 +120,7 @@ def tl_classifier(train_set, valid_set,
                     dirname=save_path)
 
     # Early_stopping
-    early_stopping = EarlyStopping(patience=30)
+    early_stopping = EarlyStopping(patience=100)
 
     callbacks = [
         "accuracy",
@@ -37,6 +132,7 @@ def tl_classifier(train_set, valid_set,
     clf = EEGTLClassifier(
         model,
         double_channel=double_channel,
+        warm_start=True,
         is_freezing=True,
         cropped=True,
         max_epochs=n_epochs,
