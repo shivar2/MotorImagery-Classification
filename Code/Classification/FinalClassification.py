@@ -126,7 +126,7 @@ def tl_classifier(train_set, valid_set,
         "accuracy",
         ('cp', cp),
         ('patience', early_stopping),
-        ("lr_scheduler", LRScheduler('CosineAnnealingLR', T_max=n_epochs - 1)),
+        ("lr_scheduler", LRScheduler('WarmRestartLR')),
     ]
 
     clf = EEGTLClassifier(
