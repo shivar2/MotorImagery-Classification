@@ -1,6 +1,8 @@
 
 import torch
 
+from sklearn.model_selection import train_test_split
+
 from skorch.callbacks import LRScheduler, Checkpoint, EarlyStopping
 from skorch.helper import predefined_split
 
@@ -89,17 +91,17 @@ def split_data(windows_dataset, dataset_name='BNCI'):
     # Split dataset into train and valid
     if dataset_name == 'BNCI':
         splitted = windows_dataset.split('session')
-        train_set = splitted['session_T']
-        valid_set = splitted['session_E']
+        train_set_all = splitted['session_T']
+        test_set = splitted['session_E']
     else:
         splitted = windows_dataset.split('run')
-        train_set = splitted['train']
-        valid_set = splitted['test']
+        train_set_all = splitted['train']
+        test_set = splitted['test']
 
-    return train_set, valid_set
+    return train_set_all, test_set
 
 
-def train_cropped_trials(train_set, valid_set, model, save_path, model_name='shallow', device='cpu'):
+def train_cropped_trials(train_set, valid_set, test_set, model, save_path, model_name='shallow', device='cpu'):
     if model_name == 'shallow':
         # These values we found good for shallow network:
         lr = 0.0625 * 0.01
@@ -225,10 +227,16 @@ def run_model(data_load_path, dataset_name, model_name, save_path):
                                           input_window_samples=input_window_samples,
                                           trial_start_offset_seconds=trial_start_offset_seconds)
 
-    train_set, valid_set = split_data(windows_dataset, dataset_name=dataset_name)
+    train_set_all, test_set = split_data(windows_dataset, dataset_name=dataset_name)
+
+
+    X_train, X_valid = train_test_split(train_set_all.datasets, test_size=1, train_size=5)
+    train_set = BaseConcatDataset(X_train)
+    valid_set = BaseConcatDataset(X_valid)
 
     clf = train_cropped_trials(train_set,
                                valid_set,
+                               test_set,
                                model=model,
                                save_path=save_path,
                                model_name=model_name,
