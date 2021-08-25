@@ -1,3 +1,5 @@
+import numpy as np
+
 from Code.Classifier.EEGTLClassifier import EEGTLClassifier
 from Code.Classification.CroppedClassification import *
 from Code.Models.PretrainedDeep4Model import PretrainedDeep4Model
@@ -107,4 +109,13 @@ def run_model(data_load_path, double_channel, model_load_path, params_name, save
                         device=device)
 
     plot(clf, save_path)
+
+    # Calculate Mean Accuracy For Test set
+    i = 0
+    test = np.empty(shape=(len(test_set), n_chans, input_window_samples))
+    target = np.empty(shape=(len(test_set)))
+    for x, y, window_ind in test_set:
+        test[i] = x
+        target[i] = y
+        i += 1
 

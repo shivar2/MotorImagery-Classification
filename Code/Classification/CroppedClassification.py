@@ -1,10 +1,9 @@
-
+import numpy as np
 import torch
 
 from sklearn.model_selection import train_test_split
 
 from skorch.callbacks import LRScheduler, Checkpoint, EarlyStopping
-from skorch.dataset import unpack_data
 from skorch.helper import predefined_split
 
 import matplotlib.pyplot as plt
@@ -113,7 +112,7 @@ def train_cropped_trials(train_set, valid_set, model, save_path, model_name='sha
         weight_decay = 0.5 * 0.001
 
     batch_size = 64
-    n_epochs = 2
+    n_epochs = 100
 
     # Checkpoint will save the model with the lowest valid_loss
     cp = Checkpoint(monitor=None,
@@ -243,13 +242,16 @@ def run_model(data_load_path, dataset_name, model_name, save_path):
 
     # plot(clf, save_path)
     # clf.save_params(f_params='model.pkl', f_optimizer='optimizer.pkl', f_history='history.json')
-    import numpy as np
-    # test_arry = np.array(test_set.datasets)
 
-    for data in test_set.datasets:
-        Xi, yi = unpack_data(data)
-        score = clf.score(Xi, y=yi)
+    # Calculate Mean Accuracy For Test set
+    i = 0
+    test = np.empty(shape=(len(test_set), n_chans, input_window_samples))
+    target = np.empty(shape=(len(test_set)))
+    for x, y, window_ind in test_set:
+        test[i] = x
+        target[i] = y
+        i += 1
 
-    score = clf.score(test_set, y=None)
+    score = clf.score(test, y=target)
     print("EEG Cropped Classification Score (Accuracy) is:  " + str(score))
 

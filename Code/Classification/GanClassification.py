@@ -1,4 +1,4 @@
-
+import numpy as np
 import torch
 
 from sklearn.model_selection import train_test_split
@@ -197,4 +197,13 @@ def run_model(data_load_path, fake_data_load_path, save_path):
                                device=device)
 
     plot(clf, save_path)
+
+    # Calculate Mean Accuracy For Test set
+    i = 0
+    test = np.empty(shape=(len(test_set), n_chans, input_window_samples))
+    target = np.empty(shape=(len(test_set)))
+    for x, y, window_ind in test_set:
+        test[i] = x
+        target[i] = y
+        i += 1
 
