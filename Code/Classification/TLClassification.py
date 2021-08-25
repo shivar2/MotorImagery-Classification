@@ -14,7 +14,7 @@ def tl_classifier(train_set, valid_set,
     weight_decay = 0.5 * 0.001
 
     batch_size = 64
-    n_epochs = 15
+    n_epochs = 100
 
     # Checkpoint will save the history 
     cp = Checkpoint(monitor=None,
@@ -25,19 +25,20 @@ def tl_classifier(train_set, valid_set,
                     dirname=save_path)
 
     # Early_stopping
-    early_stopping = EarlyStopping(patience=30)
+    early_stopping = EarlyStopping(patience=100)
 
     callbacks = [
         "accuracy",
         ('cp', cp),
         ('patience', early_stopping),
-        ("lr_scheduler", LRScheduler('CosineAnnealingLR', T_max=n_epochs - 1)),
+        ("lr_scheduler", LRScheduler('WarmRestartLR')),
     ]
 
     clf = EEGTLClassifier(
         model,
         double_channel=double_channel,
         is_freezing=True,
+        warm_start=True,
         cropped=True,
         max_epochs=n_epochs,
         criterion=CroppedLoss,
