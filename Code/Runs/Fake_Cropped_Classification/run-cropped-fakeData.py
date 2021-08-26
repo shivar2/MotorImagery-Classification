@@ -7,7 +7,7 @@ subject_id_list = [1]
 
 # Path to saving Models
 # mkdir path to save
-save_path = os.path.join('../../../Result/Fake_Cropped_Classification/' + str(subject_id_list).strip('[]')) + '/Run: 8/'
+save_path = os.path.join('../../../Model_Params/Fake_Cropped_Classification/' + str(subject_id_list).strip('[]')) + '/Run: 1/'
 data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/' + str(subject_id_list).strip('[]')) + '/'
 fake_data_load_path = os.path.join('../../../Data/Fake_Data/WGan-GP-Signal/' + str(subject_id_list).strip('[]')) + '/Runs/'
 

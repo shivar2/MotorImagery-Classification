@@ -12,7 +12,7 @@ fake_data_load_path = os.path.join('../../../Data/Fake_Data/WGan-GP-Signal/' + s
 model_load_path = '../../../Model_Params/Pretrained_Models/deep4/22/1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14/'
 
 # Save results
-save_path = os.path.join('../../../Result/Final_Classification/' + str(subject_id_list).strip('[]')) + '/Run: 10/'
+save_path = os.path.join('../../../Model_Params/Final_Classification/' + str(subject_id_list).strip('[]')) + '/Run: 1/'
 if not os.path.exists(save_path):
     os.makedirs(save_path)
 
