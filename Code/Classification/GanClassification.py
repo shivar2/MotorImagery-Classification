@@ -106,7 +106,7 @@ def train_cropped_trials(train_set, valid_set, model, save_path, device='cpu'):
     weight_decay = 0.5 * 0.001
 
     batch_size = 64
-    n_epochs = 15
+    n_epochs = 100
 
     # Checkpoint will save the model with the lowest valid_loss
     cp = Checkpoint(monitor=None,
@@ -117,7 +117,7 @@ def train_cropped_trials(train_set, valid_set, model, save_path, device='cpu'):
                     dirname=save_path)
 
     # Early_stopping
-    early_stopping = EarlyStopping(patience=30)
+    early_stopping = EarlyStopping(patience=100)
 
     callbacks = [
         "accuracy",
@@ -207,5 +207,5 @@ def run_model(data_load_path, fake_data_load_path, save_path):
         target[i] = y
         i += 1
     score = clf.score(test, y=target)
-    print("EEG Cropped Classification Score (Accuracy) is:  " + str(score))
+    print("EEG Gan Classification Score (Accuracy) is:  " + str(score))
 
