@@ -16,7 +16,7 @@ def tl_classifier(train_set, valid_set,
     weight_decay = 0.5 * 0.001
 
     batch_size = 64
-    n_epochs = 100
+    n_epochs = 2
 
     # Checkpoint will save the history 
     cp = Checkpoint(
@@ -121,4 +121,8 @@ def run_model(data_load_path, double_channel, model_load_path, params_name, save
 
     score = clf.score(test, y=target)
     print("EEG TL Classification Score (Accuracy) is:  " + str(score))
+
+    f = open(save_path + "test-result.txt", "w")
+    f.write("EEG TL Classification Score (Accuracy) is:  " + str(score))
+    f.close()
 

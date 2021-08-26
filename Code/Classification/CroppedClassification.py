@@ -255,3 +255,7 @@ def run_model(data_load_path, dataset_name, model_name, save_path):
     score = clf.score(test, y=target)
     print("EEG Cropped Classification Score (Accuracy) is:  " + str(score))
 
+    f = open(save_path + "test-result.txt", "w")
+    f.write("EEG Cropped Classification Score (Accuracy) is:  " + str(score))
+    f.close()
+
