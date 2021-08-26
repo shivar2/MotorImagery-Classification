@@ -16,7 +16,7 @@ def tl_classifier(train_set, valid_set,
     weight_decay = 0.5 * 0.001
 
     batch_size = 64
-    n_epochs = 2
+    n_epochs = 100
 
     # Checkpoint will save the history 
     cp = Checkpoint(
