@@ -34,8 +34,8 @@ def tl_classifier(train_set, valid_set,
 
     # Checkpoint will save the history 
     cp = Checkpoint(
-                    f_params="params_best_valid_loss_{last_epoch[epoch]}.pt",
-                    f_optimizer="optimizer_best_valid_loss_{last_epoch[epoch]}.pt",
+                    f_params="params.pt",
+                    f_optimizer="optimizers.pt",
                     f_criterion=None,
                     f_history='history.json',
                     dirname=save_path)
