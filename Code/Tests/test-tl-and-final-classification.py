@@ -2,8 +2,10 @@ import os
 import numpy as np
 from braindecode.util import set_random_seeds
 from braindecode.models.util import to_dense_prediction_model, get_output_shape
+from braindecode.training.losses import CroppedLoss
 
 from Code.Classifier.EEGTLClassifier import EEGTLClassifier
+from Code.Models.PretrainedDeep4Model import PretrainedDeep4Model
 from Code.Tests.base import *
 
 
@@ -26,19 +28,12 @@ def test_clf(double_channel, data_load_path, clf_load_path):
     cuda, device = detect_device()
     seed = 20200220
     set_random_seeds(seed=seed, cuda=cuda)
-
-    model = Deep4Net(
-        in_chans=n_chans,
-        n_classes=n_classes,
-        input_window_samples=input_window_samples,
-        n_filters_time=25,
-        n_filters_spat=25,
-        stride_before_pool=True,
-        n_filters_2=int(n_chans * 2),
-        n_filters_3=int(n_chans * (2 ** 2.0)),
-        n_filters_4=int(n_chans * (2 ** 3.0)),
-        final_conv_length='auto',
-    )
+    
+    # you should remove model load static from pretrained model and !IMPPORTANT!
+    model = PretrainedDeep4Model(n_chans=n_chans,
+                                 n_classes=n_classes,
+                                 input_window_samples=input_window_samples,
+                                 params_path='')
     # Send model to GPU
     if cuda:
         model.cuda()
@@ -65,8 +60,9 @@ def test_clf(double_channel, data_load_path, clf_load_path):
 
     clf = EEGTLClassifier(
         model,
-        double_channel=double_channel,
         cropped=True,
+        double_channel=double_channel,
+        criterion=CroppedLoss,
         max_epochs=n_epochs,
         criterion__loss_function=torch.nn.functional.nll_loss,
         optimizer=torch.optim.AdamW,
@@ -89,10 +85,10 @@ def test_clf(double_channel, data_load_path, clf_load_path):
 ########################################
 
 subject_id_list = [1]
-data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/' + str(subject_id_list).strip('[]')) + '/'
+data_load_path = os.path.join('../../Data/Real_Data/BCI/bnci-raw/' + str(subject_id_list).strip('[]')) + '/'
 
-clf_load_path = '../../../Model_Params/TLClassification/22/' + str(subject_id_list).strip('[]') + '/'
-# clf_load_path = '../../../Model_Params/FinalClassification/' + str(subject_id_list).strip('[]') + '/'
+clf_load_path = '../../Model_Params/TL_Classification/22/' + str(subject_id_list).strip('[]') + '/Run-num:0/'
+# clf_load_path = '../../Model_Params/FinalClassification/' + str(subject_id_list).strip('[]') + '/'
 
 test_clf(double_channel=False, data_load_path=data_load_path, clf_load_path=clf_load_path)
 

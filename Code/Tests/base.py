@@ -64,8 +64,8 @@ def cut_compute_windows(dataset, n_preds_per_input, input_window_samples=1000, t
 
 def get_test_data(windows_dataset):
     # Split dataset into train and test and return just test set
-    splitted = windows_dataset.split('run')
-    test_set = splitted['test']
+    splitted = windows_dataset.split('session')
+    test_set = splitted['session_E']
 
     return test_set
 
