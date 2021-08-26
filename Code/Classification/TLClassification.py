@@ -119,3 +119,6 @@ def run_model(data_load_path, double_channel, model_load_path, params_name, save
         target[i] = y
         i += 1
 
+    score = clf.score(test, y=target)
+    print("EEG Cropped Classification Score (Accuracy) is:  " + str(score))
+
