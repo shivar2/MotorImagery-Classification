@@ -25,7 +25,7 @@ def test_clf(data_load_path, clf_load_path):
     seed = 20200220
     set_random_seeds(seed=seed, cuda=cuda)
 
-    model = model = Deep4Net(
+    model = Deep4Net(
         in_chans=n_chans,
         n_classes=n_classes,
         input_window_samples=input_window_samples,
