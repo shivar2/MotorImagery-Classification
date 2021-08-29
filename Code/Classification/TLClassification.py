@@ -27,7 +27,7 @@ def tl_classifier(train_set, valid_set,
                     dirname=save_path)
 
     # Early_stopping
-    early_stopping = EarlyStopping(patience=30)
+    early_stopping = EarlyStopping(patience=100)
 
     callbacks = [
         "accuracy",
@@ -39,7 +39,8 @@ def tl_classifier(train_set, valid_set,
     clf = EEGTLClassifier(
         model,
         double_channel=double_channel,
-        # is_freezing=True,
+        is_freezing=True,
+        warm_start=True,
         cropped=True,
         max_epochs=n_epochs,
         criterion=CroppedLoss,
