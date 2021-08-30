@@ -41,11 +41,11 @@ task_dict = {
 tasks = ['feet', 'left_hand', 'right_hand', 'tongue']
 
 all_channels = ['Fz',
-                'FC3', 'FC1', 'FCz', 'FC2', 'FC4',
-                'C5', 'C3', 'C1', 'Cz', 'C2', 'C4', 'C6',
-                'CP3', 'CP1', 'CPz', 'CP2', 'CP4',
-                'P1', 'Pz', 'P2',
-                'POz']
+                'FC1', 'FC2',
+                'C3', 'Cz', 'C4', 'CP1', 'CP2',
+                'Pz', 'POz', 'FC3', 'FCz', 'FC4',
+                'C5', 'C1', 'C2', 'C6', 'CP3', 'CPz', 'CP4',
+                'P1', 'P2']
 
 start = 0
 task_trials_epoch = []
