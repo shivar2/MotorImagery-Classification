@@ -1,1 +1,0 @@
-EEG TL Classification Score (Accuracy) is:  0.25925925925925924
