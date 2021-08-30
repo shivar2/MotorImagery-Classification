@@ -209,7 +209,7 @@ def run_model(data_load_path, fake_data_load_path, save_path):
     score = clf.score(test, y=target)
     print("EEG Gan Classification Score (Accuracy) is:  " + str(score))
 
-    # f = open(save_path + "test-result.txt", "a")
-    # f.write("EEG Fake Classification Score (Accuracy) is:  " + str(score))
-    # f.close()
+    f = open(save_path + "test-result.txt", "a")
+    f.write("EEG Fake Classification Score (Accuracy) is:  " + str(score))
+    f.close()
 
