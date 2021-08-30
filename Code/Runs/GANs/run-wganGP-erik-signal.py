@@ -84,11 +84,11 @@ channels_name = ''
 for ch in pick_channels:
     channels_name += ch
 
-save_result_path = '../../../Result/GANs/WGan-GP-Signal/' + str(subject_id) + '/' + tasks_name + '/' + channels_name + '/'
+save_result_path = '../../../Result/GANs/WGan-GP-Signal-VERSION2/' + str(subject_id) + '/' + tasks_name + '/' + channels_name + '/'
 if not os.path.exists(save_result_path):
     os.makedirs(save_result_path)
 
-save_model_path = '../../../Model_Params/GANs/WGan-GP-Signal/' + str(subject_id) + '/' + tasks_name + '/' + channels_name + '/'
+save_model_path = '../../../Model_Params/GANs/WGan-GP-Signal-VERSION2/' + str(subject_id) + '/' + tasks_name + '/' + channels_name + '/'
 if not os.path.exists(save_model_path):
     os.makedirs(save_model_path)
 
