@@ -4,6 +4,7 @@ from Code.Classification.GanClassification import run_model
 
 # example of BNCI & fake data deep4 - subject 1
 subject_id_list = 1
+fake_k = 6
 
 # Path to saving Models
 # mkdir path to save
@@ -15,4 +16,5 @@ if not os.path.exists(save_path):
 
 run_model(data_load_path=data_load_path,
           fake_data_load_path=fake_data_load_path,
+          fake_k=fake_k,
           save_path=save_path)

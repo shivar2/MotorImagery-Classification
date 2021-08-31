@@ -4,6 +4,7 @@ from Code.Classification.FinalClassification import run_model
 
 
 subject_id_list = [1]
+fake_k = 6
 
 data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/' + str(subject_id_list).strip('[]')) + '/'
 fake_data_load_path = os.path.join('../../../Data/Fake_Data/WGan-GP-Signal/' + str(subject_id_list).strip('[]')) + '/Runs/'
@@ -12,7 +13,7 @@ fake_data_load_path = os.path.join('../../../Data/Fake_Data/WGan-GP-Signal/' + s
 model_load_path = '../../../Model_Params/Pretrained_Models/deep4/22/1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14/'
 
 # Save results
-save_path = os.path.join('../../../Model_Params/Final_Classification/' + str(subject_id_list).strip('[]')) + '/Run: 1/'
+save_path = os.path.join('../../../Model_Params/Final_Classification/' + str(subject_id_list).strip('[]')) + '/Run 1/'
 if not os.path.exists(save_path):
     os.makedirs(save_path)
 
@@ -20,6 +21,7 @@ print('BCI  -  Final Classification  -  Subject ' + str(subject_id_list))
 
 run_model(data_load_path=data_load_path,
           fake_data_load_path=fake_data_load_path,
+          fake_k=fake_k,
           double_channel=False,
           model_load_path=model_load_path,
           params_name='params_2.pt',

@@ -38,10 +38,10 @@ def load_data_object(data_path):
     return dataset
 
 
-def load_fake_data(fake_data_path):
+def load_fake_data(fake_data_path, fake_k):
 
     ds_list = []
-    for folder in range(0, 4):
+    for folder in range(0, fake_k):
         folder_path = fake_data_path + str(folder) + '/'
         ds_loaded = load_concat_dataset(
                 path=folder_path,
@@ -201,7 +201,7 @@ def tl_classifier(train_set,
     return clf2
 
 
-def run_model(data_load_path, fake_data_load_path, double_channel, model_load_path, params_name, save_path):
+def run_model(data_load_path, fake_data_load_path, fake_k, double_channel, model_load_path, params_name, save_path):
 
     input_window_samples = 1000
     cuda, device = detect_device()
@@ -210,7 +210,7 @@ def run_model(data_load_path, fake_data_load_path, double_channel, model_load_pa
     set_random_seeds(seed=seed, cuda=cuda)
 
     dataset = load_data_object(data_load_path)
-    train_set_fake = load_fake_data(fake_data_load_path)
+    train_set_fake = load_fake_data(fake_data_load_path, fake_k)
 
     n_classes = 4
 

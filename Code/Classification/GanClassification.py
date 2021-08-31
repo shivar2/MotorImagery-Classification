@@ -1,8 +1,6 @@
 import numpy as np
 import torch
 
-from sklearn.model_selection import train_test_split
-
 from skorch.callbacks import LRScheduler, Checkpoint, EarlyStopping
 from skorch.dataset import CVSplit
 
@@ -38,10 +36,10 @@ def load_data_object(data_path):
     return dataset
 
 
-def load_fake_data(fake_data_path):
+def load_fake_data(fake_data_path, fake_k):
 
     ds_list = []
-    for folder in range(0, 4):
+    for folder in range(0, fake_k):
         folder_path = fake_data_path + str(folder) + '/'
         ds_loaded = load_concat_dataset(
                 path=folder_path,
@@ -197,7 +195,7 @@ def train_cropped_trials(train_set, model, save_path, device='cpu'):
     return clf2
 
 
-def run_model(data_load_path, fake_data_load_path, save_path):
+def run_model(data_load_path, fake_data_load_path, fake_k, save_path):
     input_window_samples = 1000
     cuda, device = detect_device()
 
@@ -206,7 +204,7 @@ def run_model(data_load_path, fake_data_load_path, save_path):
 
     dataset = load_data_object(data_load_path)
 
-    train_set_fake = load_fake_data(fake_data_load_path)
+    train_set_fake = load_fake_data(fake_data_load_path, fake_k)
 
     n_classes = 4
     n_chans = 22
