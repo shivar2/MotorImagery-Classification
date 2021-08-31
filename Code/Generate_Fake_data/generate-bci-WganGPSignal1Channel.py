@@ -13,7 +13,7 @@ from braindecode.datasets.base import WindowsDataset, BaseConcatDataset
 from Code.Models.GANs.WGanGPSignalModels import Generator
 
 # for macOS
-os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
+# os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 
 
 subject_id = 1
@@ -60,7 +60,7 @@ for task in tasks:
         netG = Generator(time_sample=time_sample, noise=noise, channels=1)
 
         # load weights -tl
-        netG.load_state_dict(torch.load(saved_models_path, map_location=torch.device('cpu')))
+        netG.load_state_dict(torch.load(saved_models_path))
 
         if cuda:
             netG.cuda()
@@ -123,7 +123,7 @@ fake_dataset = BaseConcatDataset([wdataset])
 
 
 # path to to fake eeg directory
-fake_data_path = '../../Data/Fake_Data/WGan-GP-Signal-VERSION2/' + str(subject_id) + '/' + 'Runs' + '/' + '3/'
+fake_data_path = '../../Data/Fake_Data/WGan-GP-Signal-VERSION2/' + str(subject_id) + '/' + 'Runs' + '/' + '6/'
 if not os.path.exists(fake_data_path):
     os.makedirs(fake_data_path)
 

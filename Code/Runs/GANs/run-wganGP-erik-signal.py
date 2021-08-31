@@ -18,7 +18,6 @@ def get_data(data_load_path,
              window_stride_samples=1,
              mapping=None,
              pick_channels=None):
-
     # Dataset
     dataset = load_concat_dataset(
         path=data_load_path,
@@ -67,58 +66,68 @@ data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/' + str(subj
 
 time_sample = 1000
 window_stride_samples = 467
-
 mapping = {
     # Select just 'feet' task
     'feet': 0,
+    'left_hand': 1,
+    'right_hand': 2,
+    'tongue': 3,
 }
 
-pick_channels = ['C3']              # For All channels set None
+all_channels = ['Fz',
+                 'FC1', 'FC2',
+                 'C3', 'Cz', 'C4', 'CP1', 'CP2',
+                 'Pz', 'POz', 'FC3', 'FCz', 'FC4',
+                 'C5', 'C1', 'C2', 'C6', 'CP3', 'CPz', 'CP4',
+                 'P1', 'P2']
 
-
-tasks_name = ''
 for key, value in mapping.items():
-    tasks_name += key
+    tasks_name = key
+    for channel in all_channels:
+        print(channel)
 
-channels_name = ''
-for ch in pick_channels:
-    channels_name += ch
+        channels_name = channel
+        pick_channels = [channel]
 
-save_result_path = '../../../Result/GANs/WGan-GP-Signal-VERSION2/' + str(subject_id) + '/' + tasks_name + '/' + channels_name + '/'
-if not os.path.exists(save_result_path):
-    os.makedirs(save_result_path)
+        save_result_path = '../../../Result/GANs/WGan-GP-Signal-VERSION2/' + str(
+            subject_id) + '/' + tasks_name + '/' + channels_name + '/'
+        if not os.path.exists(save_result_path):
+            os.makedirs(save_result_path)
 
-save_model_path = '../../../Model_Params/GANs/WGan-GP-Signal-VERSION2/' + str(subject_id) + '/' + tasks_name + '/' + channels_name + '/'
-if not os.path.exists(save_model_path):
-    os.makedirs(save_model_path)
+        save_model_path = '../../../Model_Params/GANs/WGan-GP-Signal-VERSION2/' + str(
+            subject_id) + '/' + tasks_name + '/' + channels_name + '/'
+        if not os.path.exists(save_model_path):
+            os.makedirs(save_model_path)
 
-cuda = True if torch.cuda.is_available() else False
+        cuda = True if torch.cuda.is_available() else False
 
-seed = 20200220  # random seed to make results reproducible
-set_random_seeds(seed=seed, cuda=cuda)
+        seed = 20200220  # random seed to make results reproducible
+        set_random_seeds(seed=seed, cuda=cuda)
 
+        data, n_chans = get_data(data_load_path=data_load_path,
+                                 time_sample=time_sample,
+                                 window_stride_samples=window_stride_samples,
+                                 mapping=mapping,
+                                 pick_channels=pick_channels
+                                 )
 
-data, n_chans = get_data(data_load_path=data_load_path,
-                         time_sample=time_sample,
-                         window_stride_samples=window_stride_samples,
-                         mapping=mapping,
-                         pick_channels=pick_channels
-                         )
+        #########################
+        # Running params        #
+        #########################
 
-#########################
-# Running params        #
-#########################
+        batchsize = 64
+        epochs = 1400
 
-batchsize = 32
-epochs = 1500
+        net = WGANGP(subject=subject_id,
+                     n_epochs=epochs,
+                     batch_size=batchsize,
+                     time_sample=time_sample,
+                     channels=n_chans,
+                     sample_interval=window_stride_samples,
+                     result_path=save_result_path,
+                     )
 
-net = WGANGP(subject=subject_id,
-             n_epochs=epochs,
-             batch_size=batchsize,
-             time_sample=time_sample,
-             channels=n_chans,
-             sample_interval=window_stride_samples,
-             result_path=save_result_path,
-             )
+        net.train(data, save_model_path=save_model_path)
 
-net.train(data, save_model_path=save_model_path)
+print("end")
+
