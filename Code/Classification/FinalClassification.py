@@ -112,27 +112,29 @@ def tl_classifier(train_set, valid_set,
     weight_decay = 0.5 * 0.001
 
     batch_size = 64
+
+    # PHASE 1
+
     n_epochs = 100
 
     # Checkpoint will save the history 
-    cp = Checkpoint(
-                    f_params="params.pt",
-                    f_optimizer="optimizers.pt",
-                    f_criterion=None,
-                    f_history='history.json',
-                    dirname=save_path)
+    cp = Checkpoint(monitor='valid_accuracy_best',
+                    f_params="params1.pt",
+                    f_optimizer="optimizers1.pt",
+                    f_history="history1.json",
+                    dirname=save_path, f_criterion=None)
 
     # Early_stopping
-    early_stopping = EarlyStopping(patience=100)
+    early_stopping = EarlyStopping(monitor='valid_accuracy', patience=20)
 
     callbacks = [
         "accuracy",
         ('cp', cp),
         ('patience', early_stopping),
-        ("lr_scheduler", LRScheduler('WarmRestartLR')),
+        ("lr_scheduler", LRScheduler('CosineAnnealingLR', T_max=n_epochs - 1)),
     ]
 
-    clf = EEGTLClassifier(
+    clf1 = EEGTLClassifier(
         model,
         double_channel=double_channel,
         warm_start=True,
@@ -150,8 +152,54 @@ def tl_classifier(train_set, valid_set,
         callbacks=callbacks,
         device=device,
     )
-    clf.fit(train_set, y=None)
-    return clf
+    clf1.fit(train_set, y=None)
+
+    # PHASE 2
+    n_epochs2 = 100
+    # Best clf1 valid accuracy
+    best_valid_acc_epoch = np.argmax(clf1.history[:, 'valid_accuracy'])
+    target_train_loss = clf1.history[best_valid_acc_epoch, 'train_loss']
+
+    # Early_stopping
+    early_stopping2 = EarlyStopping(monitor='valid_loss',
+                                    divergence_threshold=target_train_loss,
+                                    patience=30)
+
+    # Checkpoint will save the model with the lowest valid_loss
+    cp2 = Checkpoint(monitor=None,
+                     f_params="params2.pt",
+                     f_optimizer="optimizers2.pt",
+                     dirname=save_path,
+                     f_criterion=None)
+
+    callbacks2 = [
+        "accuracy",
+        ('cp', cp2),
+        ('patience', early_stopping2),
+        ("lr_scheduler", LRScheduler('CosineAnnealingLR', T_max=n_epochs - 1)),
+    ]
+    clf2 = EEGTLClassifier(
+        model,
+        double_channel=double_channel,
+        is_freezing=True,
+        cropped=True,
+        max_epochs=n_epochs2,
+        criterion=CroppedLoss,
+        criterion__loss_function=torch.nn.functional.nll_loss,
+        optimizer=torch.optim.AdamW,
+        train_split=predefined_split(valid_set),
+        iterator_train__shuffle=True,
+        batch_size=batch_size,
+        callbacks=callbacks2,
+        device=device,
+    )
+    clf2.initialize()  # This is important!
+    clf2.load_params(f_params=save_path + "params1.pt",
+                     f_optimizer=save_path + "optimizers1.pt",
+                     f_history=save_path + "history1.json")
+    phase2_train = BaseConcatDataset([train_set, valid_set])
+    clf2.fit(phase2_train, y=None)
+    return clf2
 
 
 def run_model(data_load_path, fake_data_load_path, double_channel, model_load_path, params_name, save_path):
