@@ -1,0 +1,1 @@
+EEG Cropped Classification Score (Accuracy) is:  0.4826388888888889

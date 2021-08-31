@@ -3,7 +3,7 @@ import torch
 
 from sklearn.model_selection import train_test_split
 
-from skorch.callbacks import LRScheduler, Checkpoint, EarlyStopping
+from skorch.callbacks import LRScheduler, Checkpoint
 from skorch.helper import predefined_split
 
 import matplotlib.pyplot as plt
@@ -18,6 +18,8 @@ from braindecode.models.util import to_dense_prediction_model, get_output_shape
 from braindecode.datautil.windowers import create_windows_from_events
 from braindecode import EEGClassifier
 from braindecode.training.losses import CroppedLoss
+
+from Code.EarlyStopClass.EarlyStopClass import EarlyStopping
 
 
 def detect_device():
@@ -112,16 +114,20 @@ def train_cropped_trials(train_set, valid_set, model, save_path, model_name='sha
         weight_decay = 0.5 * 0.001
 
     batch_size = 64
-    n_epochs = 100
+
+    # PHASE 1
+
+    n_epochs = 2
 
     # Checkpoint will save the model with the lowest valid_loss
-    cp = Checkpoint(
-                    f_params="params.pt",
-                    f_optimizer="optimizers.pt",
+    cp = Checkpoint(monitor='valid_loss',
+                    f_params="params1.pt",
+                    f_optimizer="optimizers1.pt",
+                    f_history="history2.json",
                     dirname=save_path, f_criterion=None)
 
     # Early_stopping
-    early_stopping = EarlyStopping(patience=100)
+    early_stopping = EarlyStopping(monitor='valid_accuracy', patience=10)
 
     callbacks = [
         "accuracy",
@@ -130,7 +136,7 @@ def train_cropped_trials(train_set, valid_set, model, save_path, model_name='sha
         ("lr_scheduler", LRScheduler('CosineAnnealingLR', T_max=n_epochs - 1)),
     ]
 
-    clf = EEGClassifier(
+    clf1 = EEGClassifier(
         model,
         cropped=True,
         max_epochs=n_epochs,
@@ -147,8 +153,54 @@ def train_cropped_trials(train_set, valid_set, model, save_path, model_name='sha
     )
     # Model training for a specified number of epochs. `y` is None as it is already supplied
     # in the dataset.
-    clf.fit(train_set, y=None)
-    return clf
+    clf1.fit(train_set, y=None)
+
+    # PHASE 2
+    n_epochs2 = 100
+    # Best clf1 valid accuracy
+    best_valid_acc_epoch = np.argmax(clf1.history[:, 'valid_accuracy'])
+    target_train_loss = clf1.history[best_valid_acc_epoch, 'train_loss']
+
+    # Early_stopping
+    early_stopping2 = EarlyStopping(monitor='valid_loss',
+                                    divergence_threshold=target_train_loss,
+                                    patience=n_epochs2)
+
+    # Checkpoint will save the model with the lowest valid_loss
+    cp2 = Checkpoint(
+                     f_params="params2.pt",
+                     f_optimizer="optimizers2.pt",
+                     dirname=save_path,
+                     f_criterion=None)
+
+    callbacks2 = [
+        "accuracy",
+        ('cp', cp2),
+        ('patience', early_stopping2),
+        ("lr_scheduler", LRScheduler('CosineAnnealingLR', T_max=n_epochs - 1)),
+    ]
+
+    clf2 = EEGClassifier(
+        model,
+        cropped=True,
+        max_epochs=n_epochs2,
+        criterion=CroppedLoss,
+        criterion__loss_function=torch.nn.functional.nll_loss,
+        optimizer=torch.optim.AdamW,
+        train_split=predefined_split(valid_set),
+        iterator_train__shuffle=True,
+        batch_size=batch_size,
+        callbacks=callbacks2,
+        device=device,
+    )
+
+    clf2.initialize()  # This is important!
+    clf2.load_params(f_params=save_path+"params1.pt",
+                     f_optimizer=save_path+"optimizers1.pt",
+                     f_history=save_path+"history.json")
+    phase2_train = BaseConcatDataset([train_set, valid_set])
+    clf2.fit(phase2_train, y=None)
+    return clf2
 
 
 def plot(clf, save_path):
