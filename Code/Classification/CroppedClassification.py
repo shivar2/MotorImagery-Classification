@@ -1,17 +1,14 @@
 import numpy as np
 import torch
 
-from sklearn.model_selection import train_test_split
-
 from skorch.callbacks import LRScheduler, Checkpoint
-from skorch.helper import predefined_split
+from skorch.dataset import CVSplit
 
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 import pandas as pd
 
 from braindecode.datautil.serialization import load_concat_dataset
-from braindecode.datasets.base import BaseConcatDataset
 from braindecode.util import set_random_seeds
 from braindecode.models import ShallowFBCSPNet, Deep4Net
 from braindecode.models.util import to_dense_prediction_model, get_output_shape
@@ -103,7 +100,7 @@ def split_data(windows_dataset, dataset_name='BNCI'):
     return train_set_all, test_set
 
 
-def train_cropped_trials(train_set, valid_set, model, save_path, model_name='shallow', device='cpu'):
+def train_cropped_trials(train_set, model, save_path, model_name='shallow', device='cpu'):
     if model_name == 'shallow':
         # These values we found good for shallow network:
         lr = 0.0625 * 0.01
@@ -143,7 +140,7 @@ def train_cropped_trials(train_set, valid_set, model, save_path, model_name='sha
         criterion=CroppedLoss,
         criterion__loss_function=torch.nn.functional.nll_loss,
         optimizer=torch.optim.AdamW,
-        train_split=predefined_split(valid_set),
+        train_split=CVSplit(6),
         optimizer__lr=lr,
         optimizer__weight_decay=weight_decay,
         iterator_train__shuffle=True,
@@ -187,7 +184,7 @@ def train_cropped_trials(train_set, valid_set, model, save_path, model_name='sha
         criterion=CroppedLoss,
         criterion__loss_function=torch.nn.functional.nll_loss,
         optimizer=torch.optim.AdamW,
-        train_split=predefined_split(valid_set),
+        train_split=CVSplit(6),
         iterator_train__shuffle=True,
         batch_size=batch_size,
         callbacks=callbacks2,
@@ -198,8 +195,7 @@ def train_cropped_trials(train_set, valid_set, model, save_path, model_name='sha
     clf2.load_params(f_params=save_path+"params1.pt",
                      f_optimizer=save_path+"optimizers1.pt",
                      f_history=save_path+"history1.json")
-    phase2_train = BaseConcatDataset([train_set, valid_set])
-    clf2.fit(phase2_train, y=None)
+    clf2.fit(train_set, y=None)
     return clf2
 
 
@@ -279,14 +275,9 @@ def run_model(data_load_path, dataset_name, model_name, save_path):
                                           input_window_samples=input_window_samples,
                                           trial_start_offset_seconds=trial_start_offset_seconds)
 
-    train_set_all, test_set = split_data(windows_dataset, dataset_name=dataset_name)
-
-    X_train, X_valid = train_test_split(train_set_all.datasets, test_size=1, train_size=5)
-    train_set = BaseConcatDataset(X_train)
-    valid_set = BaseConcatDataset(X_valid)
+    train_set, test_set = split_data(windows_dataset, dataset_name=dataset_name)
 
     clf = train_cropped_trials(train_set,
-                               valid_set,
                                model=model,
                                save_path=save_path,
                                model_name=model_name,
