@@ -292,8 +292,7 @@ def run_model(data_load_path, dataset_name, model_name, save_path):
                                model_name=model_name,
                                device=device)
 
-    # plot(clf, save_path)
-    # clf.save_params(f_params='model.pkl', f_optimizer='optimizer.pkl', f_history='history.json')
+    plot(clf, save_path)
 
     # Calculate Mean Accuracy For Test set
     i = 0
