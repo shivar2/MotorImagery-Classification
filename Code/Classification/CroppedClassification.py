@@ -1,5 +1,6 @@
 import numpy as np
 import torch
+from sklearn.model_selection import cross_validate
 
 from skorch.callbacks import LRScheduler, Checkpoint
 from skorch.dataset import CVSplit
@@ -164,7 +165,7 @@ def train_cropped_trials(train_set, model, save_path, model_name='shallow', devi
                                     patience=30)
 
     # Checkpoint will save the model with the lowest valid_loss
-    cp2 = Checkpoint(monitor=None,
+    cp2 = Checkpoint(
                      f_params="params2.pt",
                      f_optimizer="optimizers2.pt",
                      dirname=save_path,
@@ -180,6 +181,7 @@ def train_cropped_trials(train_set, model, save_path, model_name='shallow', devi
     clf2 = EEGClassifier(
         model,
         cropped=True,
+        warm_start=True,
         max_epochs=n_epochs2,
         criterion=CroppedLoss,
         criterion__loss_function=torch.nn.functional.nll_loss,
