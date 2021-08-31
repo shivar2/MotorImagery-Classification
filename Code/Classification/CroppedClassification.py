@@ -120,7 +120,7 @@ def train_cropped_trials(train_set, valid_set, model, save_path, model_name='sha
     n_epochs = 100
 
     # Checkpoint will save the model with the lowest valid_loss
-    cp = Checkpoint(monitor='valid_loss',
+    cp = Checkpoint(monitor='valid_accuracy_best',
                     f_params="params1.pt",
                     f_optimizer="optimizers1.pt",
                     f_history="history1.json",
@@ -167,7 +167,7 @@ def train_cropped_trials(train_set, valid_set, model, save_path, model_name='sha
                                     patience=30)
 
     # Checkpoint will save the model with the lowest valid_loss
-    cp2 = Checkpoint(
+    cp2 = Checkpoint(monitor=None,
                      f_params="params2.pt",
                      f_optimizer="optimizers2.pt",
                      dirname=save_path,
@@ -197,7 +197,7 @@ def train_cropped_trials(train_set, valid_set, model, save_path, model_name='sha
     clf2.initialize()  # This is important!
     clf2.load_params(f_params=save_path+"params1.pt",
                      f_optimizer=save_path+"optimizers1.pt",
-                     f_history=save_path+"history.json")
+                     f_history=save_path+"history1.json")
     phase2_train = BaseConcatDataset([train_set, valid_set])
     clf2.fit(phase2_train, y=None)
     return clf2
