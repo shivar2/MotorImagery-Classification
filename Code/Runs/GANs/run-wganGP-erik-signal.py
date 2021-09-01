@@ -61,7 +61,7 @@ def get_data(data_load_path,
 #########################
 # load data             #
 #########################
-subject_id = 1
+subject_id = 5
 data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/' + str(subject_id).strip('[]')) + '/'
 
 time_sample = 1000
