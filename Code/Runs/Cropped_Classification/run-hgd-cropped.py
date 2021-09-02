@@ -1,6 +1,6 @@
 import os
 
-from Code.Classification.CroppedClassification import run_model
+from Code.Classification.HGDCroppedClassification import run_model
 
 
 # example of HGD deep4 - subject 1
