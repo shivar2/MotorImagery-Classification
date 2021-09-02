@@ -22,13 +22,7 @@ class PretrainedDeep4Model(nn.Module):
             in_chans=n_chans,
             n_classes=n_classes,
             input_window_samples=input_window_samples,
-            n_filters_time=25,
-            n_filters_spat=25,
-            stride_before_pool=True,
-            n_filters_2=int(n_chans * 2),
-            n_filters_3=int(n_chans * (2 ** 2.0)),
-            n_filters_4=int(n_chans * (2 ** 3.0)),
-            final_conv_length='auto',
+            final_conv_length=2,
         )
         # Load model
         state_dict = torch.load(params_path, map_location=device)
@@ -37,15 +31,11 @@ class PretrainedDeep4Model(nn.Module):
         # Freezing model
         # model.requires_grad_(requires_grad=False)
 
-        # Final_conv_length
-        final_conv_length = model.final_conv_length
-
         # Change conv_classifier layer to fine-tune
-
         model.conv_classifier = nn.Conv2d(
-            int(n_chans * (2 ** 3.0)),
+            200,
             n_classes,
-            (final_conv_length, 1),
+            (2, 1),
             stride=(1, 1),
             bias=True)
 
