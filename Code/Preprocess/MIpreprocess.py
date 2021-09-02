@@ -127,6 +127,12 @@ def reorder_based_hgd_channels(dataset):
     return dataset
 
 
+def resample_hgd(dataset, sfreq=250):
+    preprocessors = [Preprocessor('resample', sfreq=sfreq)]
+    preprocess(dataset, preprocessors)
+    return dataset
+
+
 def save_data(dataset, saving_path, subject_id=1):
     # mkdir path to save
     path = os.path.join(saving_path + str(subject_id))
