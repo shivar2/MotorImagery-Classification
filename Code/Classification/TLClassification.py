@@ -1,8 +1,8 @@
-from skorch.dataset import CVSplit
 
 from Code.Classifier.EEGTLClassifier import EEGTLClassifier
 from Code.Classification.CroppedClassification import *
 from Code.Models.PretrainedDeep4Model import PretrainedDeep4Model
+from skorch.dataset import CVSplit
 
 
 def tl_classifier(train_set,

@@ -58,13 +58,7 @@ def create_model_deep4(input_window_samples=1000, n_chans=4, n_classes=4):
         in_chans=n_chans,
         n_classes=n_classes,
         input_window_samples=input_window_samples,
-        n_filters_time=25,
-        n_filters_spat=25,
-        stride_before_pool=True,
-        n_filters_2=int(n_chans * 2),
-        n_filters_3=int(n_chans * (2 ** 2.0)),
-        n_filters_4=int(n_chans * (2 ** 3.0)),
-        final_conv_length='auto',
+        final_conv_length=2,
     )
     return model
 
