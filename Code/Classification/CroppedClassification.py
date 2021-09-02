@@ -1,6 +1,7 @@
 import numpy as np
 import torch
-from sklearn.model_selection import cross_validate
+
+from sklearn.model_selection import train_test_split
 
 from skorch.callbacks import LRScheduler, Checkpoint
 from skorch.dataset import CVSplit
@@ -10,6 +11,7 @@ from matplotlib.lines import Line2D
 import pandas as pd
 
 from braindecode.datautil.serialization import load_concat_dataset
+from braindecode.datasets.base import BaseConcatDataset
 from braindecode.util import set_random_seeds
 from braindecode.models import ShallowFBCSPNet, Deep4Net
 from braindecode.models.util import to_dense_prediction_model, get_output_shape
@@ -54,13 +56,7 @@ def create_model_deep4(input_window_samples=1000, n_chans=4, n_classes=4):
         in_chans=n_chans,
         n_classes=n_classes,
         input_window_samples=input_window_samples,
-        n_filters_time=25,
-        n_filters_spat=25,
-        stride_before_pool=True,
-        n_filters_2=int(n_chans * 2),
-        n_filters_3=int(n_chans * (2 ** 2.0)),
-        n_filters_4=int(n_chans * (2 ** 3.0)),
-        final_conv_length='auto',
+        final_conv_length=2,
     )
     return model
 
@@ -125,7 +121,7 @@ def train_cropped_trials(train_set, model, save_path, model_name='shallow', devi
                     dirname=save_path, f_criterion=None)
 
     # Early_stopping
-    early_stopping = EarlyStopping(monitor='valid_accuracy', patience=20)
+    early_stopping = EarlyStopping(monitor='valid_accuracy', patience=60)
 
     callbacks = [
         "accuracy",
@@ -181,7 +177,7 @@ def train_cropped_trials(train_set, model, save_path, model_name='shallow', devi
     clf2 = EEGClassifier(
         model,
         cropped=True,
-        warm_start=True,
+        # warm_start=True,
         max_epochs=n_epochs2,
         criterion=CroppedLoss,
         criterion__loss_function=torch.nn.functional.nll_loss,
@@ -197,6 +193,7 @@ def train_cropped_trials(train_set, model, save_path, model_name='shallow', devi
     clf2.load_params(f_params=save_path+"params1.pt",
                      f_optimizer=save_path+"optimizers1.pt",
                      f_history=save_path+"history1.json")
+
     clf2.fit(train_set, y=None)
     return clf2
 
