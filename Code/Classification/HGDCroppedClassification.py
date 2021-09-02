@@ -32,13 +32,20 @@ def detect_device():
 
 
 def load_data_object(data_path):
+    subject_id_list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+    dataset_all = []
 
-    dataset = load_concat_dataset(
-        path=data_path,
-        preload=True,
-        target_name=None,)
+    for subject in subject_id_list:
+        dataset = load_concat_dataset(
+            path=data_path + str(subject) + '/',
+            preload=False,
+            target_name=None,)
+        dataset_all.append(dataset)
+        del dataset
 
-    return dataset
+    dataset_obj = BaseConcatDataset(dataset_all)
+
+    return dataset_obj
 
 
 def create_model_shallow(input_window_samples=1000, n_chans=4, n_classes=4):
@@ -78,7 +85,7 @@ def cut_compute_windows(dataset, n_preds_per_input, input_window_samples=1000, t
         window_size_samples=input_window_samples,
         window_stride_samples=n_preds_per_input,
         drop_last_window=False,
-        preload=True
+        preload=False,
     )
     return windows_dataset
 
