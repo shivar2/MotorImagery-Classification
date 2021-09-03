@@ -1,8 +1,6 @@
 import numpy as np
 import torch
 
-from sklearn.model_selection import train_test_split
-
 from skorch.callbacks import LRScheduler, Checkpoint
 from skorch.dataset import CVSplit
 
@@ -66,11 +64,16 @@ def cut_compute_windows(dataset, n_preds_per_input, input_window_samples=1000, t
     sfreq = dataset.datasets[0].raw.info['sfreq']
     assert all([ds.raw.info['sfreq'] == sfreq for ds in dataset.datasets])
 
-    # Calculate the trial start offset in samples.
     trial_start_offset_samples = int(trial_start_offset_seconds * sfreq)
 
-    # Create windows using braindecode function for this. It needs parameters to define how
-    # trials should be used.
+    # Mapping new event ids to fit hgd event ids
+    mapping = {
+        # Select just 'feet' task
+        'feet': 0,
+        'left_hand': 1,
+        'tongue': 2,
+        'right_hand': 3,
+    }
     windows_dataset = create_windows_from_events(
         dataset,
         trial_start_offset_samples=trial_start_offset_samples,
@@ -78,7 +81,8 @@ def cut_compute_windows(dataset, n_preds_per_input, input_window_samples=1000, t
         window_size_samples=input_window_samples,
         window_stride_samples=n_preds_per_input,
         drop_last_window=False,
-        preload=True
+        preload=True,
+        mapping=mapping
     )
     return windows_dataset
 
