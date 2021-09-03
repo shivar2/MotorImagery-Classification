@@ -146,7 +146,8 @@ def run_model(data_load_path, double_channel, model_load_path, params_name, save
 
     train_set_all, test_set = split_data(windows_dataset)
 
-    X_train, X_valid = train_test_split(train_set_all.datasets, test_size=1, train_size=5)
+    X_train, X_valid = train_test_split(train_set_all.datasets, test_size=1, train_size=5,
+                                        shuffle=True, random_state=20200220)
     train_set = BaseConcatDataset(X_train)
     valid_set = BaseConcatDataset(X_valid)
 
