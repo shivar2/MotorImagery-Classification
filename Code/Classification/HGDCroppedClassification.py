@@ -1,7 +1,5 @@
-import numpy as np
-import torch
 
-from sklearn.model_selection import train_test_split
+import torch
 
 from skorch.callbacks import LRScheduler, Checkpoint
 from skorch.helper import predefined_split
@@ -85,7 +83,7 @@ def cut_compute_windows(dataset, n_preds_per_input, input_window_samples=1000, t
         window_size_samples=input_window_samples,
         window_stride_samples=n_preds_per_input,
         drop_last_window=False,
-        preload=False,
+        preload=True,
     )
     return windows_dataset
 
@@ -118,7 +116,7 @@ def train_cropped_trials(train_set, valid_set, model, save_path, model_name='sha
 
     # PHASE 1
 
-    n_epochs = 20
+    n_epochs = 200
 
     # Checkpoint will save the model with the lowest valid_loss
     cp = Checkpoint(monitor=None,
@@ -127,9 +125,14 @@ def train_cropped_trials(train_set, valid_set, model, save_path, model_name='sha
                     f_history="history.json",
                     dirname=save_path, f_criterion=None)
 
+    early_stopping = EarlyStopping(monitor='valid_loss',
+                                    stopping_threshold=1.,
+                                    patience=200)
+
     callbacks = [
         "accuracy",
         ('cp', cp),
+        ('patience', early_stopping),
         ("lr_scheduler", LRScheduler('CosineAnnealingLR', T_max=n_epochs - 1)),
     ]
     clf = EEGClassifier(
