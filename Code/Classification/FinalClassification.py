@@ -118,7 +118,7 @@ def tl_classifier(train_set, valid_set,
 
     # PHASE 1
 
-    n_epochs = 100
+    n_epochs = 800
 
     # Checkpoint will save the history 
     cp = Checkpoint(monitor='valid_accuracy_best',
@@ -128,7 +128,7 @@ def tl_classifier(train_set, valid_set,
                     dirname=save_path, f_criterion=None)
 
     # Early_stopping
-    early_stopping = EarlyStopping(monitor='valid_accuracy', patience=20)
+    early_stopping = EarlyStopping(monitor='valid_accuracy', patience=80)
 
     callbacks = [
         "accuracy",
@@ -157,7 +157,7 @@ def tl_classifier(train_set, valid_set,
     clf1.fit(train_set, y=None)
 
     # PHASE 2
-    n_epochs2 = 100
+
     # Best clf1 valid accuracy
     best_valid_acc_epoch = np.argmax(clf1.history[:, 'valid_accuracy'])
     target_train_loss = clf1.history[best_valid_acc_epoch, 'train_loss']
@@ -165,7 +165,7 @@ def tl_classifier(train_set, valid_set,
     # Early_stopping
     early_stopping2 = EarlyStopping(monitor='valid_loss',
                                     divergence_threshold=target_train_loss,
-                                    patience=30)
+                                    patience=80)
 
     # Checkpoint will save the model with the lowest valid_loss
     cp2 = Checkpoint(monitor=None,
@@ -185,7 +185,7 @@ def tl_classifier(train_set, valid_set,
         double_channel=double_channel,
         is_freezing=True,
         cropped=True,
-        max_epochs=n_epochs2,
+        max_epochs=n_epochs,
         criterion=CroppedLoss,
         criterion__loss_function=torch.nn.functional.nll_loss,
         optimizer=torch.optim.AdamW,
