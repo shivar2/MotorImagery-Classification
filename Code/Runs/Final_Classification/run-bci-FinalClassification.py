@@ -6,14 +6,14 @@ from Code.Classification.FinalClassification import run_model
 subject_id_list = [1]
 fake_k = 6
 
-data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/' + str(subject_id_list).strip('[]')) + '/'
+data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/4-38/' + str(subject_id_list).strip('[]')) + '/'
 fake_data_load_path = os.path.join('../../../Data/Fake_Data/WGan-GP-Signal/' + str(subject_id_list).strip('[]')) + '/Runs/'
 
 # Load model path
 model_load_path = '../../../Model_Params/Pretrained_Models/deep4/22/1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14/'
 
 # Save results
-save_path = os.path.join('../../../Model_Params/Final_Classification/' + str(subject_id_list).strip('[]')) + '/Run 1/'
+save_path = os.path.join('../../../Model_Params/Final_Classification/22/4-38/' + str(subject_id_list).strip('[]')) + '/Run 1/'
 if not os.path.exists(save_path):
     os.makedirs(save_path)
 

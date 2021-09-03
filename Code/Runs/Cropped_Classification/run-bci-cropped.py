@@ -9,7 +9,7 @@ for subject_id in subject_id_list:
 
     # Path to saving Models
     # mkdir path to save
-    save_path = os.path.join('../../../Model_Params/BCI_Models/deep4/4-38/' + str(subject_id)) + '/Run 1/'
+    save_path = os.path.join('../../../Model_Params/BCI_Models/deep4/22/4-38/' + str(subject_id)) + '/Run 1/'
 
     if not os.path.exists(save_path):
         os.makedirs(save_path)
