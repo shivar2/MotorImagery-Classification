@@ -177,6 +177,7 @@ def train_cropped_trials(train_set, valid_set, model, save_path, device='cpu'):
     clf2 = EEGClassifier(
         model,
         cropped=True,
+        warm_start=True,
         max_epochs=n_epochs,
         criterion=CroppedLoss,
         criterion__loss_function=torch.nn.functional.nll_loss,
