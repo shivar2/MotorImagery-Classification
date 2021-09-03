@@ -30,13 +30,12 @@ noise = 100
 cuda = True if torch.cuda.is_available() else False
 Tensor = torch.cuda.FloatTensor if cuda else torch.FloatTensor
 
-
+# mapping to HGD tasks
 task_dict = {
-    # Select just 'feet' task
     'feet': 0,
     'left_hand': 1,
-    'right_hand': 2,
-    'tongue': 3
+    'tongue': 2,
+    'right_hand': 3,
 }
 tasks = ['feet', 'left_hand', 'right_hand', 'tongue']
 

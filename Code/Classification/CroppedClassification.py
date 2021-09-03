@@ -70,7 +70,6 @@ def cut_compute_windows(dataset, n_preds_per_input, input_window_samples=1000, t
 
     # Mapping new event ids to fit hgd event ids
     mapping = {
-        # Select just 'feet' task
         'feet': 0,
         'left_hand': 1,
         'tongue': 2,
