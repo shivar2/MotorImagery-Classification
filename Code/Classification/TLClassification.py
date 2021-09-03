@@ -5,7 +5,7 @@ from Code.Models.PretrainedDeep4Model import PretrainedDeep4Model
 from skorch.dataset import CVSplit
 
 
-def tl_classifier(train_set,
+def tl_classifier(train_set, valid_set,
                   save_path,
                   model,
                   double_channel=True,
@@ -47,7 +47,7 @@ def tl_classifier(train_set,
         criterion=CroppedLoss,
         criterion__loss_function=torch.nn.functional.nll_loss,
         optimizer=torch.optim.AdamW,
-        train_split=CVSplit(6),
+        train_split=predefined_split(valid_set),
         optimizer__lr=lr,
         optimizer__weight_decay=weight_decay,
         iterator_train__shuffle=True,
@@ -59,54 +59,54 @@ def tl_classifier(train_set,
     # in the dataset.
     clf1.fit(train_set, y=None)
 
-    # # PHASE 2
-    # n_epochs2 = 100
-    # # Best clf1 valid accuracy
-    # best_valid_acc_epoch = np.argmax(clf1.history[:, 'valid_accuracy'])
-    # target_train_loss = clf1.history[best_valid_acc_epoch, 'train_loss']
-    #
-    # # Early_stopping
-    # early_stopping2 = EarlyStopping(monitor='valid_loss',
-    #                                 divergence_threshold=target_train_loss,
-    #                                 patience=30)
-    #
-    # # Checkpoint will save the model with the lowest valid_loss
-    # cp2 = Checkpoint(monitor=None,
-    #                  f_params="params2.pt",
-    #                  f_optimizer="optimizers2.pt",
-    #                  dirname=save_path,
-    #                  f_criterion=None)
-    #
-    # callbacks2 = [
-    #     "accuracy",
-    #     ('cp', cp2),
-    #     ('patience', early_stopping2),
-    #     ("lr_scheduler", LRScheduler('CosineAnnealingLR', T_max=n_epochs - 1)),
-    # ]
-    #
-    # clf2 = EEGTLClassifier(
-    #     model,
-    #     double_channel=double_channel,
-    #     is_freezing=True,
-    #     cropped=True,
-    #     max_epochs=n_epochs2,
-    #     criterion=CroppedLoss,
-    #     criterion__loss_function=torch.nn.functional.nll_loss,
-    #     optimizer=torch.optim.AdamW,
-    #     train_split=CVSplit(6),
-    #     iterator_train__shuffle=True,
-    #     batch_size=batch_size,
-    #     callbacks=callbacks2,
-    #     device=device,
-    # )
-    #
-    # clf2.initialize()  # This is important!
-    # clf2.load_params(f_params=save_path + "params1.pt",
-    #                  f_optimizer=save_path + "optimizers1.pt",
-    #                  f_history=save_path + "history1.json")
+    # PHASE 2
+    n_epochs2 = 100
+    # Best clf1 valid accuracy
+    best_valid_acc_epoch = np.argmax(clf1.history[:, 'valid_accuracy'])
+    target_train_loss = clf1.history[best_valid_acc_epoch, 'train_loss']
 
-    # clf2.fit(train_set, y=None)
-    return clf1
+    # Early_stopping
+    early_stopping2 = EarlyStopping(monitor='valid_loss',
+                                    divergence_threshold=target_train_loss,
+                                    patience=30)
+
+    # Checkpoint will save the model with the lowest valid_loss
+    cp2 = Checkpoint(monitor=None,
+                     f_params="params2.pt",
+                     f_optimizer="optimizers2.pt",
+                     dirname=save_path,
+                     f_criterion=None)
+
+    callbacks2 = [
+        "accuracy",
+        ('cp', cp2),
+        ('patience', early_stopping2),
+        ("lr_scheduler", LRScheduler('CosineAnnealingLR', T_max=n_epochs - 1)),
+    ]
+
+    clf2 = EEGTLClassifier(
+        model,
+        double_channel=double_channel,
+        is_freezing=True,
+        cropped=True,
+        max_epochs=n_epochs2,
+        criterion=CroppedLoss,
+        criterion__loss_function=torch.nn.functional.nll_loss,
+        optimizer=torch.optim.AdamW,
+        train_split=predefined_split(valid_set),
+        iterator_train__shuffle=True,
+        batch_size=batch_size,
+        callbacks=callbacks2,
+        device=device,
+    )
+
+    clf2.initialize()  # This is important!
+    clf2.load_params(f_params=save_path + "params1.pt",
+                     f_optimizer=save_path + "optimizers1.pt",
+                     f_history=save_path + "history1.json")
+    phase2_train = BaseConcatDataset([train_set, valid_set])
+    clf2.fit(phase2_train, y=None)
+    return clf2
 
 
 def run_model(data_load_path, double_channel, model_load_path, params_name, save_path):
@@ -144,9 +144,14 @@ def run_model(data_load_path, double_channel, model_load_path, params_name, save
                                           input_window_samples=input_window_samples,
                                           trial_start_offset_seconds=trial_start_offset_seconds)
 
-    train_set, test_set = split_data(windows_dataset)
+    train_set_all, test_set = split_data(windows_dataset)
+
+    X_train, X_valid = train_test_split(train_set_all.datasets, test_size=1, train_size=5)
+    train_set = BaseConcatDataset(X_train)
+    valid_set = BaseConcatDataset(X_valid)
 
     clf = tl_classifier(train_set,
+                        valid_set,
                         model=model,
                         save_path=save_path,
                         double_channel=double_channel,
