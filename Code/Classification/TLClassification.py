@@ -2,7 +2,8 @@
 from Code.Classifier.EEGTLClassifier import EEGTLClassifier
 from Code.Classification.CroppedClassification import *
 from Code.Models.PretrainedDeep4Model import PretrainedDeep4Model
-from skorch.dataset import CVSplit
+from sklearn.model_selection import train_test_split
+from skorch.helper import predefined_split
 
 
 def tl_classifier(train_set, valid_set,
@@ -29,7 +30,7 @@ def tl_classifier(train_set, valid_set,
                     dirname=save_path, f_criterion=None)
 
     # Early_stopping
-    early_stopping = EarlyStopping(monitor='valid_accuracy', patience=80)
+    early_stopping = EarlyStopping(monitor='valid_accuracy', lower_is_better=False, patience=80)
 
     callbacks = [
         "accuracy",

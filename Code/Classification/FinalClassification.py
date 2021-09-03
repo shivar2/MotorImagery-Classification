@@ -128,7 +128,7 @@ def tl_classifier(train_set, valid_set,
                     dirname=save_path, f_criterion=None)
 
     # Early_stopping
-    early_stopping = EarlyStopping(monitor='valid_accuracy', patience=80)
+    early_stopping = EarlyStopping(monitor='valid_accuracy', lower_is_better=False, patience=80)
 
     callbacks = [
         "accuracy",

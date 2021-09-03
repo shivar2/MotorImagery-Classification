@@ -127,7 +127,7 @@ def train_cropped_trials(train_set, valid_set, model, save_path, model_name='sha
                     dirname=save_path, f_criterion=None)
 
     # Early_stopping
-    early_stopping = EarlyStopping(monitor='valid_accuracy', patience=80)
+    early_stopping = EarlyStopping(monitor='valid_accuracy', lower_is_better=False, patience=80)
 
     callbacks = [
         "accuracy",
