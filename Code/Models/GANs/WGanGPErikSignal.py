@@ -22,7 +22,7 @@ class WGANGP(nn.Module):
         self.subject = subject
         self.n_epochs = n_epochs                            # number of epochs of training
         self.batch_size = batch_size                        # size of the batches
-        self.lr = 0.00001                                    # adam: learning rate
+        self.lr = 0.0002                                    # adam: learning rate
         self.b1 = 0.5                                       # adam: decay of first order momentum of gradient
         self.b2 = 0.999                                     # adam: decay of first order momentum of gradient
         self.n_cpu = 8                                      # number of cpu threads to use during batch generation
@@ -30,7 +30,7 @@ class WGANGP(nn.Module):
         self.time_sample = time_sample                      # size of each image dimension
         self.channels = channels                            # number of image channels
 
-        self.n_critic = 3                                   # number of training steps for discriminator per iter
+        self.n_critic = 5                                   # number of training steps for discriminator per iter
         self.clip_value = 0.01                              # lower and upper clip value for disc. weights
         self.lambda_gp = 10                                 # Loss weight for gradient penalty
 
@@ -49,8 +49,8 @@ class WGANGP(nn.Module):
             self.discriminator.cuda()
 
         # Optimizers
-        self.optimizer_G = torch.optim.Adam(self.generator.parameters(), lr=0.0001, betas=(self.b1, self.b2))
-        self.optimizer_D = torch.optim.Adam(self.discriminator.parameters(), lr=0.00001, betas=(self.b1, self.b2))
+        self.optimizer_G = torch.optim.Adam(self.generator.parameters(), lr=self.lr, betas=(self.b1, self.b2))
+        self.optimizer_D = torch.optim.Adam(self.discriminator.parameters(), lr=self.lr, betas=(self.b1, self.b2))
 
     def compute_gradient_penalty(self, D, real_samples, fake_samples):
         """Calculates the gradient penalty loss for WGAN GP"""

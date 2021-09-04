@@ -12,6 +12,7 @@ from braindecode.util import set_random_seeds
 
 from Code.Models.GANs.WGanGPErikSignal import WGANGP
 
+
 def get_data(data_load_path,
              time_sample=32,
              window_stride_samples=1,
@@ -122,7 +123,7 @@ for channel in all_channels:
         #########################
 
         batchsize = 64
-        epochs = 1500
+        epochs = 200
 
         net = WGANGP(subject=subject_id,
                      n_epochs=epochs,
