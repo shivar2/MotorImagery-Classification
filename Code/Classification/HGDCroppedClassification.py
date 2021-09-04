@@ -116,7 +116,7 @@ def train_cropped_trials(train_set, valid_set, model, save_path, model_name='sha
 
     # PHASE 1
 
-    n_epochs = 200
+    n_epochs = 40
 
     # Checkpoint will save the model with the lowest valid_loss
     cp = Checkpoint(monitor=None,
@@ -127,7 +127,7 @@ def train_cropped_trials(train_set, valid_set, model, save_path, model_name='sha
 
     early_stopping = EarlyStopping(monitor='valid_loss',
                                     stopping_threshold=1.,
-                                    patience=200)
+                                    patience=40)
 
     callbacks = [
         "accuracy",
