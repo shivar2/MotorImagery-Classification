@@ -63,7 +63,7 @@ def get_data(data_load_path,
 # load data             #
 #########################
 subject_id = 1
-data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/' + str(subject_id).strip('[]')) + '/'
+data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/4-38/' + str(subject_id).strip('[]')) + '/'
 
 low_cut_hz = 4.
 high_cut_hz = 38.
@@ -72,11 +72,10 @@ time_sample = 500
 window_stride_samples = 467
 
 mapping = {
-    # Select just 'feet' task
     'feet': 0,
     'left_hand': 1,
-    'right_hand': 2,
-    'tongue': 3
+    'tongue': 2,
+    'right_hand': 3,
 }
 
 all_channels = ['Fz',
