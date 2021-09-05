@@ -3,8 +3,8 @@ import os
 from Code.Classification.GanClassification import run_model
 
 # example of BNCI & fake data deep4 - subject 1
-subject_id_list = 1
-fake_k = 6
+subject_id_list = 3
+fake_k = 4
 
 # Path to saving Models
 # mkdir path to save
