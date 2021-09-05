@@ -168,7 +168,7 @@ def tl_classifier(train_set, valid_set,
                                     patience=80)
 
     # Checkpoint will save the model with the lowest valid_loss
-    cp2 = Checkpoint(monitor=None,
+    cp2 = Checkpoint(
                      f_params="params2.pt",
                      f_optimizer="optimizers2.pt",
                      dirname=save_path,
@@ -244,7 +244,7 @@ def run_model(data_load_path, fake_data_load_path, fake_k, double_channel, model
     train_set_all, test_set = split_data(windows_dataset)
 
     # Split train_set to valid and train
-    X_train, X_valid = train_test_split(train_set_all.datasets, test_size=1, train_size=5,
+    X_train, X_valid = train_test_split(train_set_all.datasets, test_size=3, train_size=3,
                                         shuffle=True, random_state=20200220)
 
     train_set = BaseConcatDataset(X_train)
