@@ -29,13 +29,7 @@ def test_clf(data_load_path, clf_load_path):
         in_chans=n_chans,
         n_classes=n_classes,
         input_window_samples=input_window_samples,
-        n_filters_time=25,
-        n_filters_spat=25,
-        stride_before_pool=True,
-        n_filters_2=int(n_chans * 2),
-        n_filters_3=int(n_chans * (2 ** 2.0)),
-        n_filters_4=int(n_chans * (2 ** 3.0)),
-        final_conv_length='auto',
+        final_conv_length=2,
     )
 
     # Send model to GPU
@@ -77,7 +71,7 @@ def test_clf(data_load_path, clf_load_path):
     )
 
     clf.initialize()  # This is important!
-    clf.load_params(f_params=clf_load_path + 'params.pt', f_optimizer=clf_load_path + 'optimizers.pt')
+    clf.load_params(f_params=clf_load_path + 'params1.pt', f_optimizer=clf_load_path + 'optimizers1.pt')
 
     score = clf.score(test_set, y=target)
     print("EEG Classification Score (Accuracy) is:  " + str(score))
@@ -87,10 +81,10 @@ def test_clf(data_load_path, clf_load_path):
 #   Test Cropped And Fake Classification
 ########################################
 
-subject_id_list = [1]
-data_load_path = os.path.join('../../Data/Real_Data/BCI/bnci-raw/' + str(subject_id_list).strip('[]')) + '/'
+subject_id_list = [3]
+data_load_path = os.path.join('../../Data/Real_Data/BCI/bnci-raw/4-38/' + str(subject_id_list).strip('[]')) + '/'
 
-clf_load_path = os.path.join('../../Model_Params/BCI_Models/deep4/' + str(subject_id_list).strip('[]')) + '/'
-# clf_load_path = os.path.join('../../Model_Params/Fake_Cropped_Classification/' + str(subject_id_list).strip('[]')) + '/'
+# clf_load_path = os.path.join('../../Model_Params/BCI_Models/deep4/' + str(subject_id_list).strip('[]')) + '/'
+clf_load_path = os.path.join('../../Model_Params/Fake_Cropped_Classification/22/4-38/' + str(subject_id_list).strip('[]')) + '/Run 1/'
 
 test_clf(data_load_path=data_load_path, clf_load_path=clf_load_path)
