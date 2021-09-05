@@ -16,10 +16,10 @@ from Code.Models.GANs.WGanGPSignalModels import Generator
 # os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 
 
-subject_id = 1
+subject_id = 3
 
 # number of images to generate
-batch_size = 36
+batch_size = 64
 nimages = 128
 
 # GAN info
@@ -46,7 +46,7 @@ all_channels = ['Fz',
                 'C5', 'C1', 'C2', 'C6', 'CP3', 'CPz', 'CP4',
                 'P1', 'P2']
 
-for subject_id in range(1, 10):
+for subject_id in range(3, 4):
     for run in range(0, 6):
         start = 0
         task_trials_epoch = []
@@ -55,7 +55,7 @@ for subject_id in range(1, 10):
 
             for channel in all_channels:
                 # path to generator weights .pth file
-                saved_models_path = '../../Model_Params/GANs/WGan-GP-Signal-VERSION2/' + str(subject_id) + '/' + task + '/' + channel + '/'
+                saved_models_path = '../../Model_Params/GANs/WGan-GP-Signal-VERSION3/' + str(subject_id) + '/' + task + '/' + channel + '/'
                 saved_models_path += 'generator_state_dict.pth'
 
                 netG = Generator(time_sample=time_sample, noise=noise, channels=1)
