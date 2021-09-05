@@ -61,8 +61,8 @@ def get_data(data_load_path,
 #########################
 # load data             #
 #########################
-subject_id = 5
-data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/' + str(subject_id).strip('[]')) + '/'
+subject_id = 3
+data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/4-38/' + str(subject_id).strip('[]')) + '/'
 
 time_sample = 1000
 window_stride_samples = 467
@@ -70,8 +70,8 @@ mapping = {
     # Select just 'feet' task
     'feet': 0,
     'left_hand': 1,
-    'right_hand': 2,
-    'tongue': 3,
+    'right_hand': 3,
+    'tongue': 2,
 }
 
 all_channels = ['Fz',
@@ -88,13 +88,16 @@ for key, value in mapping.items():
 
         channels_name = channel
         pick_channels = [channel]
+        task_mapping = {
+            key: value
+        }
 
-        save_result_path = '../../../Result/GANs/WGan-GP-Signal-VERSION2/' + str(
+        save_result_path = '../../../Result/GANs/WGan-GP-Signal-VERSION3/' + str(
             subject_id) + '/' + tasks_name + '/' + channels_name + '/'
         if not os.path.exists(save_result_path):
             os.makedirs(save_result_path)
 
-        save_model_path = '../../../Model_Params/GANs/WGan-GP-Signal-VERSION2/' + str(
+        save_model_path = '../../../Model_Params/GANs/WGan-GP-Signal-VERSION3/' + str(
             subject_id) + '/' + tasks_name + '/' + channels_name + '/'
         if not os.path.exists(save_model_path):
             os.makedirs(save_model_path)
@@ -107,7 +110,7 @@ for key, value in mapping.items():
         data, n_chans = get_data(data_load_path=data_load_path,
                                  time_sample=time_sample,
                                  window_stride_samples=window_stride_samples,
-                                 mapping=mapping,
+                                 mapping=task_mapping,
                                  pick_channels=pick_channels
                                  )
 
@@ -116,14 +119,14 @@ for key, value in mapping.items():
         #########################
 
         batchsize = 64
-        epochs = 1400
+        epochs = 400
 
         net = WGANGP(subject=subject_id,
                      n_epochs=epochs,
                      batch_size=batchsize,
                      time_sample=time_sample,
                      channels=n_chans,
-                     sample_interval=window_stride_samples,
+                     sample_interval=400,
                      result_path=save_result_path,
                      )
 

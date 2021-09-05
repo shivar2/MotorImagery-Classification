@@ -45,7 +45,7 @@ class Discriminator(nn.Module):
         self.eeg_shape = (self.channels, self.time_sample)
 
         self.model = nn.Sequential(
-            nn.Linear(int(np.prod(self.eeg_shape)), 256),
+            nn.Linear(int(np.prod(self.eeg_shape)), 512),
             nn.LeakyReLU(0.2, inplace=True),
             nn.Linear(512, 256),
             nn.LeakyReLU(0.2, inplace=True),
