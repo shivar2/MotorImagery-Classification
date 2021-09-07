@@ -8,10 +8,10 @@ for subject_id in subject_id_list:
     data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/4-38/' + str(subject_id)) + '/'
 
     # Load model path
-    model_load_path = '../../../Model_Params/Pretrained_Models/22channels/4-38 - 20epoch/'
+    model_load_path = '../../../Model_Params/Pretrained_Models/with-resample/4-38/'
 
     # Save results
-    save_path = os.path.join('../../../Model_Params/TL_Classification/22/4-38/' + str(subject_id)) + '/Run 0/'
+    save_path = os.path.join('../../../Model_Params/TL_Classification/with-resample/4-38/' + str(subject_id)) + '/Run 0/'
     if not os.path.exists(save_path):
         os.makedirs(save_path)
 
