@@ -80,17 +80,16 @@ def select_22_channels(dataset):
 def select_44_channels(dataset):
     # pick only sensors with C in their name
     # as they cover motor cortex
-    BCI_44_sensors = ['Fz',
-                      'FFC1h', 'FFC2h', 'FFC3h', 'FFC4h',
-                      'FC3', 'FC1', 'FCz', 'FC2', 'FC4',
-                      'FCC5h', 'FCC3h', 'FCC1h', 'FCC2h', 'FCC4h', 'FCC6h',
-                      'C5', 'C3', 'C1', 'Cz', 'C2', 'C4', 'C6',
-                      'CCP5h', 'CCP3h', 'CCP1h', 'CCP2h', 'CCP4h', 'CCP6h',
-                      'CP3', 'CP1', 'CPz', 'CP2', 'CP4',
-                      'CPP3h', 'CPP1h', 'CPP2h', 'CPP4h',
-                      'P1', 'Pz', 'P2',
-                      'PPO1', 'PPO2',
-                      'POz']
+    BCI_44_sensors = ['FC5', 'FC1', 'FC2', 'FC6', 'C3', 'C4', 'CP5',
+                      'CP1', 'CP2', 'CP6', 'FC3', 'FCz', 'FC4', 'C5', 'C1', 'C2',
+                      'C6',
+                      'CP3', 'CPz', 'CP4', 'FFC5h', 'FFC3h', 'FFC4h', 'FFC6h',
+                      'FCC5h',
+                      'FCC3h', 'FCC4h', 'FCC6h', 'CCP5h', 'CCP3h', 'CCP4h', 'CCP6h',
+                      'CPP5h',
+                      'CPP3h', 'CPP4h', 'CPP6h', 'FFC1h', 'FFC2h', 'FCC1h', 'FCC2h',
+                      'CCP1h',
+                      'CCP2h', 'CPP1h', 'CPP2h']
 
     preprocessors = [Preprocessor('pick_channels', ch_names=BCI_44_sensors)]  # Pick Channels
     preprocess(dataset, preprocessors)
