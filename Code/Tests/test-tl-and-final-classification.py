@@ -37,6 +37,7 @@ def test_clf(double_channel, data_load_path, clf_load_path):
     # Send model to GPU
     if cuda:
         model.cuda()
+        model.eval()
 
     to_dense_prediction_model(model)
     n_preds_per_input = get_output_shape(model, n_chans, input_window_samples)[2]
@@ -75,7 +76,6 @@ def test_clf(double_channel, data_load_path, clf_load_path):
 
     clf.initialize()  # This is important!
     clf.load_params(f_params=clf_load_path + 'params.pt', f_optimizer=clf_load_path + 'optimizers.pt')
-
     score = clf.score(test_set, y=target)
     print("EEG Classification Score (Accuracy) is:  " + str(score))
 

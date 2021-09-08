@@ -35,6 +35,7 @@ def test_clf(data_load_path, clf_load_path):
     # Send model to GPU
     if cuda:
         model.cuda()
+        model.eval()
 
     to_dense_prediction_model(model)
     n_preds_per_input = get_output_shape(model, n_chans, input_window_samples)[2]
