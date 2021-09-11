@@ -73,6 +73,8 @@ def test_clf(data_load_path, clf_load_path):
     clf.initialize()  # This is important!
     clf.load_params(f_params=clf_load_path + 'params2.pt', f_optimizer=clf_load_path + 'optimizers2.pt')
 
+    model.eval()
+
     score = clf.score(test_set, y=target)
     print("EEG Classification Score (Accuracy) is:  " + str(score))
 
