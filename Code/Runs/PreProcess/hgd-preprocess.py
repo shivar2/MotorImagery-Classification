@@ -24,6 +24,11 @@ BCI_44_sensors = [
         'CPP3h', 'CPP4h', 'CPP6h', 'FFC1h', 'FFC2h', 'FCC1h', 'FCC2h', 'CCP1h',
         'CCP2h', 'CPP1h', 'CPP2h']
 
+C_22_sensors = [
+        'FC5', 'FC1', 'FC2', 'FC6', 'C3', 'Cz', 'C4', 'CP5',
+        'CP1', 'CP2', 'CP6', 'FC3', 'FCz', 'FC4', 'C5', 'C1', 'C2', 'C6',
+        'CP3', 'CPz', 'CP4', 'Fz']
+
 moving_fn = {'standardize': exponential_moving_standardize,
              'demean': exponential_moving_demean}[exponential_moving_fn]
 
