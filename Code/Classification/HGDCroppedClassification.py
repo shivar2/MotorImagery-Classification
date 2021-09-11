@@ -226,7 +226,7 @@ def run_model(data_load_path, model_name, save_path):
                                           input_window_samples=input_window_samples,
                                           trial_start_offset_seconds=trial_start_offset_seconds)
 
-    train_set, valid_set = split_into_train_valid(windows_dataset, use_final_eval=False)
+    train_set, valid_set = split_into_train_valid(windows_dataset, use_final_eval=True)
 
     clf = train_cropped_trials(train_set,
                                valid_set,
