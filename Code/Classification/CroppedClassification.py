@@ -1,9 +1,9 @@
 import numpy as np
+
 import torch
+from torch.utils.data import Subset
 
-from sklearn.model_selection import train_test_split
-
-from skorch.callbacks import LRScheduler, Checkpoint
+from skorch.callbacks import LRScheduler
 from skorch.helper import predefined_split
 
 import matplotlib.pyplot as plt
@@ -11,15 +11,12 @@ from matplotlib.lines import Line2D
 import pandas as pd
 
 from braindecode.datautil.serialization import load_concat_dataset
-from braindecode.datasets.base import BaseConcatDataset
 from braindecode.util import set_random_seeds
 from braindecode.models import ShallowFBCSPNet, Deep4Net
 from braindecode.models.util import to_dense_prediction_model, get_output_shape
 from braindecode.datautil.windowers import create_windows_from_events
 from braindecode import EEGClassifier
 from braindecode.training.losses import CroppedLoss
-
-from Code.EarlyStopClass.EarlyStopClass import EarlyStopping
 
 
 def detect_device():
@@ -62,19 +59,11 @@ def create_model_deep4(input_window_samples=1000, n_chans=4, n_classes=4):
 
 
 def cut_compute_windows(dataset, n_preds_per_input, input_window_samples=1000, trial_start_offset_seconds=-0.5):
-    # Extract sampling frequency, check that they are same in all datasets
+
     sfreq = dataset.datasets[0].raw.info['sfreq']
     assert all([ds.raw.info['sfreq'] == sfreq for ds in dataset.datasets])
 
     trial_start_offset_samples = int(trial_start_offset_seconds * sfreq)
-
-    # Mapping new event ids to fit hgd event ids
-    mapping = {
-        'feet': 0,
-        'left_hand': 1,
-        'tongue': 2,
-        'right_hand': 3,
-    }
     windows_dataset = create_windows_from_events(
         dataset,
         trial_start_offset_samples=trial_start_offset_samples,
@@ -83,23 +72,34 @@ def cut_compute_windows(dataset, n_preds_per_input, input_window_samples=1000, t
         window_stride_samples=n_preds_per_input,
         drop_last_window=False,
         preload=True,
-        mapping=mapping
+        mapping={'left_hand': 0, 'right_hand': 1, 'feet': 2, 'tongue': 3},
     )
     return windows_dataset
 
 
-def split_data(windows_dataset, dataset_name='BNCI'):
-    # Split dataset into train and valid
-    if dataset_name == 'BNCI':
-        splitted = windows_dataset.split('session')
-        train_set_all = splitted['session_T']
-        test_set = splitted['session_E']
-    else:
-        splitted = windows_dataset.split('run')
-        train_set_all = splitted['train']
-        test_set = splitted['test']
+def split_into_train_valid(windows_dataset, use_final_eval):
 
-    return train_set_all, test_set
+    splitted = windows_dataset.split('session')
+    if use_final_eval:
+        train_set = splitted['session_T']
+        valid_set = splitted['session_E']
+    else:
+        full_train_set = splitted['session_T']
+        n_split = int(np.round(0.8 * len(full_train_set)))
+        # ensure this is multiple of 2 (number of windows per trial)
+        n_windows_per_trial = 2  # here set by hand
+        n_split = n_split - (n_split % n_windows_per_trial)
+        valid_set = Subset(full_train_set, range(n_split, len(full_train_set)))
+        train_set = Subset(full_train_set, range(0, n_split))
+    return train_set, valid_set
+
+
+def get_test_data(windows_dataset):
+    # Split dataset into train and test and return just test set
+    splitted = windows_dataset.split('session')
+    test_set = splitted['session_E']
+
+    return test_set
 
 
 def train_cropped_trials(train_set, valid_set, model, save_path, model_name='shallow', device='cpu'):
@@ -113,29 +113,14 @@ def train_cropped_trials(train_set, valid_set, model, save_path, model_name='sha
         weight_decay = 0.5 * 0.001
 
     batch_size = 64
-
-    # PHASE 1
-
-    n_epochs = 800
-
-    # Checkpoint will save the model with the lowest valid_loss
-    cp = Checkpoint(monitor='valid_accuracy_best',
-                    f_params="params1.pt",
-                    f_optimizer="optimizers1.pt",
-                    f_history="history1.json",
-                    dirname=save_path, f_criterion=None)
-
-    # Early_stopping
-    early_stopping = EarlyStopping(monitor='valid_accuracy', lower_is_better=False, patience=80)
+    n_epochs = 20
 
     callbacks = [
         "accuracy",
-        ('cp', cp),
-        ('patience', early_stopping),
         ("lr_scheduler", LRScheduler('CosineAnnealingLR', T_max=n_epochs - 1)),
     ]
 
-    clf1 = EEGClassifier(
+    clf = EEGClassifier(
         model,
         cropped=True,
         max_epochs=n_epochs,
@@ -150,56 +135,8 @@ def train_cropped_trials(train_set, valid_set, model, save_path, model_name='sha
         callbacks=callbacks,
         device=device,
     )
-    # Model training for a specified number of epochs. `y` is None as it is already supplied
-    # in the dataset.
-    clf1.fit(train_set, y=None)
-
-    # PHASE 2
-    # Best clf1 valid accuracy
-    best_valid_acc_epoch = np.argmax(clf1.history[:, 'valid_accuracy'])
-    target_train_loss = clf1.history[best_valid_acc_epoch, 'train_loss']
-
-    # Early_stopping
-    early_stopping2 = EarlyStopping(monitor='valid_loss',
-                                    divergence_threshold=target_train_loss,
-                                    patience=80)
-
-    # Checkpoint will save the model with the lowest valid_loss
-    cp2 = Checkpoint(
-                     f_params="params2.pt",
-                     f_optimizer="optimizers2.pt",
-                     dirname=save_path,
-                     f_criterion=None)
-
-    callbacks2 = [
-        "accuracy",
-        ('cp', cp2),
-        ('patience', early_stopping2),
-        ("lr_scheduler", LRScheduler('CosineAnnealingLR', T_max=n_epochs - 1)),
-    ]
-
-    clf2 = EEGClassifier(
-        model,
-        cropped=True,
-        warm_start=True,
-        max_epochs=n_epochs,
-        criterion=CroppedLoss,
-        criterion__loss_function=torch.nn.functional.nll_loss,
-        optimizer=torch.optim.AdamW,
-        train_split=predefined_split(valid_set),
-        iterator_train__shuffle=True,
-        batch_size=batch_size,
-        callbacks=callbacks2,
-        device=device,
-    )
-
-    clf2.initialize()  # This is important!
-    clf2.load_params(f_params=save_path+"params1.pt",
-                     f_optimizer=save_path+"optimizers1.pt",
-                     f_history=save_path+"history1.json")
-    phase2_train = BaseConcatDataset([train_set, valid_set])
-    clf2.fit(phase2_train, y=None)
-    return clf2
+    clf.fit(train_set, y=None)
+    return clf
 
 
 def plot(clf, save_path):
@@ -278,13 +215,8 @@ def run_model(data_load_path, dataset_name, model_name, save_path):
                                           input_window_samples=input_window_samples,
                                           trial_start_offset_seconds=trial_start_offset_seconds)
 
-    train_set_all, test_set = split_data(windows_dataset, dataset_name=dataset_name)
-
-    X_train, X_valid = train_test_split(train_set_all.datasets, test_size=1, train_size=5,
-                                        shuffle=True, random_state=20200220)
-
-    train_set = BaseConcatDataset(X_train)
-    valid_set = BaseConcatDataset(X_valid)
+    train_set, valid_set = split_into_train_valid(windows_dataset, use_final_eval=False)
+    test_set = get_test_data(windows_dataset)
 
     clf = train_cropped_trials(train_set,
                                valid_set,
@@ -294,6 +226,7 @@ def run_model(data_load_path, dataset_name, model_name, save_path):
                                device=device)
 
     plot(clf, save_path)
+    torch.save(model, save_path + "model.pth")
 
     # Calculate Mean Accuracy For Test set
     i = 0
