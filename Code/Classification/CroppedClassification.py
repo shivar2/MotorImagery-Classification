@@ -102,7 +102,7 @@ def get_test_data(windows_dataset):
     return test_set
 
 
-def train_cropped_trials(train_set, valid_set, model, save_path, model_name='shallow', device='cpu'):
+def train_cropped_trials(train_set, valid_set, model, model_name='shallow', device='cpu'):
     if model_name == 'shallow':
         # These values we found good for shallow network:
         lr = 0.0625 * 0.01
@@ -221,7 +221,6 @@ def run_model(data_load_path, dataset_name, model_name, save_path):
     clf = train_cropped_trials(train_set,
                                valid_set,
                                model=model,
-                               save_path=save_path,
                                model_name=model_name,
                                device=device)
 
