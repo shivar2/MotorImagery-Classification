@@ -164,10 +164,18 @@ def run_model(data_load_path, double_channel, model_load_path, params_name, save
 
     # Calculate Mean Accuracy For Test set
     i = 0
-    test = np.empty(shape=(len(test_set), n_chans, input_window_samples))
+    if double_channel:
+        test = np.empty(shape=(len(test_set), n_chans*2, input_window_samples))
+    else:
+        test = np.empty(shape=(len(test_set), n_chans, input_window_samples))
+
     target = np.empty(shape=(len(test_set)))
     for x, y, window_ind in test_set:
-        test[i] = x
+        if double_channel:
+            test[i] = np.repeat(x, 2, 1)  # change channel number (22 to 44)
+        else:
+            test[i] = x
+
         target[i] = y
         i += 1
 
