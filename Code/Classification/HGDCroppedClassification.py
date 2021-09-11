@@ -1,8 +1,9 @@
-
+import numpy as np
 import torch
 
 from skorch.callbacks import LRScheduler, Checkpoint
 from skorch.helper import predefined_split
+from torch.utils.data import Subset
 
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
@@ -16,8 +17,6 @@ from braindecode.models.util import to_dense_prediction_model, get_output_shape
 from braindecode.datautil.windowers import create_windows_from_events
 from braindecode import EEGClassifier
 from braindecode.training.losses import CroppedLoss
-
-from Code.EarlyStopClass.EarlyStopClass import EarlyStopping
 
 
 def detect_device():
@@ -89,18 +88,20 @@ def cut_compute_windows(dataset, n_preds_per_input, input_window_samples=1000, t
     return windows_dataset
 
 
-def split_data(windows_dataset, dataset_name='BNCI'):
-    # Split dataset into train and valid
-    if dataset_name == 'BNCI':
-        splitted = windows_dataset.split('session')
-        train_set_all = splitted['session_T']
-        test_set = splitted['session_E']
+def split_into_train_valid(windows_dataset, use_final_eval):
+    splitted = windows_dataset.split('run')
+    if use_final_eval:
+        train_set = splitted['train']
+        valid_set = splitted['test']
     else:
-        splitted = windows_dataset.split('run')
-        train_set_all = splitted['train']
-        test_set = splitted['test']
-
-    return train_set_all, test_set
+        full_train_set = splitted['train']
+        n_split = int(np.round(0.8 * len(full_train_set)))
+        # ensure this is multiple of 2 (number of windows per trial)
+        n_windows_per_trial = 2  # here set by hand
+        n_split = n_split - (n_split % n_windows_per_trial)
+        valid_set = Subset(full_train_set, range(n_split, len(full_train_set)))
+        train_set = Subset(full_train_set, range(0, n_split))
+    return train_set, valid_set
 
 
 def train_cropped_trials(train_set, valid_set, model, save_path, model_name='shallow', device='cpu'):
@@ -188,7 +189,7 @@ def plot(clf, save_path):
     plt.savefig(fname=image_path)
 
 
-def run_model(data_load_path, dataset_name, model_name, save_path):
+def run_model(data_load_path, model_name, save_path):
     input_window_samples = 1000
     cuda, device = detect_device()
 
@@ -225,10 +226,10 @@ def run_model(data_load_path, dataset_name, model_name, save_path):
                                           input_window_samples=input_window_samples,
                                           trial_start_offset_seconds=trial_start_offset_seconds)
 
-    train_set, test_set = split_data(windows_dataset, dataset_name=dataset_name)
+    train_set, valid_set = split_into_train_valid(windows_dataset, use_final_eval=False)
 
     clf = train_cropped_trials(train_set,
-                               test_set,
+                               valid_set,
                                model=model,
                                save_path=save_path,
                                model_name=model_name,
