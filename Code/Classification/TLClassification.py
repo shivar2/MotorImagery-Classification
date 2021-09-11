@@ -20,7 +20,7 @@ def tl_classifier(train_set, valid_set,
 
     # PHASE 1
 
-    n_epochs = 800
+    n_epochs = 20
 
     # Checkpoint will save the history 
     cp = Checkpoint(monitor='valid_accuracy_best',
@@ -164,15 +164,12 @@ def run_model(data_load_path, double_channel, model_load_path, params_name, save
 
     # Calculate Mean Accuracy For Test set
     i = 0
-    if double_channel:
-        test = np.empty(shape=(len(test_set), n_chans*2, input_window_samples))
-    else:
-        test = np.empty(shape=(len(test_set), n_chans, input_window_samples))
+    test = np.empty(shape=(len(test_set), n_chans, input_window_samples))
 
     target = np.empty(shape=(len(test_set)))
     for x, y, window_ind in test_set:
         if double_channel:
-            test[i] = np.repeat(x, 2, 1)  # change channel number (22 to 44)
+            test[i] = np.repeat(x, 2, 0)  # change channel number (22 to 44)
         else:
             test[i] = x
 
