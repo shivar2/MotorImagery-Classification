@@ -4,8 +4,9 @@ import numpy as np
 
 
 from braindecode.datasets.moabb import MOABBDataset
-from braindecode.datautil.preprocess import (
-    exponential_moving_standardize, preprocess, Preprocessor)
+from braindecode.datautil.preprocess import MNEPreproc, NumpyPreproc, preprocess
+from braindecode.datautil.preprocess import exponential_moving_standardize
+from braindecode.datautil.preprocess import exponential_moving_demean
 
 from braindecode.datautil.serialization import load_concat_dataset
 
@@ -38,96 +39,42 @@ def basic_preprocess(dataset, low_cut_hz=4., high_cut_hz=38., factor_new=1e-3, i
     # Parameters for exponential moving standardization
     factor_new = factor_new
     init_block_size = init_block_size
+    exponential_moving_fn = ['standardize']  # , 'demean'
+
+    C_44_sensors = [
+        'FC5', 'FC1', 'FC2', 'FC6', 'C3', 'Cz', 'C4', 'CP5',
+        'CP1', 'CP2', 'CP6', 'FC3', 'FCz', 'FC4', 'C5', 'C1', 'C2', 'C6',
+        'CP3', 'CPz', 'CP4', 'FFC5h', 'FFC3h', 'FFC4h', 'FFC6h', 'FCC5h',
+        'FCC3h', 'FCC4h', 'FCC6h', 'CCP5h', 'CCP3h', 'CCP4h', 'CCP6h', 'CPP5h',
+        'CPP3h', 'CPP4h', 'CPP6h', 'FFC1h', 'FFC2h', 'FCC1h', 'FCC2h', 'CCP1h',
+        'CCP2h', 'CPP1h', 'CPP2h']
+
+    C_22_sensors = [
+        'FC5', 'FC1', 'FC2', 'FC6', 'C3', 'Cz', 'C4', 'CP5',
+        'CP1', 'CP2', 'CP6', 'FC3', 'FCz', 'FC4', 'C5', 'C1', 'C2', 'C6',
+        'CP3', 'CPz', 'CP4', 'Fz']
+
+    moving_fn = {'standardize': exponential_moving_standardize,
+                 'demean': exponential_moving_demean}[exponential_moving_fn]
 
     preprocessors = [
-        Preprocessor('pick_types', eeg=True, meg=False, stim=False),  # Keep EEG sensors
-        Preprocessor(lambda x: x * 1e6),  # Convert from V to uV
-        Preprocessor('filter', l_freq=low_cut_hz, h_freq=high_cut_hz),  # Bandpass filter
-        Preprocessor(exponential_moving_standardize,  # Exponential moving standardization
-                     factor_new=factor_new, init_block_size=init_block_size)
+        MNEPreproc(fn='pick_channels', ch_names=C_22_sensors, ordered=True),
+        NumpyPreproc(fn=lambda x: x * 1e6),
+        NumpyPreproc(fn=lambda x: np.clip(x, -800, 800)),
     ]
 
+    # preprocessors.append(MNEPreproc(fn='set_eeg_reference', ref_channels='average'), )
+
+    preprocessors.extend([
+        # MNEPreproc(fn='resample', sfreq=250),
+        # bandpass filter
+        MNEPreproc(fn='filter', l_freq=low_cut_hz, h_freq=high_cut_hz),
+        # exponential moving standardization
+        NumpyPreproc(fn=moving_fn, factor_new=factor_new,
+                     init_block_size=init_block_size),
+    ])
+
     # Transform the data
-    preprocess(dataset, preprocessors)
-    return dataset
-
-
-def select_3_channels(dataset):
-    # c channel for testing gan
-    C_sensors = ['C3', 'Cz', 'C4']
-
-    preprocessors = [Preprocessor('pick_channels', ch_names=C_sensors)]  # Pick Channels
-    preprocess(dataset, preprocessors)
-
-    return dataset
-
-
-def select_22_channels(dataset):
-    # bci channel
-    BCI_sensors = ['Fz',
-                   'FC3', 'FC1', 'FCz', 'FC2', 'FC4',
-                   'C5', 'C3', 'C1', 'Cz', 'C2', 'C4', 'C6',
-                   'CP3', 'CP1', 'CPz', 'CP2', 'CP4',
-                   'P1', 'Pz', 'P2',
-                   'POz']
-
-    preprocessors = [Preprocessor('pick_channels', ch_names=BCI_sensors)]  # Pick Channels
-    preprocess(dataset, preprocessors)
-
-    return dataset
-
-
-def select_44_channels(dataset):
-    # pick only sensors with C in their name
-    # as they cover motor cortex
-    BCI_44_sensors = ['FC5', 'FC1', 'FC2', 'FC6', 'C3', 'C4', 'CP5',
-                      'CP1', 'CP2', 'CP6', 'FC3', 'FCz', 'FC4', 'C5', 'C1', 'C2',
-                      'C6',
-                      'CP3', 'CPz', 'CP4', 'FFC5h', 'FFC3h', 'FFC4h', 'FFC6h',
-                      'FCC5h',
-                      'FCC3h', 'FCC4h', 'FCC6h', 'CCP5h', 'CCP3h', 'CCP4h', 'CCP6h',
-                      'CPP5h',
-                      'CPP3h', 'CPP4h', 'CPP6h', 'FFC1h', 'FFC2h', 'FCC1h', 'FCC2h',
-                      'CCP1h',
-                      'CCP2h', 'CPP1h', 'CPP2h']
-
-    preprocessors = [Preprocessor('pick_channels', ch_names=BCI_44_sensors)]  # Pick Channels
-    preprocess(dataset, preprocessors)
-
-    return dataset
-
-
-def reorder(dataset):
-    # bci channel
-    BCI_sensors = ['Fz',
-                   'FC3', 'FC1', 'FCz', 'FC2', 'FC4',
-                   'C5', 'C3', 'C1', 'Cz', 'C2', 'C4', 'C6',
-                   'CP3', 'CP1', 'CPz', 'CP2', 'CP4',
-                   'P1', 'Pz', 'P2',
-                   'POz']
-
-    preprocessors = [Preprocessor('reorder_channels', ch_names=BCI_sensors)]  # Reorder Channels
-    preprocess(dataset, preprocessors)
-
-    return dataset
-
-
-def reorder_based_hgd_channels(dataset):
-    # bci channel
-    HGD_oredr = ['Fz',
-                 'FC1', 'FC2',
-                 'C3', 'Cz', 'C4', 'CP1', 'CP2',
-                 'Pz', 'POz', 'FC3', 'FCz', 'FC4',
-                 'C5', 'C1', 'C2', 'C6', 'CP3', 'CPz', 'CP4',
-                 'P1', 'P2']
-
-    preprocessors = [Preprocessor('reorder_channels', ch_names=HGD_oredr)]  # Pick Channels
-    preprocess(dataset, preprocessors)
-    return dataset
-
-
-def resample_hgd(dataset, sfreq=250):
-    preprocessors = [Preprocessor('resample', sfreq=sfreq)]
     preprocess(dataset, preprocessors)
     return dataset
 
