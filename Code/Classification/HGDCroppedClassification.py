@@ -84,6 +84,7 @@ def cut_compute_windows(dataset, n_preds_per_input, input_window_samples=1000, t
         window_stride_samples=n_preds_per_input,
         drop_last_window=False,
         preload=True,
+        mapping={'left_hand': 0, 'right_hand': 1, 'feet': 2, 'rest': 3},
     )
     return windows_dataset
 
@@ -113,10 +114,7 @@ def train_cropped_trials(train_set, valid_set, model, save_path, model_name='sha
         weight_decay = 0.5 * 0.001
 
     batch_size = 64
-
-    # PHASE 1
-
-    n_epochs = 40
+    n_epochs = 20
 
     # Checkpoint will save the model with the lowest valid_loss
     cp = Checkpoint(monitor=None,
@@ -125,14 +123,9 @@ def train_cropped_trials(train_set, valid_set, model, save_path, model_name='sha
                     f_history="history.json",
                     dirname=save_path, f_criterion=None)
 
-    early_stopping = EarlyStopping(monitor='valid_loss',
-                                    stopping_threshold=1.,
-                                    patience=40)
-
     callbacks = [
         "accuracy",
         ('cp', cp),
-        ('patience', early_stopping),
         ("lr_scheduler", LRScheduler('CosineAnnealingLR', T_max=n_epochs - 1)),
     ]
     clf = EEGClassifier(
