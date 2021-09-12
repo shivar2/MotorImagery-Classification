@@ -87,7 +87,7 @@ def test_clf(double_channel, data_load_path, clf_load_path):
 ########################################
 
 subject_id_list = [1]
-data_load_path = os.path.join('../../Data/Real_Data-old/BCI/bnci-raw/' + str(subject_id_list).strip('[]')) + '/'
+data_load_path = os.path.join('../../Data/Real_Data/BCI/bnci-raw/' + str(subject_id_list).strip('[]')) + '/'
 
 clf_load_path = '../../Model_Params/TL_Classification/without-resample/4-38/' + str(subject_id_list).strip('[]') + '/Run 0/'
 # clf_load_path = '../../Model_Params/FinalClassification/without-resample/4-38/' + str(subject_id_list).strip('[]') + '/'

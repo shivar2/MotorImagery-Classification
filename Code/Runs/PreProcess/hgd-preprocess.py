@@ -49,4 +49,4 @@ preprocessors.extend([
                      init_block_size=init_block_size),
     ])
 
-save_data(dataset, saving_path='../../../Data/Real_Data-old/HGD/hgd-44channels-raw/', subject_id=subject_id)
+save_data(dataset, saving_path='../../../Data/Real_Data/HGD/hgd-44channels-raw/', subject_id=subject_id)

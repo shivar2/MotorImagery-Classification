@@ -62,7 +62,7 @@ def get_data(data_load_path,
 # load data             #
 #########################
 subject_id = 3
-data_load_path = os.path.join('../../../Data/Real_Data-old/BCI/bnci-raw/4-38/' + str(subject_id).strip('[]')) + '/'
+data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/4-38/' + str(subject_id).strip('[]')) + '/'
 
 time_sample = 1000
 window_stride_samples = 467
