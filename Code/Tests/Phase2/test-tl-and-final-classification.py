@@ -1,12 +1,14 @@
 import os
 import numpy as np
+import torch
+
 from braindecode.util import set_random_seeds
 from braindecode.models.util import to_dense_prediction_model, get_output_shape
 from braindecode.training.losses import CroppedLoss
 
 from Code.Classifier.EEGTLClassifier import EEGTLClassifier
 from Code.Models.PretrainedDeep4Model import PretrainedDeep4Model
-from Code.base import *
+from Code.base import detect_device, load_data_object, cut_compute_windows, get_test_data
 
 
 def test_clf(double_channel, data_load_path, clf_load_path):
@@ -28,7 +30,7 @@ def test_clf(double_channel, data_load_path, clf_load_path):
     cuda, device = detect_device()
     seed = 20200220
     set_random_seeds(seed=seed, cuda=cuda)
-    
+
     # you should remove model load static from pretrained model and !IMPPORTANT!
     model = PretrainedDeep4Model(n_chans=n_chans,
                                  n_classes=n_classes,
@@ -74,9 +76,7 @@ def test_clf(double_channel, data_load_path, clf_load_path):
     )
 
     clf.initialize()  # This is important!
-    clf.load_params(f_params=clf_load_path + 'params.pt', f_optimizer=clf_load_path + 'optimizers.pt')
-
-    model.eval()
+    clf.load_params(f_params=clf_load_path + 'params2.pt', f_optimizer=clf_load_path + 'optimizers2.pt')
 
     score = clf.score(test_set, y=target)
     print("EEG Classification Score (Accuracy) is:  " + str(score))
@@ -87,10 +87,12 @@ def test_clf(double_channel, data_load_path, clf_load_path):
 ########################################
 
 subject_id_list = [1]
-data_load_path = os.path.join('../../Data/Real_Data/BCI/bnci-raw/' + str(subject_id_list).strip('[]')) + '/'
 
-clf_load_path = '../../Model_Params/TL_Classification/without-resample/4-38/' + str(subject_id_list).strip('[]') + '/Run 0/'
-# clf_load_path = '../../Model_Params/FinalClassification/without-resample/4-38/' + str(subject_id_list).strip('[]') + '/'
+for subject_id in subject_id_list:
+    data_load_path = os.path.join('../../Data/Real_Data/BCI/bnci-raw/0-38/' + str(subject_id)) + '/'
 
-test_clf(double_channel=False, data_load_path=data_load_path, clf_load_path=clf_load_path)
+    clf_load_path = '../../../Model_Params/TL_Classification/phase2/22channels/0-38/' + str(subject_id) + '/Run 1/'
+    # clf_load_path = '../../../Model_Params/Final_Classification/phase2/22channels/0-38/' + str(subject_id) + '/Run 1/'
+
+    test_clf(double_channel=False, data_load_path=data_load_path, clf_load_path=clf_load_path)
 

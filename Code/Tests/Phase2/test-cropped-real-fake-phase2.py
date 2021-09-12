@@ -1,12 +1,13 @@
 import os
 import numpy as np
+import torch
 
 from braindecode.util import set_random_seeds
 from braindecode.models.util import to_dense_prediction_model, get_output_shape
 from braindecode import EEGClassifier
 from braindecode.training.losses import CroppedLoss
 
-from Code.base import *
+from Code.base import detect_device, load_data_object, create_model_deep4, cut_compute_windows, get_test_data
 
 
 def test_clf(data_load_path, clf_load_path):
@@ -25,12 +26,7 @@ def test_clf(data_load_path, clf_load_path):
     seed = 20200220
     set_random_seeds(seed=seed, cuda=cuda)
 
-    model = Deep4Net(
-        in_chans=n_chans,
-        n_classes=n_classes,
-        input_window_samples=input_window_samples,
-        final_conv_length=2,
-    )
+    model = create_model_deep4(input_window_samples=input_window_samples, n_chans=n_chans, n_classes=n_classes)
 
     # Send model to GPU
     if cuda:
@@ -73,8 +69,6 @@ def test_clf(data_load_path, clf_load_path):
     clf.initialize()  # This is important!
     clf.load_params(f_params=clf_load_path + 'params2.pt', f_optimizer=clf_load_path + 'optimizers2.pt')
 
-    model.eval()
-
     score = clf.score(test_set, y=target)
     print("EEG Classification Score (Accuracy) is:  " + str(score))
 
@@ -83,10 +77,11 @@ def test_clf(data_load_path, clf_load_path):
 #   Test Cropped And Fake Classification
 ########################################
 
-subject_id_list = [2]
-data_load_path = os.path.join('../../Data/Real_Data/BCI/bnci-raw/4-38/' + str(subject_id_list).strip('[]')) + '/'
+subject_id_list = [1]
+for subject_id in subject_id_list:
+    data_load_path = os.path.join('../../Data/Real_Data/BCI/bnci-raw/0-38/' + str(subject_id)) + '/'
 
-clf_load_path = os.path.join('../../Model_Params/BCI_Models/without-resample/4-38/' + str(subject_id_list).strip('[]')) + '/Run 1/'
-# clf_load_path = os.path.join('../../Model_Params/Fake_Cropped_Classification/without-resample/4-38/' + str(subject_id_list).strip('[]')) + '/Run 1/'
+    clf_load_path = os.path.join('../../Model_Params/BCI_Models/phase2/0-38/' + str(subject_id)) + '/Run 1/'
+    # clf_load_path = os.path.join('../../Model_Params/Fake_Cropped_Classification/phase2/0-38/' + str(subject_id)) + '/Run 1/'
 
-test_clf(data_load_path=data_load_path, clf_load_path=clf_load_path)
+    test_clf(data_load_path=data_load_path, clf_load_path=clf_load_path)
