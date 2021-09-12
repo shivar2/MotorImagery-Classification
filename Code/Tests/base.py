@@ -48,15 +48,6 @@ def cut_compute_windows(dataset, n_preds_per_input, input_window_samples=1000, t
     # Calculate the trial start offset in samples.
     trial_start_offset_samples = int(trial_start_offset_seconds * sfreq)
 
-    # Mapping new event ids to fit hgd event ids
-    mapping = {
-        'feet': 0,
-        'left_hand': 1,
-        'tongue': 2,
-        'right_hand': 3,
-    }
-    # Create windows using braindecode function for this. It needs parameters to define how
-    # trials should be used.
     windows_dataset = create_windows_from_events(
         dataset,
         trial_start_offset_samples=trial_start_offset_samples,
@@ -65,7 +56,7 @@ def cut_compute_windows(dataset, n_preds_per_input, input_window_samples=1000, t
         window_stride_samples=n_preds_per_input,
         drop_last_window=False,
         preload=True,
-        mapping=mapping
+        mapping={'left_hand': 0, 'right_hand': 1, 'feet': 2, 'tongue': 3},
     )
     return windows_dataset
 

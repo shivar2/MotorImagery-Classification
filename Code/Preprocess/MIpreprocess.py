@@ -39,7 +39,7 @@ def basic_preprocess(dataset, low_cut_hz=4., high_cut_hz=38., factor_new=1e-3, i
     # Parameters for exponential moving standardization
     factor_new = factor_new
     init_block_size = init_block_size
-    exponential_moving_fn = ['standardize']  # , 'demean'
+    exponential_moving_fn = 'standardize'  # , 'demean'
 
     C_44_sensors = [
         'FC5', 'FC1', 'FC2', 'FC6', 'C3', 'Cz', 'C4', 'CP5',
@@ -50,9 +50,12 @@ def basic_preprocess(dataset, low_cut_hz=4., high_cut_hz=38., factor_new=1e-3, i
         'CCP2h', 'CPP1h', 'CPP2h']
 
     C_22_sensors = [
-        'FC5', 'FC1', 'FC2', 'FC6', 'C3', 'Cz', 'C4', 'CP5',
-        'CP1', 'CP2', 'CP6', 'FC3', 'FCz', 'FC4', 'C5', 'C1', 'C2', 'C6',
-        'CP3', 'CPz', 'CP4', 'Fz']
+        'FC1', 'FC2',
+        'C3', 'Cz', 'C4',
+        'CP1', 'CP2',
+        'FC3', 'FCz', 'FC4', 'C5', 'C1', 'C2', 'C6',
+        'CP3', 'CPz', 'CP4',
+        'Fz', 'P1', 'Pz', 'P2', 'POz']
 
     moving_fn = {'standardize': exponential_moving_standardize,
                  'demean': exponential_moving_demean}[exponential_moving_fn]
