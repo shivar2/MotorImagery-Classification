@@ -112,4 +112,8 @@ for subject_id in subject_id_list:
     save_path = os.path.join('../../Model_Params/BCI_Models/phase2/0-38/' + str(subject_id)) + '/Run 1/'
     # save_path = os.path.join('../../Model_Params/Fake_Cropped_Classification/phase2/0-38/' +
     #                          str(subject_id)) + '/Run 1/'
+
+    if not os.path.exists(save_path):
+        os.makedirs(save_path)
+
     test_clf(data_load_path=data_load_path, clf_load_path=clf_load_path, save_path=save_path)
