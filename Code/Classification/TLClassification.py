@@ -1,9 +1,21 @@
+import torch
+import numpy as np
+
+from skorch.callbacks import LRScheduler, Checkpoint
+from skorch.helper import predefined_split
+
+from braindecode.datasets.base import BaseConcatDataset
+from braindecode.util import set_random_seeds
+from braindecode.models.util import to_dense_prediction_model, get_output_shape
+from braindecode.training.losses import CroppedLoss
 
 from Code.Classifier.EEGTLClassifier import EEGTLClassifier
-from Code.Classification.CroppedClassification import *
 from Code.Models.PretrainedDeep4Model import PretrainedDeep4Model
-from sklearn.model_selection import train_test_split
-from skorch.helper import predefined_split
+
+from Code.EarlyStopClass.EarlyStopClass import EarlyStopping
+from Code.ClassificationBase import detect_device, load_data_object, \
+    cut_compute_windows,\
+    split_into_train_valid, get_test_data, plot
 
 
 def tl_classifier(train_set, valid_set,
@@ -146,26 +158,21 @@ def run_model(data_load_path, double_channel, model_load_path, params_name, save
                                           input_window_samples=input_window_samples,
                                           trial_start_offset_seconds=trial_start_offset_seconds)
 
-    train_set_all, test_set = split_data(windows_dataset)
-
-    X_train, X_valid = train_test_split(train_set_all.datasets, test_size=1, train_size=5,
-                                        shuffle=True, random_state=20200220)
-    train_set = BaseConcatDataset(X_train)
-    valid_set = BaseConcatDataset(X_valid)
+    train_set, test_set = split_into_train_valid(windows_dataset, use_final_eval=True)
 
     clf = tl_classifier(train_set,
-                        valid_set,
+                        test_set,
                         model=model,
                         save_path=save_path,
                         double_channel=double_channel,
                         device=device)
 
     plot(clf, save_path)
+    torch.save(model, save_path + "model.pth")
 
     # Calculate Mean Accuracy For Test set
     i = 0
     test = np.empty(shape=(len(test_set), n_chans, input_window_samples))
-
     target = np.empty(shape=(len(test_set)))
     for x, y, window_ind in test_set:
         if double_channel:
