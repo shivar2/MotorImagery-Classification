@@ -2,6 +2,8 @@ import os
 import numpy as np
 import torch
 
+from sklearn.metrics import confusion_matrix
+
 from braindecode.util import set_random_seeds
 from braindecode.models.util import to_dense_prediction_model, get_output_shape
 from braindecode.training.losses import CroppedLoss
@@ -9,9 +11,10 @@ from braindecode.training.losses import CroppedLoss
 from Code.Classifier.EEGTLClassifier import EEGTLClassifier
 from Code.Models.PretrainedDeep4Model import PretrainedDeep4Model
 from Code.base import detect_device, load_data_object, cut_compute_windows, get_test_data
+from Code.Evaluation.confusion_matrix import plot_confusion_matrix
 
 
-def test_clf(double_channel, data_load_path, clf_load_path):
+def test_clf(double_channel, data_load_path, clf_load_path, save_path):
     dataset = load_data_object(data_load_path)
     n_classes = 4
 
@@ -30,8 +33,7 @@ def test_clf(double_channel, data_load_path, clf_load_path):
     cuda, device = detect_device()
     seed = 20200220
     set_random_seeds(seed=seed, cuda=cuda)
-    
-    # you should remove model load static from pretrained model and !IMPPORTANT!
+
     model = PretrainedDeep4Model(n_chans=n_chans,
                                  n_classes=n_classes,
                                  input_window_samples=input_window_samples,
@@ -81,6 +83,27 @@ def test_clf(double_channel, data_load_path, clf_load_path):
     score = clf.score(test_set, y=target)
     print("EEG Classification Score (Accuracy) is:  " + str(score))
 
+    ########################################
+    #   Generate confusion matrices
+    ########################################
+
+    # get the targets
+    y_true = target
+    y_pred = clf.predict(test_set_win)
+
+    # generating confusion matrix
+    confusion_mat = confusion_matrix(y_true, y_pred)
+
+    # add class labels
+    # label_dict is class_name : str -> i_class : int
+    label_dict = test_set_win.datasets[0].windows.event_id.items()
+    # sort the labels by values (values are integer class labels)
+    labels = list(dict(sorted(list(label_dict), key=lambda kv: kv[1])).keys())
+
+    # plot the basic conf. matrix
+    confusion_matrix_fig = plot_confusion_matrix(confusion_mat, class_names=labels)
+    confusion_matrix_fig.savefig(save_path + 'confusion_matrix.png')
+
 
 ########################################
 #   Test TL And Final Classification
@@ -94,5 +117,11 @@ for subject_id in subject_id_list:
     clf_load_path = '../../../Model_Params/TL_Classification/phase1/22channels/0-38/' + str(subject_id) + '/Run 1/'
     # clf_load_path = '../../../Model_Params/Final_Classification/phase1/22channels/0-38/' + str(subject_id) + '/Run 1/'
 
-    test_clf(double_channel=False, data_load_path=data_load_path, clf_load_path=clf_load_path)
+    save_path = os.path.join('../../../Model_Params/TL_Classification/phase1/22channels/0-38/' +
+                             str(subject_id)) + '/Run 1/'
+
+    # save_path = os.path.join('../../../Model_Params/Final_Classification/phase1/22channels/0-38/' +
+    #                          str(subject_id)) + '/Run 1/'
+
+    test_clf(double_channel=False, data_load_path=data_load_path, clf_load_path=clf_load_path, save_path=save_path)
 
