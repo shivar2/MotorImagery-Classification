@@ -14,6 +14,5 @@ if not os.path.exists(save_path):
     os.makedirs(save_path)
 
 run_model(data_load_path=data_load_path,
-          dataset_name='HGD',
           model_name='deep4',
           save_path=save_path)
