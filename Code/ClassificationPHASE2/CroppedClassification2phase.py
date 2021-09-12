@@ -16,7 +16,7 @@ from Code.base import detect_device, load_data_object,\
     split_into_train_valid, get_test_data, plot
 
 
-def train_cropped_trials(train_set_all, model, save_path, model_name='shallow', device='cpu'):
+def train_cropped_trials(train_set_all, model, save_path, device='cpu'):
 
     train_set, valid_set = split_into_train_valid(train_set_all, use_final_eval=False)
 
@@ -142,7 +142,6 @@ def run_model(data_load_path, model_name, save_path):
     clf = train_cropped_trials(train_set_all,
                                model=model,
                                save_path=save_path,
-                               model_name=model_name,
                                device=device)
 
     plot(clf, save_path)

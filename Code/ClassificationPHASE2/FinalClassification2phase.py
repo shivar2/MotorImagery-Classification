@@ -19,21 +19,18 @@ from Code.base import detect_device, load_data_object,\
     split_into_train_valid, get_test_data
 
 
-def tl_classifier(train_set, valid_set,
+def tl_classifier(train_set_all,
                   save_path,
                   model,
                   double_channel=True,
                   device='cpu'):
-    
-    # For deep4 they should be:
-    lr = 1 * 0.01
-    weight_decay = 0.5 * 0.001
+
+    train_set, valid_set = split_into_train_valid(train_set_all, use_final_eval=False)
 
     batch_size = 64
+    n_epochs = 800
 
     # PHASE 1
-
-    n_epochs = 800
 
     # Checkpoint will save the history 
     cp = Checkpoint(monitor='valid_accuracy_best',
@@ -49,7 +46,6 @@ def tl_classifier(train_set, valid_set,
         "accuracy",
         ('cp', cp),
         ('patience', early_stopping),
-        ("lr_scheduler", LRScheduler('CosineAnnealingLR', T_max=n_epochs - 1)),
     ]
 
     clf1 = EEGTLClassifier(
@@ -62,8 +58,6 @@ def tl_classifier(train_set, valid_set,
         criterion__loss_function=torch.nn.functional.nll_loss,
         optimizer=torch.optim.AdamW,
         train_split=predefined_split(valid_set),
-        optimizer__lr=lr,
-        optimizer__weight_decay=weight_decay,
         iterator_train__shuffle=True,
         batch_size=batch_size,
         callbacks=callbacks,
@@ -93,7 +87,6 @@ def tl_classifier(train_set, valid_set,
         "accuracy",
         ('cp', cp2),
         ('patience', early_stopping2),
-        ("lr_scheduler", LRScheduler('CosineAnnealingLR', T_max=n_epochs - 1)),
     ]
     clf2 = EEGTLClassifier(
         model,
@@ -116,7 +109,7 @@ def tl_classifier(train_set, valid_set,
                      f_optimizer=save_path + "optimizers1.pt",
                      f_history=save_path + "history1.json")
 
-    clf2.fit(train_set, y=None)
+    clf2.fit(train_set_all, y=None)
     return clf2
 
 
@@ -156,14 +149,12 @@ def run_model(data_load_path, fake_data_load_path, fake_k, double_channel, model
                                           input_window_samples=input_window_samples,
                                           trial_start_offset_seconds=trial_start_offset_seconds)
 
-    train_set, valid_set = split_into_train_valid(windows_dataset, use_final_eval=False)
-    test_set = get_test_data(windows_dataset)
+    train_set_all, test_set = split_into_train_valid(windows_dataset, use_final_eval=True)
 
-    train_set_fake.append(train_set)
+    train_set_fake.append(train_set_all)
     X = BaseConcatDataset(train_set_fake)
 
     clf = tl_classifier(X,
-                        valid_set,
                         model=model,
                         save_path=save_path,
                         double_channel=double_channel,
@@ -189,6 +180,6 @@ def run_model(data_load_path, fake_data_load_path, fake_k, double_channel, model
     print("EEG Final Classification Score (Accuracy) is:  " + str(score))
 
     f = open(save_path + "test-result.txt", "w")
-    f.write("EEG TL Classification Score (Accuracy) is:  " + str(score))
+    f.write("EEG Final Classification Score (Accuracy) is:  " + str(score))
     f.close()
 
