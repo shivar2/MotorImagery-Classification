@@ -82,7 +82,7 @@ def cut_compute_windows(dataset, n_preds_per_input, input_window_samples=1000, t
         window_size_samples=input_window_samples,
         window_stride_samples=n_preds_per_input,
         drop_last_window=False,
-        preload=True,
+        preload=False,
         mapping={'left_hand': 0, 'right_hand': 1, 'feet': 2, 'rest': 3},
     )
     return windows_dataset
