@@ -7,13 +7,13 @@ subject_id_list = [1]
 
 for subject_id in subject_id_list:
 
-    data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/4-38/' + str(subject_id)) + '/'
+    data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/' + str(subject_id)) + '/'
 
     fake_data_load_path = os.path.join('../../../Data/Fake_Data/WGan-GP-Signal-VERSION2/' + str(subject_id)) + '/Runs/'
 
     # Path to saving Models
     # mkdir path to save
-    save_path = '../../../Model_Params/Fake_Cropped_Classification/phase2/4-38/' + str(subject_id) + '/Run 1/'
+    save_path = '../../../Model_Params/Fake_Cropped_Classification/phase2/0-38/' + str(subject_id) + '/Run 1/'
     if not os.path.exists(save_path):
         os.makedirs(save_path)
 
