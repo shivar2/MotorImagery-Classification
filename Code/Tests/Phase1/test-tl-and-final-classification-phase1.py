@@ -117,10 +117,10 @@ for subject_id in subject_id_list:
     clf_load_path = '../../../Model_Params/TL_Classification/phase1/22channels/0-38/' + str(subject_id) + '/Run 1/'
     # clf_load_path = '../../../Model_Params/Final_Classification/phase1/22channels/0-38/' + str(subject_id) + '/Run 1/'
 
-    save_path = os.path.join('../../../Results/TL_Classification/phase1/22channels/0-38/' +
+    save_path = os.path.join('../../../Result/TL_Classification/phase1/22channels/0-38/' +
                              str(subject_id)) + '/Run 1/'
 
-    # save_path = os.path.join('../../../Results/Final_Classification/phase1/22channels/0-38/' +
+    # save_path = os.path.join('../../../Result/Final_Classification/phase1/22channels/0-38/' +
     #                          str(subject_id)) + '/Run 1/'
 
     if not os.path.exists(save_path):
