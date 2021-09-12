@@ -6,7 +6,7 @@ from braindecode.training.losses import CroppedLoss
 
 from Code.Classifier.EEGTLClassifier import EEGTLClassifier
 from Code.Models.PretrainedDeep4Model import PretrainedDeep4Model
-from Code.Tests.base import *
+from Code.ClassificationBase import *
 
 
 def test_clf(double_channel, data_load_path, clf_load_path):
