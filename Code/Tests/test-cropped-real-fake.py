@@ -84,7 +84,7 @@ def test_clf(data_load_path, clf_load_path):
 ########################################
 
 subject_id_list = [2]
-data_load_path = os.path.join('../../Data/Real_Data/BCI/bnci-raw/4-38/' + str(subject_id_list).strip('[]')) + '/'
+data_load_path = os.path.join('../../Data/Real_Data-old/BCI/bnci-raw/4-38/' + str(subject_id_list).strip('[]')) + '/'
 
 clf_load_path = os.path.join('../../Model_Params/BCI_Models/without-resample/4-38/' + str(subject_id_list).strip('[]')) + '/Run 1/'
 # clf_load_path = os.path.join('../../Model_Params/Fake_Cropped_Classification/without-resample/4-38/' + str(subject_id_list).strip('[]')) + '/Run 1/'

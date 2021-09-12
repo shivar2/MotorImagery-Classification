@@ -6,7 +6,7 @@ from Code.Classification.FinalClassification import run_model
 subject_id_list = [2]
 fake_k = 4
 
-data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/4-38/' + str(subject_id_list).strip('[]')) + '/'
+data_load_path = os.path.join('../../../Data/Real_Data-old/BCI/bnci-raw/4-38/' + str(subject_id_list).strip('[]')) + '/'
 fake_data_load_path = os.path.join('../../../Data/Fake_Data/WGan-GP-Signal/' + str(subject_id_list).strip('[]')) + '/Runs/'
 
 # Load model path

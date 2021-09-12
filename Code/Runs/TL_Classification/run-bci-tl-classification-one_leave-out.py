@@ -7,7 +7,7 @@ subject_id_train_list = [2, 3, 4, 5, 6, 7, 8, 9]
 subject_id_test_list = [1]
 
 
-data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/')
+data_load_path = os.path.join('../../../Data/Real_Data-old/BCI/bnci-raw/')
 
 # Load model path
 model_load_path = '../../../Model_Params/Pretrained_Models/deep4/22/1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14/'

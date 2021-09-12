@@ -5,7 +5,7 @@ from Code.Classification.TrialsClassification import run_model
 
 # example of HGD shallow - subject 1
 subject_id_list = [1]
-data_load_path = os.path.join('../../../Data/Real_Data/HGD/hgd-22channels-raw/' + str(subject_id_list).strip('[]')) + '/'
+data_load_path = os.path.join('../../../Data/Real_Data-old/HGD/hgd-22channels-raw/' + str(subject_id_list).strip('[]')) + '/'
 
 # Save results
 save_path = os.path.join('../../../Result/Trials_Classification/HGD/' + str(subject_id_list).strip('[]')) + '/'

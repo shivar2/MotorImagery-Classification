@@ -5,7 +5,7 @@ from Code.Classification.TrialsClassification import run_model
 
 # example of BNCI shallow - subject 1
 subject_id_list = [1]
-data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/' + str(subject_id_list).strip('[]')) + '/'
+data_load_path = os.path.join('../../../Data/Real_Data-old/BCI/bnci-raw/' + str(subject_id_list).strip('[]')) + '/'
 
 # Save result
 save_path = os.path.join('../../../Result/Trials_Classification/BCI/' + str(subject_id_list).strip('[]')) + '/'
