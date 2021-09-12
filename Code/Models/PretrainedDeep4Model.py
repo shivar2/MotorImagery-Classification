@@ -24,23 +24,25 @@ class PretrainedDeep4Model(nn.Module):
             input_window_samples=input_window_samples,
             final_conv_length=2,
         )
-        # Load model
-        state_dict = torch.load(params_path, map_location=device)
-        model.load_state_dict(state_dict, strict=False)
+        if params_path:
+            # Load model
+            state_dict = torch.load(params_path, map_location=device)
+            model.load_state_dict(state_dict, strict=False)
 
-        # Freezing model
-        # model.requires_grad_(requires_grad=False)
+            # Freezing model
+            # model.requires_grad_(requires_grad=False)
 
-        # Change conv_classifier layer to fine-tune
-        model.conv_classifier = nn.Conv2d(
-            200,
-            n_classes,
-            (2, 1),
-            stride=(1, 1),
-            bias=True)
+            # Change conv_classifier layer to fine-tune
+            model.conv_classifier = nn.Conv2d(
+                200,
+                n_classes,
+                (2, 1),
+                stride=(1, 1),
+                bias=True)
 
-        model.softmax = nn.LogSoftmax(dim=1)
-        model.squeeze = Expression(squeeze_final_output)
+            model.softmax = nn.LogSoftmax(dim=1)
+            model.squeeze = Expression(squeeze_final_output)
+
         self.model = model
 
     def get_named_parameters(self):
