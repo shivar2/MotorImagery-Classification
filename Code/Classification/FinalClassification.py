@@ -13,7 +13,7 @@ from Code.Classifier.EEGTLClassifier import EEGTLClassifier
 from Code.Models.PretrainedDeep4Model import PretrainedDeep4Model
 from Code.Classification.CroppedClassification import plot
 
-from Code.ClassificationBase import detect_device, load_data_object,\
+from Code.base import detect_device, load_data_object,\
     load_fake_data, cut_compute_windows,\
     split_into_train_valid, get_test_data
 

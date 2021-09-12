@@ -6,7 +6,7 @@ from braindecode.models.util import to_dense_prediction_model, get_output_shape
 from braindecode import EEGClassifier
 from braindecode.training.losses import CroppedLoss
 
-from Code.ClassificationBase import *
+from Code.base import *
 
 
 def test_clf(data_load_path, clf_load_path):

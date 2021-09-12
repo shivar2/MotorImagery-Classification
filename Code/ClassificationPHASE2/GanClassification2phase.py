@@ -12,7 +12,7 @@ from braindecode.training.losses import CroppedLoss
 
 from Code.Classification.CroppedClassification import plot
 from Code.EarlyStopClass.EarlyStopClass import EarlyStopping
-from Code.ClassificationBase import detect_device, load_data_object,\
+from Code.base import detect_device, load_data_object,\
     load_fake_data, cut_compute_windows, create_model_deep4,\
     split_into_train_valid, get_test_data
 
