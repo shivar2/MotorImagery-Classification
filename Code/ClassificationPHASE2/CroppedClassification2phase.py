@@ -16,15 +16,9 @@ from Code.base import detect_device, load_data_object,\
     split_into_train_valid, get_test_data, plot
 
 
-def train_cropped_trials(train_set, valid_set, model, save_path, model_name='shallow', device='cpu'):
-    if model_name == 'shallow':
-        # These values we found good for shallow network:
-        lr = 0.0625 * 0.01
-        weight_decay = 0
-    else:
-        # For deep4 they should be:
-        lr = 1 * 0.01
-        weight_decay = 0.5 * 0.001
+def train_cropped_trials(train_set_all, model, save_path, model_name='shallow', device='cpu'):
+
+    train_set, valid_set = split_into_train_valid(train_set_all, use_final_eval=False)
 
     batch_size = 64
     n_epochs = 800
@@ -43,7 +37,6 @@ def train_cropped_trials(train_set, valid_set, model, save_path, model_name='sha
         "accuracy",
         ('cp', cp),
         ('patience', early_stopping),
-        ("lr_scheduler", LRScheduler('CosineAnnealingLR', T_max=n_epochs - 1)),
     ]
 
     clf1 = EEGClassifier(
@@ -54,8 +47,6 @@ def train_cropped_trials(train_set, valid_set, model, save_path, model_name='sha
         criterion__loss_function=torch.nn.functional.nll_loss,
         optimizer=torch.optim.AdamW,
         train_split=predefined_split(valid_set),
-        optimizer__lr=lr,
-        optimizer__weight_decay=weight_decay,
         iterator_train__shuffle=True,
         batch_size=batch_size,
         callbacks=callbacks,
@@ -86,7 +77,6 @@ def train_cropped_trials(train_set, valid_set, model, save_path, model_name='sha
         "accuracy",
         ('cp', cp2),
         ('patience', early_stopping2),
-        ("lr_scheduler", LRScheduler('CosineAnnealingLR', T_max=n_epochs - 1)),
     ]
 
     clf2 = EEGClassifier(
@@ -108,8 +98,8 @@ def train_cropped_trials(train_set, valid_set, model, save_path, model_name='sha
     clf2.load_params(f_params=save_path+"params1.pt",
                      f_optimizer=save_path+"optimizers1.pt",
                      f_history=save_path+"history1.json")
-    phase2_train = BaseConcatDataset([train_set, valid_set])
-    clf2.fit(phase2_train, y=None)
+
+    clf2.fit(train_set_all, y=None)
     return clf2
 
 
@@ -147,11 +137,9 @@ def run_model(data_load_path, model_name, save_path):
                                           input_window_samples=input_window_samples,
                                           trial_start_offset_seconds=trial_start_offset_seconds)
 
-    train_set, valid_set = split_into_train_valid(windows_dataset, use_final_eval=False)
-    test_set = get_test_data(windows_dataset)
+    train_set_all, test_set = split_into_train_valid(windows_dataset, use_final_eval=True)
 
-    clf = train_cropped_trials(train_set,
-                               valid_set,
+    clf = train_cropped_trials(train_set_all,
                                model=model,
                                save_path=save_path,
                                model_name=model_name,
