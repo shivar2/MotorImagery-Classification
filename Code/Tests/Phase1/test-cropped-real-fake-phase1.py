@@ -103,14 +103,14 @@ def test_clf(data_load_path, clf_load_path, save_path):
 
 subject_id_list = [1]
 for subject_id in subject_id_list:
-    data_load_path = os.path.join('../../Data/Real_Data/BCI/bnci-raw/0-38/' + str(subject_id)) + '/'
+    data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/' + str(subject_id)) + '/'
 
-    clf_load_path = os.path.join('../../Model_Params/BCI_Models/phase1/0-38/' + str(subject_id)) + '/Run 1/'
-    # clf_load_path = os.path.join('../../Model_Params/Fake_Cropped_Classification/phase1/0-38/' +
+    clf_load_path = os.path.join('../../../Model_Params/BCI_Models/phase1/0-38/' + str(subject_id)) + '/Run 1/'
+    # clf_load_path = os.path.join('../../../Model_Params/Fake_Cropped_Classification/phase1/0-38/' +
     #                              str(subject_id)) + '/Run 1/'
 
-    save_path = os.path.join('../../Results/BCI_Models/phase1/0-38/' + str(subject_id)) + '/Run 1/'
-    # save_path = os.path.join('../../Model_Params/Fake_Cropped_Classification/phase1/0-38/' +
+    save_path = os.path.join('../../../Results/BCI_Models/phase1/0-38/' + str(subject_id)) + '/Run 1/'
+    # save_path = os.path.join('../../../Results/Fake_Cropped_Classification/phase1/0-38/' +
     #                          str(subject_id)) + '/Run 1/'
 
     if not os.path.exists(save_path):
