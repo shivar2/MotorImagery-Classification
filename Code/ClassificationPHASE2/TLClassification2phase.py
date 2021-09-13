@@ -18,14 +18,15 @@ from Code.base import detect_device, load_data_object, \
     split_into_train_valid, get_test_data, plot
 
 
-def tl_classifier(train_set,
+def tl_classifier(train_set_all,
                   save_path,
                   model,
                   double_channel=True,
                   device='cpu'):
 
+    train_set, valid_set = split_into_train_valid(train_set_all, use_final_eval=False)
     batch_size = 64
-    n_epochs = 20
+    n_epochs = 800
 
     # PHASE 1
 
@@ -150,7 +151,7 @@ def run_model(data_load_path, double_channel, model_load_path, params_name, save
 
     train_set_all, test_set = split_into_train_valid(windows_dataset, use_final_eval=True)
 
-    clf = tl_classifier(train_set,
+    clf = tl_classifier(train_set_all,
                         model=model,
                         save_path=save_path,
                         double_channel=double_channel,
