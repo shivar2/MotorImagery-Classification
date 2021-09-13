@@ -8,4 +8,4 @@ for subject_id in range(1, 10):
     # dataset = load_preprocessed_data(data_path='../../../Data/Real_Data/BCI/', dataset_folder='bnci-raw/',
     #                                  subject_id=subject_id)
 
-    save_data(dataset, saving_path='../../../Data/Real_Data/BCI/bnci-raw/0-38-tanh/', subject_id=subject_id)
+    save_data(dataset, saving_path='../../../Data/Real_Data/BCI/bnci-raw/0-38/', subject_id=subject_id)

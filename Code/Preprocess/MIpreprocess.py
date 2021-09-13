@@ -5,7 +5,7 @@ import numpy as np
 
 from braindecode.datasets.moabb import MOABBDataset
 from braindecode.datautil.preprocess import MNEPreproc, NumpyPreproc, preprocess
-from braindecode.datautil.preprocess import exponential_moving_standardize, zscore
+from braindecode.datautil.preprocess import exponential_moving_standardize
 from braindecode.datautil.preprocess import exponential_moving_demean
 
 from braindecode.datautil.serialization import load_concat_dataset
@@ -39,7 +39,7 @@ def basic_preprocess(dataset, low_cut_hz=4., high_cut_hz=38., factor_new=1e-3, i
     # Parameters for exponential moving standardization
     factor_new = factor_new
     init_block_size = init_block_size
-    exponential_moving_fn = 'tanhNormalize'  # , 'demean'
+    exponential_moving_fn = 'standardize'  # , 'demean'
 
     C_44_sensors = [
         'FC5', 'FC1', 'FC2', 'FC6', 'C3', 'C4', 'CP5',
@@ -58,9 +58,7 @@ def basic_preprocess(dataset, low_cut_hz=4., high_cut_hz=38., factor_new=1e-3, i
         'Fz', 'P1', 'Pz', 'P2', 'POz']
 
     moving_fn = {'standardize': exponential_moving_standardize,
-                 'demean': exponential_moving_demean,
-                 'zscore': zscore,
-                 'tanhNormalize': tanhNormalize}[exponential_moving_fn]
+                 'demean': exponential_moving_demean}[exponential_moving_fn]
 
     preprocessors = [
         MNEPreproc(fn='pick_channels', ch_names=C_22_sensors, ordered=True),
@@ -75,10 +73,9 @@ def basic_preprocess(dataset, low_cut_hz=4., high_cut_hz=38., factor_new=1e-3, i
         # bandpass filter
         MNEPreproc(fn='filter', l_freq=low_cut_hz, h_freq=high_cut_hz),
         # exponential moving standardization
-        # NumpyPreproc(fn=moving_fn, factor_new=factor_new,
-        #              init_block_size=init_block_size),
+        NumpyPreproc(fn=moving_fn, factor_new=factor_new,
+                     init_block_size=init_block_size),
 
-        NumpyPreproc(fn=moving_fn),
     ])
 
     # Transform the data
@@ -135,12 +132,3 @@ def get_normalized_cwt_data(dataset, low_cut_hz=4., high_cut_hz=38., n_channels=
 
     return norm_data_MEpoch
 
-
-def tanhNormalize(data):
-    zscored = data - np.mean(data, keepdims=True, axis=-1)
-    zscored = zscored / np.std(zscored, keepdims=True, axis=-1)
-    tanhN = 0.5 * (np.tanh(0.01 * zscored))
-
-    if hasattr(data, '_data'):
-        data._data = tanhN
-    return tanhN
