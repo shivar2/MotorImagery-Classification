@@ -55,24 +55,23 @@ def get_data(data_load_path,
         data[i] = x
         i += 1
 
-    return data, n_chans
+    # Normalize
+    zscored = data - np.mean(data, keepdims=True, axis=0)
+    zscored = zscored / np.std(zscored, keepdims=True, axis=0)
+    tanhN = 0.5 * (np.tanh(0.01 * zscored))
+
+    return tanhN, n_chans
 
 
 #########################
 # load data             #
 #########################
-subject_id = 3
-data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/4-38/' + str(subject_id).strip('[]')) + '/'
+subject_id = 2
+data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/' + str(subject_id)) + '/'
 
 time_sample = 1000
 window_stride_samples = 467
-mapping = {
-    # Select just 'feet' task
-    'feet': 0,
-    'left_hand': 1,
-    'right_hand': 3,
-    'tongue': 2,
-}
+mapping = {'left_hand': 0, 'right_hand': 1, 'feet': 2, 'tongue': 3}
 
 all_channels = ['Fz',
                  'FC1', 'FC2',
@@ -92,12 +91,12 @@ for key, value in mapping.items():
             key: value
         }
 
-        save_result_path = '../../../Result/GANs/WGan-GP-Signal-VERSION3/' + str(
+        save_result_path = '../../../Result/GANs/WGan-GP-Signal-VERSION4/' + str(
             subject_id) + '/' + tasks_name + '/' + channels_name + '/'
         if not os.path.exists(save_result_path):
             os.makedirs(save_result_path)
 
-        save_model_path = '../../../Model_Params/GANs/WGan-GP-Signal-VERSION3/' + str(
+        save_model_path = '../../../Model_Params/GANs/WGan-GP-Signal-VERSION4/' + str(
             subject_id) + '/' + tasks_name + '/' + channels_name + '/'
         if not os.path.exists(save_model_path):
             os.makedirs(save_model_path)

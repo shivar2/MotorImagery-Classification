@@ -16,11 +16,10 @@ from Code.Models.GANs.WGanGPSignalModels import Generator
 # os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 
 
-subject_id = 3
+subject_id_list = [2]
 
 # number of images to generate
-batch_size = 64
-nimages = 128
+batch_size = 24
 
 # GAN info
 sfreq = 250
@@ -31,22 +30,18 @@ cuda = True if torch.cuda.is_available() else False
 Tensor = torch.cuda.FloatTensor if cuda else torch.FloatTensor
 
 # mapping to HGD tasks
-task_dict = {
-    'feet': 0,
-    'left_hand': 1,
-    'tongue': 2,
-    'right_hand': 3,
-}
+task_dict = {'left_hand': 0, 'right_hand': 1, 'feet': 2, 'tongue': 3}
 tasks = ['feet', 'left_hand', 'right_hand', 'tongue']
 
-all_channels = ['Fz',
-                'FC1', 'FC2',
-                'C3', 'Cz', 'C4', 'CP1', 'CP2',
-                'Pz', 'POz', 'FC3', 'FCz', 'FC4',
-                'C5', 'C1', 'C2', 'C6', 'CP3', 'CPz', 'CP4',
-                'P1', 'P2']
+all_channels = [
+        'FC1', 'FC2',
+        'C3', 'Cz', 'C4',
+        'CP1', 'CP2',
+        'FC3', 'FCz', 'FC4', 'C5', 'C1', 'C2', 'C6',
+        'CP3', 'CPz', 'CP4',
+        'Fz', 'P1', 'Pz', 'P2', 'POz']
 
-for subject_id in range(3, 4):
+for subject_id in subject_id_list:
     for run in range(0, 6):
         start = 0
         task_trials_epoch = []
@@ -55,7 +50,7 @@ for subject_id in range(3, 4):
 
             for channel in all_channels:
                 # path to generator weights .pth file
-                saved_models_path = '../../Model_Params/GANs/WGan-GP-Signal-VERSION3/' + str(subject_id) + '/' + task + '/' + channel + '/'
+                saved_models_path = '../../Model_Params/GANs/WGan-GP-Signal-VERSION4/' + str(subject_id) + '/' + task + '/' + channel + '/'
                 saved_models_path += 'generator_state_dict.pth'
 
                 netG = Generator(time_sample=time_sample, noise=noise, channels=1)
@@ -115,7 +110,7 @@ for subject_id in range(3, 4):
         #  Create Fake Dataset - WindowsDataset
         # ---------------------
 
-        # random.shuffle(task_trials_epoch)
+        random.shuffle(task_trials_epoch)
         session = mne.concatenate_epochs(task_trials_epoch)
 
         # Save fake dataset as BaseConcatDataset obj
@@ -124,7 +119,7 @@ for subject_id in range(3, 4):
 
 
         # path to to fake eeg directory
-        fake_data_path = '../../Data/Fake_Data/WGan-GP-Signal-VERSION2/' + str(subject_id) + '/' + 'Runs' + '/' + str(run) +'/'
+        fake_data_path = '../../Data/Fake_Data/WGan-GP-Signal-VERSION4/' + str(subject_id) + '/' + 'Runs' + '/' + str(run) +'/'
         if not os.path.exists(fake_data_path):
             os.makedirs(fake_data_path)
 
