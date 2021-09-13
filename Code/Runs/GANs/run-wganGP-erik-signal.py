@@ -9,8 +9,10 @@ import numpy as np
 from braindecode.datautil.windowers import create_windows_from_events
 from braindecode.datautil.serialization import load_concat_dataset
 from braindecode.util import set_random_seeds
+from braindecode.datautil.preprocess import preprocess, Preprocessor
 
 from Code.Models.GANs.WGanGPErikSignal import WGANGP
+from Code.Preprocess import tanhNormalize
 
 
 def get_data(data_load_path,
@@ -41,6 +43,10 @@ def get_data(data_load_path,
         picks=pick_channels,
         mapping=mapping,
     )
+
+    #tanh normalize
+    preprocess(windows_dataset, [Preprocessor(tanhNormalize)])
+
     splitted = windows_dataset.split('session')
     train_set = splitted['session_T']
     n_chans = windows_dataset[0][0].shape[0]
@@ -55,19 +61,14 @@ def get_data(data_load_path,
         data[i] = x
         i += 1
 
-    # Normalize
-    zscored = data - np.mean(data, keepdims=True, axis=0)
-    zscored = zscored / np.std(zscored, keepdims=True, axis=0)
-    tanhN = 0.5 * (np.tanh(0.01 * zscored))
-
-    return tanhN, n_chans
+    return data, n_chans
 
 
 #########################
 # load data             #
 #########################
-subject_id = 2
-data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/' + str(subject_id)) + '/'
+subject_id = 1
+data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/normal/0-38/' + str(subject_id)) + '/'
 
 time_sample = 1000
 window_stride_samples = 467
@@ -91,12 +92,12 @@ for key, value in mapping.items():
             key: value
         }
 
-        save_result_path = '../../../Result/GANs/WGan-GP-Signal-VERSION4/' + str(
+        save_result_path = '../../../Result/GANs/WGan-GP-Signal-VERSION4/normal/' + str(
             subject_id) + '/' + tasks_name + '/' + channels_name + '/'
         if not os.path.exists(save_result_path):
             os.makedirs(save_result_path)
 
-        save_model_path = '../../../Model_Params/GANs/WGan-GP-Signal-VERSION4/' + str(
+        save_model_path = '../../../Model_Params/GANs/WGan-GP-Signal-VERSION4/normal/' + str(
             subject_id) + '/' + tasks_name + '/' + channels_name + '/'
         if not os.path.exists(save_model_path):
             os.makedirs(save_model_path)
