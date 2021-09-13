@@ -22,8 +22,6 @@ def test_clf(data_load_path, clf_load_path, save_path):
 
     batch_size = 64
     n_epochs = 100
-    lr = 1 * 0.01
-    weight_decay = 0.5 * 0.001
 
     cuda, device = detect_device()
     seed = 20200220
@@ -62,8 +60,6 @@ def test_clf(data_load_path, clf_load_path, save_path):
         criterion=CroppedLoss,
         criterion__loss_function=torch.nn.functional.nll_loss,
         optimizer=torch.optim.AdamW,
-        optimizer__lr=lr,
-        optimizer__weight_decay=weight_decay,
         iterator_train__shuffle=True,
         batch_size=batch_size,
         device=device,
