@@ -2,18 +2,18 @@ import os
 
 from Code.ClassificationPHASE2.GanClassification2phase import run_model
 
-fake_k = 2
-subject_id_list = [1]
+fake_k = 3
+subject_id_list = [2]
 
 for subject_id in subject_id_list:
 
     data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/' + str(subject_id)) + '/'
 
-    fake_data_load_path = os.path.join('../../../Data/Fake_Data/WGan-GP-Signal-VERSION2/' + str(subject_id)) + '/Runs/'
+    fake_data_load_path = os.path.join('../../../Data/Fake_Data/WGan-GP-Signal-VERSION4/' + str(subject_id)) + '/Runs/'
 
     # Path to saving Models
     # mkdir path to save
-    save_path = '../../../Model_Params/Fake_Cropped_Classification/phase2/0-38/' + str(subject_id) + '/Run 1/'
+    save_path = '../../../Model_Params/Fake_Cropped_Classification/phase2/0-38/' + str(subject_id) + '/Run 2/'
     if not os.path.exists(save_path):
         os.makedirs(save_path)
 
