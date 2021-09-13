@@ -105,19 +105,19 @@ def test_clf(double_channel, data_load_path, clf_load_path, save_path):
 #   Test TL And Final Classification
 ########################################
 
-subject_id_list = [1,2,3,4,5,6,7,8,9]
+subject_id_list = [2]
 
 for subject_id in subject_id_list:
     data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/' + str(subject_id)) + '/'
 
-    clf_load_path = '../../../Model_Params/TL_Classification/phase2/22channels/0-38/' + str(subject_id) + '/Run params_19/'
-    # clf_load_path = '../../../Model_Params/Final_Classification/phase2/22channels/0-38/' + str(subject_id) + '/Run 1/'
+    # clf_load_path = '../../../Model_Params/TL_Classification/phase2/22channels/0-38/' + str(subject_id) + '/Run params_19/'
+    clf_load_path = '../../../Model_Params/Final_Classification/phase2/22channels/0-38/' + str(subject_id) + '/Run 2/'
 
-    save_path = os.path.join('../../../Result/TL_Classification/phase2/22channels/0-38/' +
-                             str(subject_id)) + '/Run 1/'
-
-    # save_path = os.path.join('../../../Result/Final_Classification/phase2/22channels/0-38/' +
+    # save_path = os.path.join('../../../Result/TL_Classification/phase2/22channels/0-38/' +
     #                          str(subject_id)) + '/Run 1/'
+
+    save_path = os.path.join('../../../Result/Final_Classification/phase2/22channels/0-38/' +
+                             str(subject_id)) + '/Run 2/'
 
     if not os.path.exists(save_path):
         os.makedirs(save_path)
