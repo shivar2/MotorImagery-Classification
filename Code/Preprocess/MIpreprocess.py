@@ -83,6 +83,20 @@ def basic_preprocess(dataset, low_cut_hz=4., high_cut_hz=38., factor_new=1e-3, i
     return dataset
 
 
+def preprocee_normalize(dataset):
+
+    exponential_moving_fn = 'tanhNormalize'
+    moving_fn = {'tanhNormalize': tanhNormalize}[exponential_moving_fn]
+    preprocessors = [
+        NumpyPreproc(fn=moving_fn),
+        NumpyPreproc(fn=lambda x: x * 1e2),
+    ]
+
+    # Transform the data
+    preprocess(dataset, preprocessors)
+    return dataset
+
+
 def save_data(dataset, saving_path, subject_id=1):
     # mkdir path to save
     path = os.path.join(saving_path + str(subject_id))
@@ -132,3 +146,12 @@ def get_normalized_cwt_data(dataset, low_cut_hz=4., high_cut_hz=38., n_channels=
 
     return norm_data_MEpoch
 
+
+def tanhNormalize(data):
+    zscored = data - np.mean(data, keepdims=True, axis=-1)
+    zscored = zscored / np.std(zscored, keepdims=True, axis=-1)
+    tanhN = 0.5 * (np.tanh(0.01 * zscored))
+
+    if hasattr(data, '_data'):
+        data._data = tanhN
+    return tanhN
