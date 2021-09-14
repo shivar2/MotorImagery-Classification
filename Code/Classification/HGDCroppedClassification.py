@@ -115,7 +115,7 @@ def train_cropped_trials(train_set, valid_set, model, save_path, model_name='sha
         weight_decay = 0.5 * 0.001
 
     batch_size = 64
-    n_epochs = 20
+    n_epochs = 35
 
     # Checkpoint will save the model with the lowest valid_loss
     cp = Checkpoint(monitor=None,
