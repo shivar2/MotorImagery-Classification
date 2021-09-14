@@ -116,7 +116,54 @@ def tl_classifier_phase1(train_set_all,
     clf2.fit(train_set, y=None)
     # clf2.fit(train + fake, y=None)
 
-    return clf2
+    # PHASE 2
+
+    # Best clf1 valid accuracy
+    best_valid_acc_epoch = np.argmax(clf1.history[:, 'valid_accuracy'])
+    target_train_loss = clf1.history[best_valid_acc_epoch, 'train_loss']
+
+    # Early_stopping
+    early_stopping2 = EarlyStopping(monitor='valid_loss',
+                                    divergence_threshold=target_train_loss,
+                                    patience=80)
+
+    # Checkpoint will save the model with the lowest valid_loss
+    cp2 = Checkpoint(monitor=None,
+                     f_params="params2.pt",
+                     f_optimizer="optimizers2.pt",
+                     dirname=save_path,
+                     f_criterion=None)
+
+    callbacks2 = [
+        "accuracy",
+        ('cp', cp2),
+        ('patience', early_stopping2),
+    ]
+
+    clf3 = EEGTLClassifier(
+        model,
+        double_channel=double_channel,
+        is_freezing=True,
+        cropped=True,
+        warm_start=True,
+        max_epochs=800,
+        criterion=CroppedLoss,
+        criterion__loss_function=torch.nn.functional.nll_loss,
+        optimizer=torch.optim.AdamW,
+        train_split=predefined_split(valid_set),
+        iterator_train__shuffle=True,
+        batch_size=batch_size,
+        callbacks=callbacks2,
+        device=device,
+    )
+
+    clf3.initialize()  # This is important!
+    clf3.load_params(f_params=save_path + "params1.pt",
+                     f_optimizer=save_path + "optimizers1.pt",
+                     f_history=save_path + "history1.json")
+    clf3.fit(train_set_all, y=None)
+
+    return clf3
 
 
 def run_model(data_load_path, double_channel, model_load_path, params_name, save_path):
