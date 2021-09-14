@@ -16,7 +16,7 @@ from Code.Models.GANs.WGanGPSignalModels import Generator
 # os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 
 
-subject_id_list = [2]
+subject_id_list = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 
 # number of images to generate
 batch_size = 24

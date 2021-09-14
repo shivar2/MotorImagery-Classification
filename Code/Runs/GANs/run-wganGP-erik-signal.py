@@ -67,8 +67,8 @@ def get_data(data_load_path,
 #########################
 # load data             #
 #########################
-subject_id = 1
-data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/normal/0-38/' + str(subject_id)) + '/'
+subject_id = 9
+data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/' + str(subject_id)) + '/'
 
 time_sample = 1000
 window_stride_samples = 467
@@ -92,12 +92,12 @@ for key, value in mapping.items():
             key: value
         }
 
-        save_result_path = '../../../Result/GANs/WGan-GP-Signal-VERSION4/normal/' + str(
+        save_result_path = '../../../Result/GANs/WGan-GP-Signal-VERSION4/' + str(
             subject_id) + '/' + tasks_name + '/' + channels_name + '/'
         if not os.path.exists(save_result_path):
             os.makedirs(save_result_path)
 
-        save_model_path = '../../../Model_Params/GANs/WGan-GP-Signal-VERSION4/normal/' + str(
+        save_model_path = '../../../Model_Params/GANs/WGan-GP-Signal-VERSION4/' + str(
             subject_id) + '/' + tasks_name + '/' + channels_name + '/'
         if not os.path.exists(save_model_path):
             os.makedirs(save_model_path)
