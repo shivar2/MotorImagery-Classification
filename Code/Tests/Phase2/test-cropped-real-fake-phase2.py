@@ -102,7 +102,7 @@ for subject_id in subject_id_list:
     data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/' + str(subject_id)) + '/'
 
     clf_load_path = os.path.join('../../../Model_Params/BCI_Models/phase2/0-38/' + str(subject_id)) + '/Run 1/'
-    # clf_load_path = os.path.join('../../Model_Params/Fake_Cropped_Classification/phase2/0-38/' +
+    # clf_load_path = os.path.join('../../../Model_Params/Fake_Cropped_Classification/phase2/0-38/' +
     #                              str(subject_id)) + '/Run 1/'
 
     save_path = os.path.join('../../../Result/BCI_Models/phase2/0-38/' + str(subject_id)) + '/Run 1/'
