@@ -119,8 +119,8 @@ def tl_classifier_phase1(train_set_all,
     # PHASE 2
 
     # Best clf1 valid accuracy
-    best_valid_acc_epoch = np.argmax(clf1.history[:, 'valid_accuracy'])
-    target_train_loss = clf1.history[best_valid_acc_epoch, 'train_loss']
+    best_valid_acc_epoch = np.argmax(clf2.history[:, 'valid_accuracy'])
+    target_train_loss = clf2.history[best_valid_acc_epoch, 'train_loss']
 
     # Early_stopping
     early_stopping2 = EarlyStopping(monitor='valid_loss',
