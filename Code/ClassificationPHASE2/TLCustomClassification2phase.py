@@ -128,7 +128,7 @@ def tl_classifier_phase1(train_set_all,
                                     patience=80)
 
     # Checkpoint will save the model with the lowest valid_loss
-    cp2 = Checkpoint(monitor=None,
+    cp2 = Checkpoint(
                      f_params="params2.pt",
                      f_optimizer="optimizers2.pt",
                      dirname=save_path,

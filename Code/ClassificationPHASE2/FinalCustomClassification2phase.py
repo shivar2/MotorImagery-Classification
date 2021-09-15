@@ -132,7 +132,7 @@ def final_classifier_phase1(train_set_all, fake_set, save_path, model, double_ch
                                     patience=80)
 
     # Checkpoint will save the model with the lowest valid_loss
-    cp2 = Checkpoint(monitor=None,
+    cp2 = Checkpoint(
                      f_params="params2.pt",
                      f_optimizer="optimizers2.pt",
                      dirname=save_path,
