@@ -13,7 +13,7 @@ from braindecode.datautil.windowers import create_windows_from_events
 from braindecode.datautil.serialization import load_concat_dataset
 
 from Code.Models.GANs.WGanGPSignalModels import Generator
-from Code.Preprocess import preprocee_unnormalize
+
 # for macOS
 # os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 
@@ -27,8 +27,13 @@ def calculate_mean_std(train_set):
     return mean, sigma
 
 
+def unNormalizeTanh(normal_data, mean, sigma):
+    data = (100 * np.arctanh(2 * normal_data) * sigma) + mean
+    return data
+
+
 def get_data_mean_sigma(dataset,
-                        time_sample=32,
+                        time_sample=1000,
                         window_stride_samples=1,
                         mapping=None,
                         pick_channels=None):
@@ -42,7 +47,7 @@ def get_data_mean_sigma(dataset,
         dataset,
         trial_start_offset_samples=trial_start_offset_samples,
         trial_stop_offset_samples=0,
-        preload=False,
+        preload=True,
         window_size_samples=time_sample,
         window_stride_samples=window_stride_samples,
         drop_bad_windows=True,
@@ -56,12 +61,10 @@ def get_data_mean_sigma(dataset,
     # calculate mean and sigma for unnormalize
     mean, sigma = calculate_mean_std(train_set)
 
-    test = preprocee_unnormalize(train_set, mean, sigma)
-
     return mean, sigma
 
 
-subject_id_list = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+subject_id_list = [4]
 
 # number of images to generate
 batch_size = 24
@@ -88,7 +91,7 @@ all_channels = [
 
 for subject_id in subject_id_list:
     # Load subject data
-    data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/' + str(subject_id)) + '/'
+    data_load_path = os.path.join('../../Data/Real_Data/BCI/bnci-raw/0-38/' + str(subject_id)) + '/'
     dataset = load_concat_dataset(
         path=data_load_path,
         preload=False,
@@ -103,11 +106,11 @@ for subject_id in subject_id_list:
 
             for channel in all_channels:
                 # path to generator weights .pth file
-                saved_models_path = '../../Model_Params/GANs/WGan-GP-Signal-VERSION4/' + str(subject_id) + '/' + task + '/' + channel + '/'
+                saved_models_path = '../../Model_Params/GANs/WGan-GP-Signal-VERSION4-NORMAL18/' + str(subject_id) + '/' + task + '/' + channel + '/'
                 saved_models_path += 'generator_state_dict.pth'
 
                 # Calculate mean and varians for unNormalize output later
-                mean, sigma = get_data_mean_sigma(dataset, mapping=[task], pick_channels=[channel])
+                mean, sigma = get_data_mean_sigma(dataset, mapping={task: task_dict[task]}, pick_channels=[channel])
 
                 netG = Generator(time_sample=time_sample, noise=noise, channels=1)
 
@@ -123,9 +126,9 @@ for subject_id in subject_id_list:
                 gen_sig = netG(z)
 
                 # Unnormalize
-                gen_sig_unn = preprocee_unnormalize(gen_sig, mean, sigma)
+                gen_sig_unn = unNormalizeTanh(gen_sig.detach().cpu().numpy(), mean, sigma)
 
-                task_channels_trials = np.append(task_channels_trials, gen_sig_unn.detach().cpu().numpy(), axis=1)
+                task_channels_trials = np.append(task_channels_trials, gen_sig_unn, axis=1)
 
             # ---------------------
             #  Merge channels
@@ -178,7 +181,7 @@ for subject_id in subject_id_list:
 
 
         # path to to fake eeg directory
-        fake_data_path = '../../Data/Fake_Data/WGan-GP-Signal-VERSION4/' + str(subject_id) + '/' + 'Runs' + '/' + str(run) +'/'
+        fake_data_path = '../../Data/Fake_Data/WGan-GP-Signal-VERSION4-NORMAL18/' + str(subject_id) + '/' + 'Runs' + '/' + str(run) +'/'
         if not os.path.exists(fake_data_path):
             os.makedirs(fake_data_path)
 

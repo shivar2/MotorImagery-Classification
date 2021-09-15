@@ -141,21 +141,3 @@ def tanhNormalize(data):
     if hasattr(data, '_data'):
         data._data = tanhN
     return tanhN
-
-
-def unNormalizeTanh(normal_data, mean, sigma):
-    data = (100 * np.arctanh(2 * normal_data) * sigma) + mean
-    return data
-
-
-def preprocee_unnormalize(dataset, mean, sigma):
-
-    exponential_moving_fn = 'unNormalizeTanh'
-    moving_fn = {'unNormalizeTanh': unNormalizeTanh}[exponential_moving_fn]
-    preprocessors = [
-        NumpyPreproc(fn=moving_fn, mean=mean, sigma=sigma,)
-    ]
-
-    # Transform the data
-    preprocess(dataset, preprocessors)
-    return dataset
