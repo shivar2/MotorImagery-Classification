@@ -149,6 +149,24 @@ def run_model(data_load_path, fake_data_load_path, fake_k, save_path):
 
     plot(clf, save_path)
 
+    # Load best Classifier and model for Test
+    clf_best = EEGClassifier(
+        model,
+        cropped=True,
+        max_epochs=1,
+        criterion=CroppedLoss,
+        criterion__loss_function=torch.nn.functional.nll_loss,
+        optimizer=torch.optim.AdamW,
+        iterator_train__shuffle=True,
+        batch_size=64,
+        device=device,
+    )
+
+    clf_best.initialize()  # This is important!
+    clf_best.load_params(f_params=save_path + "params2.pt",
+                         f_optimizer=save_path + "optimizers2.pt",
+                         f_history=save_path + "history.json")
+
     # Calculate Mean Accuracy For Test set
     i = 0
     test = np.empty(shape=(len(test_set), n_chans, input_window_samples))
@@ -157,7 +175,7 @@ def run_model(data_load_path, fake_data_load_path, fake_k, save_path):
         test[i] = x
         target[i] = y
         i += 1
-    score = clf.score(test, y=target)
+    score = clf_best.score(test, y=target)
     print("EEG Gan Classification Score (Accuracy) is:  " + str(score))
 
     f = open(save_path + "test-result.txt", "a")

@@ -159,6 +159,24 @@ def run_model(data_load_path, double_channel, model_load_path, params_name, save
 
     plot(clf, save_path)
 
+    # Load best Classifier and model for Test
+    clf_best = EEGTLClassifier(
+        model,
+        cropped=True,
+        max_epochs=1,
+        criterion=CroppedLoss,
+        criterion__loss_function=torch.nn.functional.nll_loss,
+        optimizer=torch.optim.AdamW,
+        iterator_train__shuffle=True,
+        batch_size=64,
+        device=device,
+    )
+
+    clf_best.initialize()  # This is important!
+    clf_best.load_params(f_params=save_path + "params2.pt",
+                         f_optimizer=save_path + "optimizers2.pt",
+                         f_history=save_path + "history.json")
+
     # Calculate Mean Accuracy For Test set
     i = 0
     test = np.empty(shape=(len(test_set), n_chans, input_window_samples))
@@ -172,7 +190,7 @@ def run_model(data_load_path, double_channel, model_load_path, params_name, save
         target[i] = y
         i += 1
 
-    score = clf.score(test, y=target)
+    score = clf_best.score(test, y=target)
     print("EEG TL Classification Score (Accuracy) is:  " + str(score))
 
     f = open(save_path + "test-result.txt", "w")
