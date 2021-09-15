@@ -83,20 +83,6 @@ def basic_preprocess(dataset, low_cut_hz=4., high_cut_hz=38., factor_new=1e-3, i
     return dataset
 
 
-def preprocee_normalize(dataset):
-
-    exponential_moving_fn = 'tanhNormalize'
-    moving_fn = {'tanhNormalize': tanhNormalize}[exponential_moving_fn]
-    preprocessors = [
-        NumpyPreproc(fn=moving_fn),
-        NumpyPreproc(fn=lambda x: x * 1e2),
-    ]
-
-    # Transform the data
-    preprocess(dataset, preprocessors)
-    return dataset
-
-
 def save_data(dataset, saving_path, subject_id=1):
     # mkdir path to save
     path = os.path.join(saving_path + str(subject_id))
@@ -148,10 +134,28 @@ def get_normalized_cwt_data(dataset, low_cut_hz=4., high_cut_hz=38., n_channels=
 
 
 def tanhNormalize(data):
-    zscored = data - np.mean(data, keepdims=True, axis=-1)
-    zscored = zscored / np.std(zscored, keepdims=True, axis=-1)
-    tanhN = 0.5 * (np.tanh(0.01 * zscored))
+    normal_data = data - np.mean(data, keepdims=True, axis=-1)
+    normal_data = normal_data / np.std(data, keepdims=True, axis=-1)        #!
+    tanhN = 0.5 * (np.tanh(0.01 * normal_data))
 
     if hasattr(data, '_data'):
         data._data = tanhN
     return tanhN
+
+
+def unNormalizeTanh(normal_data, mean, sigma):
+    data = (100 * np.arctanh(2 * normal_data) * sigma) + mean
+    return data
+
+
+def preprocee_unnormalize(dataset, mean, sigma):
+
+    exponential_moving_fn = 'unNormalizeTanh'
+    moving_fn = {'unNormalizeTanh': unNormalizeTanh}[exponential_moving_fn]
+    preprocessors = [
+        NumpyPreproc(fn=moving_fn, mean=mean, sigma=sigma,)
+    ]
+
+    # Transform the data
+    preprocess(dataset, preprocessors)
+    return dataset

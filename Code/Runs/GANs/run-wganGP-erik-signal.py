@@ -43,8 +43,7 @@ def get_data(data_load_path,
         picks=pick_channels,
         mapping=mapping,
     )
-
-    #tanh normalize
+    # tanh normalize
     preprocess(windows_dataset, [Preprocessor(tanhNormalize)])
 
     splitted = windows_dataset.split('session')
