@@ -13,7 +13,7 @@ for subject_id in subject_id_list:
 
     # Path to saving Models
     # mkdir path to save
-    save_path = '../../../Model_Params/Fake_Cropped_Classification-MAX/phase2/0-38/' + str(subject_id) + '/Run 2/'
+    save_path = '../../../Model_Params/Fake_Cropped_Classification/phase2/0-38/' + str(subject_id) + '/Run 2/'
     if not os.path.exists(save_path):
         os.makedirs(save_path)
 
