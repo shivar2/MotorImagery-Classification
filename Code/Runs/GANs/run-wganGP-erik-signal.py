@@ -12,7 +12,7 @@ from braindecode.util import set_random_seeds
 from braindecode.datautil.preprocess import preprocess, Preprocessor
 
 from Code.Models.GANs.WGanGPErikSignal import WGANGP
-from Code.Preprocess import tanhNormalize
+from Code.Preprocess import tanhNormalize, MaxNormalize
 
 
 def get_data(data_load_path,
@@ -44,7 +44,7 @@ def get_data(data_load_path,
         mapping=mapping,
     )
     # tanh normalize
-    preprocess(windows_dataset, [Preprocessor(tanhNormalize)])
+    preprocess(windows_dataset, [Preprocessor(MaxNormalize)])
 
     splitted = windows_dataset.split('session')
     train_set = splitted['session_T']
