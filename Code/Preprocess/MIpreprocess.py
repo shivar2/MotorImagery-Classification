@@ -135,9 +135,17 @@ def get_normalized_cwt_data(dataset, low_cut_hz=4., high_cut_hz=38., n_channels=
 
 def tanhNormalize(data):
     normal_data = data - np.mean(data, keepdims=True, axis=-1)
-    normal_data = normal_data / np.std(data, keepdims=True, axis=-1)        #!
+    normal_data = normal_data / np.std(data, keepdims=True, axis=-1)       
     tanhN = 0.5 * (np.tanh(0.01 * normal_data))
 
     if hasattr(data, '_data'):
         data._data = tanhN
     return tanhN
+
+
+def MaxNormalize(data):
+    max = np.max(data)
+    if max == 0:
+        max = 0.00001
+    normal_data = data / max
+    return normal_data
