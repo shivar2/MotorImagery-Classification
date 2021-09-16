@@ -122,7 +122,7 @@ for subject_id in subject_id_list:
 
 
         # path to to fake eeg directory
-        fake_data_path = '../../Data/Fake_Data/WGan-GP-Signal-VERSION4-MAX/' + str(subject_id) + '/' + 'Runs' + '/' + str(run) +'/'
+        fake_data_path = '../../Data/Fake_Data/WGan-GP-Signal-VERSION5/' + str(subject_id) + '/' + 'Runs' + '/' + str(run) +'/'
         if not os.path.exists(fake_data_path):
             os.makedirs(fake_data_path)
 
