@@ -9,24 +9,11 @@ import torch.utils.data
 from torch.autograd import Variable
 
 from braindecode.datasets.base import WindowsDataset, BaseConcatDataset
-from braindecode.datautil.windowers import create_windows_from_events
-from braindecode.datautil.serialization import load_concat_dataset
 
 from Code.Models.GANs.WGanGPSignalModels import Generator
 
 # for macOS
 # os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
-
-
-def unNormalizeTanh(data):
-    normal_data = np.where(data != 1, data, 0.9999999)
-    normal_data = np.where(normal_data != -1, normal_data, -0.9999999)
-
-    mean = np.mean(normal_data[0:24], keepdims=True, axis=-1)
-    sigma = np.std(normal_data[0:24], keepdims=True, axis=-1)
-
-    unnormal_data = (100 * np.arctanh(normal_data) * sigma) + mean
-    return unnormal_data
 
 
 subject_id_list = [9]
