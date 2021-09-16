@@ -66,7 +66,7 @@ def get_data(data_load_path,
 #########################
 # load data             #
 #########################
-subject_id = 9
+subject_id = 4
 data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/' + str(subject_id)) + '/'
 
 time_sample = 1000
@@ -91,12 +91,12 @@ for key, value in mapping.items():
             key: value
         }
 
-        save_result_path = '../../../Result/GANs/WGan-GP-Signal-VERSION4/' + str(
+        save_result_path = '../../../Result/GANs/WGan-GP-Signal-VERSION5/' + str(
             subject_id) + '/' + tasks_name + '/' + channels_name + '/'
         if not os.path.exists(save_result_path):
             os.makedirs(save_result_path)
 
-        save_model_path = '../../../Model_Params/GANs/WGan-GP-Signal-VERSION4/' + str(
+        save_model_path = '../../../Model_Params/GANs/WGan-GP-Signal-VERSION5/' + str(
             subject_id) + '/' + tasks_name + '/' + channels_name + '/'
         if not os.path.exists(save_model_path):
             os.makedirs(save_model_path)
@@ -118,7 +118,7 @@ for key, value in mapping.items():
         #########################
 
         batchsize = 64
-        epochs = 400
+        epochs = 1000
 
         net = WGANGP(subject=subject_id,
                      n_epochs=epochs,
