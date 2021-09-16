@@ -19,6 +19,10 @@ from braindecode import EEGClassifier
 from braindecode.training.losses import CroppedLoss
 
 
+from braindecode.datautil.preprocess import preprocess, Preprocessor
+from Code.Preprocess import MaxNormalize
+
+
 def detect_device():
     cuda = torch.cuda.is_available()  # check if GPU is available, if True chooses to use it
     device = 'cuda' if cuda else 'cpu'
@@ -85,6 +89,9 @@ def cut_compute_windows(dataset, n_preds_per_input, input_window_samples=1000, t
         preload=False,
         mapping={'left_hand': 0, 'right_hand': 1, 'feet': 2, 'rest': 3},
     )
+    # max normalize
+    preprocess(windows_dataset, [Preprocessor(MaxNormalize)])
+
     return windows_dataset
 
 

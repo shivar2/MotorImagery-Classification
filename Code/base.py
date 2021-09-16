@@ -87,7 +87,7 @@ def cut_compute_windows(dataset, n_preds_per_input, input_window_samples=1000, t
         mapping={'left_hand': 0, 'right_hand': 1, 'feet': 2, 'tongue': 3},
     )
 
-    # tanh normalize
+    # max normalize
     preprocess(windows_dataset, [Preprocessor(MaxNormalize)])
 
     return windows_dataset
