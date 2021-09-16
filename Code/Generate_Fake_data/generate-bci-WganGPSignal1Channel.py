@@ -51,7 +51,7 @@ for subject_id in subject_id_list:
 
             for channel in all_channels:
                 # path to generator weights .pth file
-                saved_models_path = '../../Model_Params/GANs/WGan-GP-Signal-VERSION4-MAX/' + str(subject_id) + '/' + task + '/' + channel + '/'
+                saved_models_path = '../../Model_Params/GANs/WGan-GP-Signal-VERSION5/' + str(subject_id) + '/' + task + '/' + channel + '/'
                 saved_models_path += 'generator_state_dict.pth'
 
                 # Calculate mean and varians for unNormalize output later
