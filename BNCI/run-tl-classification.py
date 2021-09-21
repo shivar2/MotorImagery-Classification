@@ -3,7 +3,7 @@ import os
 from Classification.transferLearningClassification import run_model
 
 
-# example of BNCI deep4 - subject 1-all tasks-right hand
+# example of BNCI deep4 - subject 1
 subject_id_list = [1]
 for subject_id_list in range(1, 10):
     # Path to saving models

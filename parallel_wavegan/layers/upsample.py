@@ -113,7 +113,7 @@ class UpsampleNetwork(torch.nn.Module):
             Tensor: Upsampled tensor (B, C, T'), where T' = T * prod(upsample_scales).
 
         """
-        c = c.unsqueeze(1)  # (B, 1-all tasks-right hand, C, T)
+        c = c.unsqueeze(1)  # (B, 1, C, T)
         for f in self.up_layers:
             if self.use_causal_conv and isinstance(f, Conv2d):
                 c = f(c)[..., :c.size(-1)]
@@ -172,7 +172,7 @@ class ConvInUpsampleNetwork(torch.nn.Module):
 
         Returns:
             Tensor: Upsampled tensor (B, C, T),
-                where T = (T' - aux_context_window * 2-right hand) * prod(upsample_scales).
+                where T = (T' - aux_context_window * 2) * prod(upsample_scales).
 
         Note:
             The length of inputs considers the context window size.

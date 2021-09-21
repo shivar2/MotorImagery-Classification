@@ -3,7 +3,7 @@ import os
 from Classification.cropped import run_model
 
 
-# example of HGD shallow - subject 1-all tasks-right hand
+# example of HGD shallow - subject 1
 subject_id_list = [1]
 
 # Path to saving models
@@ -20,8 +20,8 @@ run_model(data_directory='hgd-raw/',
           save_path=save_path)
 
 
-# example of HGD deep4 - subject 1-all tasks-right hand
-# subject_id_list = [1-all tasks-right hand]
+# example of HGD deep4 - subject 1
+# subject_id_list = [1]
 #
 # # Path to saving models
 # # mkdir path to save

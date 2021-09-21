@@ -64,7 +64,7 @@ class DCGAN(nn.Module):
         self.optimizer_G = torch.optim.Adam(self.generator.parameters(), lr=self.lr, betas=(self.b1, self.b2))
         self.optimizer_D = torch.optim.Adam(self.discriminator.parameters(), lr=self.lr, betas=(self.b1, self.b2))
 
-    def train(self, dataset, save_model_path='saved_models/DCGan/1-all tasks-right hand/'):
+    def train(self, dataset, save_model_path='saved_models/DCGan/1/'):
 
         gen_loss, disc_loss = [], []
         g_tot, d_tot = [], []

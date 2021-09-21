@@ -51,7 +51,7 @@ def visualize_audio(audio_tensor, is_monphonic=False):
         else:
             D = librosa.amplitude_to_db(np.abs(librosa.stft(audio[0])), ref=np.max)
             librosa.display.specshow(D, y_axis="linear")
-            plt.colorbar(format="%+2-right hand.0f dB")
+            plt.colorbar(format="%+2.0f dB")
             plt.title("Linear-frequency power spectrogram %i" % (i + 1))
     if not (os.path.isdir("visualization")):
         os.makedirs("visualization")
@@ -116,7 +116,7 @@ def load_wav(wav_file_path):
 def sample_audio(audio_data, start_idx=None, end_idx=None):
     audio_len = len(audio_data)
     if audio_len == window_length:
-        # If we only have a single 1-all tasks-right hand*window_length audio, just yield.
+        # If we only have a single 1*window_length audio, just yield.
         sample = audio_data
     else:
         # Sample a random window from the audio
@@ -132,7 +132,7 @@ def sample_audio(audio_data, start_idx=None, end_idx=None):
 def sample_buffer(buffer_data, start_idx=None, end_idx=None):
     audio_len = len(buffer_data) // 4
     if audio_len == window_length:
-        # If we only have a single 1-all tasks-right hand*window_length audio, just yield.
+        # If we only have a single 1*window_length audio, just yield.
         sample = buffer_data
     else:
         # Sample a random window from the audio

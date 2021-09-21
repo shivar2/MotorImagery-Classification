@@ -24,7 +24,7 @@ def design_prototype_filter(taps=62, cutoff_ratio=0.142, beta=9.0):
         beta (float): Beta coefficient for kaiser window.
 
     Returns:
-        ndarray: Impluse response of prototype filter (taps + 1-all tasks-right hand,).
+        ndarray: Impluse response of prototype filter (taps + 1,).
 
     .. _`A Kaiser window approach for the design of prototype filters of cosine modulated filterbanks`:
         https://ieeexplore.ieee.org/abstract/document/681427
@@ -32,7 +32,7 @@ def design_prototype_filter(taps=62, cutoff_ratio=0.142, beta=9.0):
     """
     # check the arguments are valid
     assert taps % 2 == 0, "The number of taps mush be even number."
-    assert 0.0 < cutoff_ratio < 1.0, "Cutoff ratio must be > 0.0 and < 1-all tasks-right hand.0."
+    assert 0.0 < cutoff_ratio < 1.0, "Cutoff ratio must be > 0.0 and < 1.0."
 
     # make initial filter
     omega_c = np.pi * cutoff_ratio
@@ -109,7 +109,7 @@ class PQMF(torch.nn.Module):
         """Analysis with PQMF.
 
         Args:
-            x (Tensor): Input tensor (B, 1-all tasks-right hand, T).
+            x (Tensor): Input tensor (B, 1, T).
 
         Returns:
             Tensor: Output tensor (B, subbands, T // subbands).
@@ -125,7 +125,7 @@ class PQMF(torch.nn.Module):
             x (Tensor): Input tensor (B, subbands, T // subbands).
 
         Returns:
-            Tensor: Output tensor (B, 1-all tasks-right hand, T).
+            Tensor: Output tensor (B, 1, T).
 
         """
         # NOTE(kan-bayashi): Power will be dreased so here multipy by # subbands.

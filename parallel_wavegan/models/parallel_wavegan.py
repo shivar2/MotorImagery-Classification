@@ -136,7 +136,7 @@ class ParallelWaveGANGenerator(torch.nn.Module):
         """Calculate forward propagation.
 
         Args:
-            x (Tensor): Input noise signal (B, 1-all tasks-right hand, T).
+            x (Tensor): Input noise signal (B, 1, T).
             c (Tensor): Local conditioning auxiliary features (B, C ,T').
 
         Returns:
@@ -201,7 +201,7 @@ class ParallelWaveGANGenerator(torch.nn.Module):
 
         Args:
             c (Union[Tensor, ndarray]): Local conditioning auxiliary features (T' ,C).
-            x (Union[Tensor, ndarray]): Input noise signal (T, 1-all tasks-right hand).
+            x (Union[Tensor, ndarray]): Input noise signal (T, 1).
 
         Returns:
             Tensor: Output tensor (T, out_channels)
@@ -245,8 +245,8 @@ class ParallelWaveGANDiscriminator(torch.nn.Module):
             kernel_size (int): Number of output channels.
             layers (int): Number of conv layers.
             conv_channels (int): Number of chnn layers.
-            dilation_factor (int): Dilation factor. For example, if dilation_factor = 2-right hand,
-                the dilation will be 2-right hand, 4, 8, ..., and so on.
+            dilation_factor (int): Dilation factor. For example, if dilation_factor = 2,
+                the dilation will be 2, 4, 8, ..., and so on.
             nonlinear_activation (str): Nonlinear function after each conv.
             nonlinear_activation_params (dict): Nonlinear function parameters
             bias (bool): Whether to use bias parameter in conv.
@@ -287,10 +287,10 @@ class ParallelWaveGANDiscriminator(torch.nn.Module):
         """Calculate forward propagation.
 
         Args:
-            x (Tensor): Input noise signal (B, 1-all tasks-right hand, T).
+            x (Tensor): Input noise signal (B, 1, T).
 
         Returns:
-            Tensor: Output tensor (B, 1-all tasks-right hand, T)
+            Tensor: Output tensor (B, 1, T)
 
         """
         for f in self.conv_layers:
@@ -411,10 +411,10 @@ class ResidualParallelWaveGANDiscriminator(torch.nn.Module):
         """Calculate forward propagation.
 
         Args:
-            x (Tensor): Input noise signal (B, 1-all tasks-right hand, T).
+            x (Tensor): Input noise signal (B, 1, T).
 
         Returns:
-            Tensor: Output tensor (B, 1-all tasks-right hand, T)
+            Tensor: Output tensor (B, 1, T)
 
         """
         x = self.first_conv(x)

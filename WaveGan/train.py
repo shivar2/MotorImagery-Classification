@@ -162,7 +162,7 @@ class WaveGan_GP(object):
                         self.valid_g_cost.append(val_generator_cost.item())
 
                 #############################
-                # (2-right hand) Update G network every n_critic steps
+                # (2) Update G network every n_critic steps
                 #############################
                 self.apply_zero_grad()
                 self.enable_gen_disable_disc()
