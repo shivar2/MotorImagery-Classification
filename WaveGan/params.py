@@ -7,7 +7,7 @@ import os
 #############################
 # DataSet Path
 #############################s
-target_signals_dir = '../Dataset-Files/data-file/bnci-3channels-raw/1/'
+target_signals_dir = '../Dataset-Files/data-file/bnci-3channels-raw/1-all tasks-right hand/'
 #############################
 # Model Params
 #############################
@@ -26,7 +26,7 @@ validate=False
 p_coeff = 10
 batch_size = 10
 noise_latent_dim = 100  # size of the sampling noise
-model_capacity_size = 32    # model capacity during training can be reduced to 32 for larger window length of 2 seconds and 4 seconds
+model_capacity_size = 32    # model capacity during training can be reduced to 32 for larger window length of 2-right hand seconds and 4 seconds
 # rate of storing validation and costs params
 store_cost_every = 300
 progress_bar_step_iter_size = 400

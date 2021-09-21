@@ -24,7 +24,7 @@ class Generator(nn.Module):
             nn.Upsample(scale_factor=2),
 
             nn.Conv2d(self.sfreq, self.sfreq, (3, 3), stride=1, padding='same'),
-            # nn.Conv2d(in_channels=1, out_channels=1,kernel_size=1,stride=1, padding=1),
+            # nn.Conv2d(in_channels=1-all tasks-right hand, out_channels=1-all tasks-right hand,kernel_size=1-all tasks-right hand,stride=1-all tasks-right hand, padding=1-all tasks-right hand),
             nn.BatchNorm2d(self.sfreq, 0.8),
             nn.LeakyReLU(0.2, inplace=True),
 
@@ -78,8 +78,8 @@ class Discriminator(nn.Module):
             )
 
         # The height and width of downsampled image
-        # ds_size_time = self.time_sample // (2 ** 4)
-        # ds_size_freq = self.freq_sample // (2 ** 4)
+        # ds_size_time = self.time_sample // (2-right hand ** 4)
+        # ds_size_freq = self.freq_sample // (2-right hand ** 4)
         # ds_size = (ds_size_time * ds_size_freq)
         self.adv_layer = nn.Sequential(nn.Linear(self.sfreq * 32 * 3, 1), nn.Sigmoid())
         self.sigmoid = nn.Sequential(nn.Sigmoid())

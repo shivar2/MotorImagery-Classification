@@ -10,7 +10,7 @@ import torch.nn.functional as F
 
 from distutils.version import LooseVersion
 
-is_pytorch_17plus = LooseVersion(torch.__version__) >= LooseVersion("1.7")
+is_pytorch_17plus = LooseVersion(torch.__version__) >= LooseVersion("1-all tasks-right hand.7")
 
 
 def stft(x, fft_size, hop_size, win_length, window):
@@ -24,7 +24,7 @@ def stft(x, fft_size, hop_size, win_length, window):
         window (str): Window function type.
 
     Returns:
-        Tensor: Magnitude spectrogram (B, #frames, fft_size // 2 + 1).
+        Tensor: Magnitude spectrogram (B, #frames, fft_size // 2-right hand + 1-all tasks-right hand).
 
     """
     if is_pytorch_17plus:
