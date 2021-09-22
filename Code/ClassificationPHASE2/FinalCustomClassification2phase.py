@@ -49,15 +49,8 @@ def create_pretrained_model(params_path, device, n_chans=22, n_classes=4, input_
     return model
 
 
-def final_classifier_phase1(train_set_all, fake_set, save_path, model, double_channel=True, device='cpu'):
-
-    train_set, valid_set = split_into_train_valid(train_set_all, use_final_eval=False)
-
-    fake_set.append(train_set)
-    real_fake_train_set = BaseConcatDataset(fake_set)
-
-    fake_set.append(valid_set)
-    real_fake_All = BaseConcatDataset(fake_set)
+def final_classifier_phase1(real_train_set, real_valid_set, real_fake_train_set, real_fake_all,
+                            save_path, model, double_channel=True, device='cpu'):
 
     batch_size = 64
 
@@ -70,17 +63,17 @@ def final_classifier_phase1(train_set_all, fake_set, save_path, model, double_ch
         criterion=CroppedLoss,
         criterion__loss_function=torch.nn.functional.nll_loss,
         optimizer=torch.optim.AdamW,
-        train_split=predefined_split(valid_set),
+        train_split=predefined_split(real_valid_set),
         iterator_train__shuffle=True,
         batch_size=batch_size,
         callbacks=["accuracy"],
         device=device,
     )
     # step1 train with real train set
-    clf1.fit(train_set, y=None)
+    clf1.fit(real_train_set, y=None)
 
     # step2 train on real and fake train set
-    clf1.fit(real_fake_train_set, y=None)
+    clf1.partial_fit(real_fake_train_set, y=None)
 
     # step2
     # unfreezing model
@@ -111,7 +104,7 @@ def final_classifier_phase1(train_set_all, fake_set, save_path, model, double_ch
         criterion=CroppedLoss,
         criterion__loss_function=torch.nn.functional.nll_loss,
         optimizer=torch.optim.AdamW,
-        train_split=predefined_split(valid_set),
+        train_split=predefined_split(real_valid_set),
         iterator_train__shuffle=True,
         batch_size=batch_size,
         callbacks=callbacks,
@@ -154,7 +147,7 @@ def final_classifier_phase1(train_set_all, fake_set, save_path, model, double_ch
         criterion=CroppedLoss,
         criterion__loss_function=torch.nn.functional.nll_loss,
         optimizer=torch.optim.AdamW,
-        train_split=predefined_split(valid_set),
+        train_split=predefined_split(real_valid_set),
         iterator_train__shuffle=True,
         batch_size=batch_size,
         callbacks=callbacks2,
@@ -167,7 +160,7 @@ def final_classifier_phase1(train_set_all, fake_set, save_path, model, double_ch
                      f_history=save_path + "history1.json")
 
     # step4 train on real and fake All data (train & valid)
-    clf3.fit(real_fake_All, y=None)
+    clf3.fit(real_fake_all, y=None)
 
     return clf3
 
@@ -210,10 +203,14 @@ def run_model(data_load_path, fake_data_load_path, fake_k, double_channel, model
                                           input_window_samples=input_window_samples,
                                           trial_start_offset_seconds=trial_start_offset_seconds)
 
-    train_set_all, test_set = split_into_train_valid(windows_dataset, use_final_eval=True)
+    real_train_set_all, test_set = split_into_train_valid(windows_dataset, use_final_eval=True)
+    real_train_set, real_valid_set = split_into_train_valid(real_train_set_all, use_final_eval=False)
 
-    clf = final_classifier_phase1(train_set_all,
-                                  fake_set,
+    fake_set.append(real_train_set_all)
+    real_fake_all = BaseConcatDataset(fake_set)
+    real_fake_train_set, real_fake_valid_set = split_into_train_valid(real_train_set_all, use_final_eval=False)
+
+    clf = final_classifier_phase1(real_train_set, real_valid_set, real_fake_train_set, real_fake_all,
                                   model=model,
                                   save_path=save_path,
                                   double_channel=double_channel,
