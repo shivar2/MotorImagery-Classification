@@ -5,8 +5,8 @@ from torch.nn.functional import elu
 
 from braindecode.util import np_to_var
 
-from newDeepModules import Expression, AvgPool2dWithConv, Ensure4d, ReshapeTo
-from newDeepFunctions import identity, transpose_time_to_spat, squeeze_final_output, transpose_time_to_spat2
+from Code.Models.newDeepModules import Expression, AvgPool2dWithConv, Ensure4d, ReshapeTo
+from Code.Models.newDeepFunctions import identity, transpose_time_to_spat, squeeze_final_output, transpose_time_to_spat2
 
 
 class Deep4Net(nn.Sequential):
