@@ -13,7 +13,7 @@ from braindecode.training.losses import CroppedLoss
 from Code.EarlyStopClass.EarlyStopClass import EarlyStopping
 from Code.base import detect_device, load_data_object,\
     create_model_deep4, create_model_shallow, cut_compute_windows,\
-    split_into_train_valid, get_test_data, plot
+    split_into_train_valid, plot
 
 
 def train_cropped_trials(train_set_all, model, save_path, device='cpu'):
