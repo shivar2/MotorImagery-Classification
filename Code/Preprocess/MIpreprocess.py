@@ -23,9 +23,9 @@ def load_data_moabb(dataset_name="BNCI2014001", subject_id=1):
     return dataset
 
 
-def load_preprocessed_data(data_path='../Dataset-Files/data-file/', dataset_folder='hgd-raw/', subject_id=1):
+def load_preprocessed_data(data_path='../Dataset-Files/data-file/', subject_id=1):
     dataset = load_concat_dataset(
-        path=data_path + dataset_folder + str(subject_id),
+        path=data_path + str(subject_id),
         preload=True,
         target_name=None,
     )
@@ -57,11 +57,21 @@ def basic_preprocess(dataset, low_cut_hz=4., high_cut_hz=38., factor_new=1e-3, i
         'CP3', 'CPz', 'CP4',
         'Fz', 'P1', 'Pz', 'P2', 'POz']
 
+    A = [
+        'Fz',                                       #1
+        'FC3', 'FC1', 'FCz', 'FC2', 'FC4',          #5
+        'C5', 'C3', 'C1', 'Cz', 'C4', 'C2', 'C6',   #7
+        'CP3', 'CP1', 'CPz', 'CP2', 'CP4',          #5
+        'P1', 'Pz', 'P2',                           #3
+        'POz'                                       #1
+
+    ]
+
     moving_fn = {'standardize': exponential_moving_standardize,
                  'demean': exponential_moving_demean}[exponential_moving_fn]
 
     preprocessors = [
-        MNEPreproc(fn='pick_channels', ch_names=C_22_sensors, ordered=True),
+        MNEPreproc(fn='pick_channels', ch_names=A, ordered=True),
         NumpyPreproc(fn=lambda x: x * 1e6),
         NumpyPreproc(fn=lambda x: np.clip(x, -800, 800)),
     ]
@@ -149,3 +159,34 @@ def MaxNormalize(data):
         max = 0.00001
     normal_data = data / max
     return normal_data
+
+
+def add_channel_to_raw(dataset):
+    max_i = len(dataset.datasets)
+    channel_list = ['F5', 'F3', 'F1', 'F2', 'F4', 'F6',
+                    'FC5', 'FC6',
+                    'CP5', 'CP6',
+                    'P5', 'P3', 'P4', 'P6',
+                    'PO5', 'PO3', 'PO1', 'PO2', 'PO4', 'PO6']
+
+    all_channels = [
+        'F5', 'F3', 'F1', 'Fz', 'F2', 'F4', 'F6',
+        'FC5', 'FC3', 'FC1', 'FCz', 'FC2', 'FC4', 'FC6',
+        'C5', 'C3', 'C1', 'Cz', 'C4', 'C2', 'C6',
+        'CP5', 'CP3', 'CP1', 'CPz', 'CP2', 'CP4', 'CP6',
+        'P5', 'P3', 'P1', 'Pz', 'P2',  'P4', 'P6',
+        'PO5', 'PO3', 'PO1', 'POz',  'PO2', 'PO4', 'PO6'
+
+    ]
+
+    for i in range(0, max_i):
+        raw = dataset.split([[i]])['0'].datasets[0].raw
+        for channel in channel_list:
+            info = mne.create_info([channel], raw.info['sfreq'], ['stim'])
+            stim_data = np.zeros((1, raw.n_times))
+            stim_raw = mne.io.RawArray(stim_data, info)
+            raw.add_channels([stim_raw], force_update_info=True)
+
+        raw.reorder_channels(all_channels)
+
+    return dataset
