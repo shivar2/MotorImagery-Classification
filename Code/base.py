@@ -8,13 +8,14 @@ from matplotlib.lines import Line2D
 import pandas as pd
 
 from braindecode.datautil.serialization import load_concat_dataset
-from braindecode.models import ShallowFBCSPNet
+from braindecode.models import ShallowFBCSPNet, Deep4Net
 from braindecode.datautil.windowers import create_windows_from_events
 
 
 from braindecode.datautil.preprocess import preprocess, Preprocessor
 from Code.Preprocess import MaxNormalize
-from Code.Models.deep4New import Deep4Net
+from Code.Models.deep4New import NewDeep4Net
+from Code.Models.deep4New3D import NewDeep4Net3D
 
 
 def detect_device():
@@ -77,6 +78,26 @@ def create_model_shallow(input_window_samples=1000, n_chans=4, n_classes=4):
 
 def create_model_deep4(input_window_samples=1000, n_chans=4, n_classes=4):
     model = Deep4Net(
+        in_chans=n_chans,
+        n_classes=n_classes,
+        input_window_samples=input_window_samples,
+        final_conv_length=2,
+    )
+    return model
+
+
+def create_model_newDeep4(input_window_samples=1000, n_chans=4, n_classes=4):
+    model = NewDeep4Net(
+        in_chans=n_chans,
+        n_classes=n_classes,
+        input_window_samples=input_window_samples,
+        final_conv_length=2,
+    )
+    return model
+
+
+def create_model_newDeep4_3d(input_window_samples=1000, n_chans=4, n_classes=4):
+    model = NewDeep4Net3D(
         in_chans=n_chans,
         n_classes=n_classes,
         input_window_samples=input_window_samples,
