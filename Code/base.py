@@ -8,12 +8,13 @@ from matplotlib.lines import Line2D
 import pandas as pd
 
 from braindecode.datautil.serialization import load_concat_dataset
-from braindecode.models import ShallowFBCSPNet, Deep4Net
+from braindecode.models import ShallowFBCSPNet
 from braindecode.datautil.windowers import create_windows_from_events
 
 
 from braindecode.datautil.preprocess import preprocess, Preprocessor
 from Code.Preprocess import MaxNormalize
+from Code.Models.deep4New import Deep4Net
 
 
 def detect_device():
