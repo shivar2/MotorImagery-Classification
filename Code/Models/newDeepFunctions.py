@@ -54,3 +54,14 @@ def transpose_time_to_spat2(x):
     # x = x.view(1, 991, 7, 6)
     # x = x.view(1, 7, 991, 6)
     return x.permute(0, 2, 1, 3)
+
+
+def transpose_time_to_spat2_3d(x):
+    """Swap time and spatial dimensions.
+
+    Returns
+    -------
+    x: torch.Tensor
+        tensor in which last and first dimensions are swapped
+    """
+    return x.permute(0, 4, 3, 1, 2)
