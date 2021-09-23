@@ -11,13 +11,13 @@ for subject_id in subject_id_list:
     model_load_path = '../../../Model_Params/Pretrained_Models/22channels/0-f/'
 
     # Save results
-    save_path = os.path.join('../../../Model_Params/TL_Classification/phase2/22channels/0-38/'
-                             + 'Run params_19/' + str(subject_id)) + '/run 4/'
+    save_path = os.path.join('../../../Model_Params/TL_Classification_custom/phase2/22channels/0-38/'
+                            + str(subject_id)) + '/run 4/'
     if not os.path.exists(save_path):
         os.makedirs(save_path)
 
     run_model(data_load_path=data_load_path,
               double_channel=False,
               model_load_path=model_load_path,
-              params_name='params_19.pt',
+              params_name='params2.pt',
               save_path=save_path)
