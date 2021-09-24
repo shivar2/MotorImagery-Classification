@@ -11,7 +11,7 @@ for subject_id in subject_id_list:
     model_load_path = '../../../Model_Params/Pretrained_Models/22channels/0-f/'
 
     # Save results
-    save_path = os.path.join('../../../Model_Params/TL_Classification_custom/phase2/22channels/0-38/'
+    save_path = os.path.join('../../../Model_Params/TL_Classification-custom/0-38/'
                             + str(subject_id)) + '/run 4/'
     if not os.path.exists(save_path):
         os.makedirs(save_path)

@@ -26,5 +26,5 @@ for subject_id in subject_id_list:
               fake_k=fake_k,
               double_channel=False,
               model_load_path=model_load_path,
-              params_name='params_19.pt',
+              params_name='params2.pt',
               save_path=save_path)
