@@ -18,17 +18,15 @@ from Code.base import detect_device,\
     create_model_deep4, create_model_shallow, cut_compute_windows,\
     get_test_data, plot
 
-from Code.Preprocess.MIpreprocess import add_channel_to_raw
 
-
-def load_all_data_object(data_path):
+def load_data_object(data_path):
     subject_id_list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
     dataset_all = []
 
     for subject in subject_id_list:
         dataset = load_concat_dataset(
             path=data_path + str(subject) + '/',
-            preload=True,
+            preload=False,
             target_name=None,)
         dataset_all.append(dataset)
         del dataset
@@ -36,16 +34,6 @@ def load_all_data_object(data_path):
     dataset_obj = BaseConcatDataset(dataset_all)
 
     return dataset_obj
-
-
-def load_data_object(data_path, subject):
-
-    dataset = load_concat_dataset(
-            path=data_path + str(subject) + '/',
-            preload=True,
-            target_name=None,)
-
-    return dataset
 
 
 def split_into_train_valid(windows_dataset, use_final_eval):
@@ -151,16 +139,14 @@ def train_cropped_trials(train_set_all, model, save_path, device='cpu'):
     return clf2
 
 
-def run_model(data_load_path, subject_id, model_name, save_path):
+def run_model(data_load_path, model_name, save_path):
     input_window_samples = 1000
     cuda, device = detect_device()
 
     seed = 20200220
     set_random_seeds(seed=seed, cuda=cuda)
 
-    # dataset = load_all_data_object(data_load_path)
-    dataset = load_data_object(data_load_path, subject_id)
-    dataset = add_channel_to_raw(dataset)
+    dataset = load_data_object(data_load_path)
 
     n_classes = 4
     n_chans = dataset[0][0].shape[0]
