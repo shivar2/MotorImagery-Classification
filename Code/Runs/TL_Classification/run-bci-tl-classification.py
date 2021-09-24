@@ -23,7 +23,7 @@ double_channel = False
 
 for subject_id in subject_id_list:
     # data
-    data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/' + str(subject_id)) + '/'
+    data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels/' + str(subject_id)) + '/'
     dataset = load_data_object(data_load_path)
 
     input_window_samples = 1000
@@ -44,7 +44,7 @@ for subject_id in subject_id_list:
 
     # Path to saving Models
     # mkdir path to save
-    save_path = os.path.join('../../../Model_Params/TL_Classification/0-38/' +
+    save_path = os.path.join('../../../Model_Params/TL_Classification/0-38/22channel/' +
                              model_name + '/' + phase_number + ' - ' + normalize_str + str(subject_id)) + '/'
 
     if not os.path.exists(save_path):

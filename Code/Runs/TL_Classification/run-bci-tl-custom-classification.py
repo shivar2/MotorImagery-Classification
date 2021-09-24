@@ -5,7 +5,7 @@ from Code.ClassificationPHASE2.TLCustomClassification2phase import run_model
 
 subject_id_list = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 for subject_id in subject_id_list:
-    data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/' + str(subject_id)) + '/'
+    data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels/' + str(subject_id)) + '/'
 
     # Load model path
     model_load_path = '../../../Model_Params/Pretrained_Models/22channels/0-f/'
