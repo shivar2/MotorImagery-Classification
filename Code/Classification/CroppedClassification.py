@@ -5,14 +5,11 @@ import torch
 from skorch.helper import predefined_split
 from skorch.callbacks import LRScheduler, Checkpoint
 
-from braindecode.util import set_random_seeds
-from braindecode.models.util import to_dense_prediction_model, get_output_shape
 from braindecode import EEGClassifier
 from braindecode.training.losses import CroppedLoss
 
 from Code.EarlyStopClass.EarlyStopClass import EarlyStopping
-from Code.base import detect_device, cut_compute_windows,\
-    split_into_train_valid, plot, get_results
+from Code.base import cut_compute_windows, split_into_train_valid, plot, get_results
 
 
 def train_1phase(train_set, valid_set, model, device='cpu'):
@@ -134,23 +131,9 @@ def train_2phase(train_set_all, model, save_path, device='cpu'):
     return clf2
 
 
-def run_model(dataset, model, normalize, phase, save_path):
+def run_model(dataset, model, normalize, phase, n_preds_per_input, device, save_path):
     input_window_samples = 1000
     n_chans = dataset[0][0].shape[0]
-
-    cuda, device = detect_device()
-    seed = 20200220
-    set_random_seeds(seed=seed, cuda=cuda)
-
-    # Send model to GPU
-    if cuda:
-        model.cuda()
-
-    # And now we transform model with strides to a model that outputs dense prediction,
-    # so we can use it to obtain predictions for all crops.
-    to_dense_prediction_model(model)
-
-    n_preds_per_input = get_output_shape(model, n_chans, input_window_samples)[2]
 
     trial_start_offset_seconds = -0.5
 

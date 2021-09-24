@@ -1,9 +1,13 @@
 import os
 
+from braindecode.util import set_random_seeds
+from braindecode.models.util import to_dense_prediction_model, get_output_shape
+
 from Code.base import load_data_object, create_model_deep4,\
-    create_model_newDeep4, create_model_newDeep4_3d, load_fake_data_oneByOne
+    create_model_newDeep4, create_model_newDeep4_3d, load_fake_data_oneByOne, detect_device
 
 from Code.Classification import GanClassification
+from Code.Models.deepNewUtils import deep4New3dutils
 
 # Run Info
 subject_id_list = [1]
@@ -18,6 +22,11 @@ else:
 # Fake data info
 fake_k = 2
 gan_version = 'WGan-GP-Signal-VERSION5/'
+
+
+cuda, device = detect_device()
+seed = 20200220
+set_random_seeds(seed=seed, cuda=cuda)
 
 for subject_id in subject_id_list:
     for fake_ind in range(0, 6):
@@ -41,6 +50,19 @@ for subject_id in subject_id_list:
         else:
             model = create_model_newDeep4_3d(input_window_samples, n_chans, n_classes)
 
+        # Send model to GPU
+        if cuda:
+            model.cuda()
+
+        # And now we transform model with strides to a model that outputs dense prediction,
+        # so we can use it to obtain predictions for all crops.
+        if model_name == 'deep43D':
+            deep4New3dutils.to_dense_prediction_model(model)
+        else:
+            to_dense_prediction_model(model)
+
+        n_preds_per_input = get_output_shape(model, n_chans, input_window_samples)[2]
+
         # Path to saving Models
         # mkdir path to save
         save_path = os.path.join('../../../Model_Params/FakeClassification-each/0-38/' +
@@ -50,5 +72,6 @@ for subject_id in subject_id_list:
             os.makedirs(save_path)
 
         GanClassification.run_model(dataset=dataset, fake_set=fake_set, model=model, normalize=normalize,
-                                    phase=phase_number, save_path=save_path)
+                                    phase=phase_number, n_preds_per_input=n_preds_per_input, device=device,
+                                    save_path=save_path)
 
