@@ -7,10 +7,10 @@ from Code.Preprocess.MIpreprocess import add_channel_to_raw
 from Code.Classification import HGDCroppedClassification
 
 # Run Info
-subject_id_list = [1]
+subject_id_list = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 phase_number = '2'
 model_name = "deep4"
-channels = 44
+channels = 22
 
 normalize = True
 if normalize:
@@ -40,12 +40,13 @@ for subject_id in subject_id_list:
 
     # Path to saving Models
     # mkdir path to save
-    save_path = os.path.join('../../../Model_Params/HGD_Models/42channels/0-f/' +
+    save_path = os.path.join('../../../Model_Params/HGD_Models/' + '22channels/' + '0-f/' +
                              model_name + '/' + phase_number + '/' + normalize_str + str(subject_id)) + '/'
 
     if not os.path.exists(save_path):
         os.makedirs(save_path)
 
-    HGDCroppedClassification.run_model(dataset=dataset, model=model, normalize=normalize, phase=phase_number, save_path=save_path)
+    HGDCroppedClassification.run_model(dataset=dataset, model=model, normalize=normalize,
+                                       phase=phase_number, save_path=save_path)
 
 
