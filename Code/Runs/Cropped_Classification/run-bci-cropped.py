@@ -4,7 +4,6 @@ from Code.base import load_data_object, create_model_deep4,\
     create_model_newDeep4, create_model_newDeep4_3d
 
 from Code.Classification import CroppedClassification
-from Code.ClassificationPHASE2 import CroppedClassification2phase
 
 # Run Info
 subject_id_list = [1]
@@ -43,9 +42,6 @@ for subject_id in subject_id_list:
     if not os.path.exists(save_path):
         os.makedirs(save_path)
 
-    if phase_number == '1':
-        CroppedClassification.run_model(dataset=dataset, model=model,
-                                        normalize=normalize, save_path=save_path)
-    else:
-        CroppedClassification2phase.run_model(dataset=dataset, model=model,
-                                              normalize=normalize, save_path=save_path)
+    CroppedClassification.run_model(dataset=dataset, model=model, normalize=normalize,
+                                    phase=phase_number, save_path=save_path)
+
