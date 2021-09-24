@@ -105,20 +105,13 @@ def train_cropped_trials(train_set_all, model, save_path, device='cpu'):
     return clf2
 
 
-def run_model(data_load_path, fake_data_load_path, fake_k, save_path):
+def run_model(dataset, fake_set, model, normalize, save_path):
     input_window_samples = 1000
-    cuda, device = detect_device()
-
-    seed = 20200220
-    set_random_seeds(seed=seed, cuda=cuda)
-
-    dataset = load_data_object(data_load_path)
-    train_set_fake = load_fake_data(fake_data_load_path, fake_k)
-
-    n_classes = 4
     n_chans = 22
 
-    model = create_model_deep4(input_window_samples, n_chans, n_classes)
+    cuda, device = detect_device()
+    seed = 20200220
+    set_random_seeds(seed=seed, cuda=cuda)
 
     # Send model to GPU
     if cuda:
@@ -134,13 +127,14 @@ def run_model(data_load_path, fake_data_load_path, fake_k, save_path):
 
     windows_dataset = cut_compute_windows(dataset,
                                           n_preds_per_input,
+                                          normalize=normalize,
                                           input_window_samples=input_window_samples,
                                           trial_start_offset_seconds=trial_start_offset_seconds)
 
     train_set_all, test_set = split_into_train_valid(windows_dataset, use_final_eval=True)
 
-    train_set_fake.append(train_set_all)
-    X = BaseConcatDataset(train_set_fake)
+    fake_set.append(train_set_all)
+    X = BaseConcatDataset(fake_set)
 
     clf = train_cropped_trials(X,
                                model=model,
