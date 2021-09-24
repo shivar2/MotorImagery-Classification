@@ -4,7 +4,6 @@ from Code.base import load_data_object, create_model_deep4,\
     create_model_newDeep4, create_model_newDeep4_3d, load_fake_data_oneByOne
 
 from Code.Classification import GanClassification
-from Code.ClassificationPHASE2 import GanClassification2phase
 
 # Run Info
 subject_id_list = [1]
@@ -50,10 +49,6 @@ for subject_id in subject_id_list:
         if not os.path.exists(save_path):
             os.makedirs(save_path)
 
-        if phase_number == '1':
-            GanClassification.run_model(dataset=dataset, fake_set=fake_set, model=model,
-                                        normalize=normalize, save_path=save_path)
-        else:
-            GanClassification2phase.run_model(dataset=dataset, fake_set=fake_set, model=model,
-                                              normalize=normalize, save_path=save_path)
+        GanClassification.run_model(dataset=dataset, fake_set=fake_set, model=model, normalize=normalize,
+                                    phase=phase_number, save_path=save_path)
 
