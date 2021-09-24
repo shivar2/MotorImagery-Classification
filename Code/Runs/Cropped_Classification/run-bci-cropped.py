@@ -33,7 +33,7 @@ for subject_id in subject_id_list:
     # Path to saving Models
     # mkdir path to save
     save_path = os.path.join('../../../Model_Params/BCI_Models/0-38/' +
-                             model_name + '/' + phase_number + '/' + str(subject_id))
+                             model_name + '/' + phase_number + '/' + str(subject_id)) + '/'
 
     if not os.path.exists(save_path):
         os.makedirs(save_path)
