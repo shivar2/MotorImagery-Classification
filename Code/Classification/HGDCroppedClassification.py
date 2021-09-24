@@ -1,72 +1,21 @@
 import numpy as np
 import torch
 
-from torch.utils.data import Subset
-
-from skorch.callbacks import LRScheduler, Checkpoint
+from skorch.callbacks import Checkpoint
 from skorch.helper import predefined_split
 
-from braindecode.datautil.serialization import load_concat_dataset
-from braindecode.datasets.base import BaseConcatDataset
 from braindecode.util import set_random_seeds
 from braindecode.models.util import to_dense_prediction_model, get_output_shape
 from braindecode import EEGClassifier
 from braindecode.training.losses import CroppedLoss
 
 from Code.EarlyStopClass.EarlyStopClass import EarlyStopping
-from Code.base import detect_device,\
-    create_model_deep4, create_model_shallow, cut_compute_windows,\
-    get_test_data, plot
-
-from Code.Preprocess.MIpreprocess import add_channel_to_raw
+from Code.base import detect_device, cut_compute_windows, plot, load_data_object, split_hgd_into_train_valid
 
 
-def load_all_data_object(data_path):
-    subject_id_list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
-    dataset_all = []
+def train_2phase(train_set_all, model, save_path, device='cpu'):
 
-    for subject in subject_id_list:
-        dataset = load_concat_dataset(
-            path=data_path + str(subject) + '/',
-            preload=True,
-            target_name=None,)
-        dataset_all.append(dataset)
-        del dataset
-
-    dataset_obj = BaseConcatDataset(dataset_all)
-
-    return dataset_obj
-
-
-def load_data_object(data_path, subject):
-
-    dataset = load_concat_dataset(
-            path=data_path + str(subject) + '/',
-            preload=True,
-            target_name=None,)
-
-    return dataset
-
-
-def split_into_train_valid(windows_dataset, use_final_eval):
-    splitted = windows_dataset.split('run')
-    if use_final_eval:
-        train_set = splitted['train']
-        valid_set = splitted['test']
-    else:
-        full_train_set = splitted['train']
-        n_split = int(np.round(0.8 * len(full_train_set)))
-        # ensure this is multiple of 2 (number of windows per trial)
-        n_windows_per_trial = 2  # here set by hand
-        n_split = n_split - (n_split % n_windows_per_trial)
-        valid_set = Subset(full_train_set, range(n_split, len(full_train_set)))
-        train_set = Subset(full_train_set, range(0, n_split))
-    return train_set, valid_set
-
-
-def train_cropped_trials(train_set_all, model, save_path, device='cpu'):
-
-    train_set, valid_set = split_into_train_valid(train_set_all, use_final_eval=False)
+    train_set, valid_set = split_hgd_into_train_valid(train_set_all, use_final_eval=False)
 
     batch_size = 64
     n_epochs = 800
@@ -151,24 +100,13 @@ def train_cropped_trials(train_set_all, model, save_path, device='cpu'):
     return clf2
 
 
-def run_model(data_load_path, subject_id, model_name, save_path):
+def run_model(dataset, model, normalize, phase, save_path):
     input_window_samples = 1000
-    cuda, device = detect_device()
-
-    seed = 20200220
-    set_random_seeds(seed=seed, cuda=cuda)
-
-    # dataset = load_all_data_object(data_load_path)
-    dataset = load_data_object(data_load_path, subject_id)
-    dataset = add_channel_to_raw(dataset)
-
-    n_classes = 4
     n_chans = dataset[0][0].shape[0]
 
-    if model_name == 'shallow':
-        model = create_model_shallow(input_window_samples, n_chans, n_classes)
-    else:
-        model = create_model_deep4(input_window_samples, n_chans, n_classes)
+    cuda, device = detect_device()
+    seed = 20200220
+    set_random_seeds(seed=seed, cuda=cuda)
 
     # Send model to GPU
     if cuda:
@@ -184,15 +122,13 @@ def run_model(data_load_path, subject_id, model_name, save_path):
 
     windows_dataset = cut_compute_windows(dataset,
                                           n_preds_per_input,
+                                          normalize=normalize,
                                           input_window_samples=input_window_samples,
                                           trial_start_offset_seconds=trial_start_offset_seconds)
 
-    train_set_all, test_set = split_into_train_valid(windows_dataset, use_final_eval=True)
+    train_set_all, test_set = split_hgd_into_train_valid(windows_dataset, use_final_eval=True)
 
-    clf = train_cropped_trials(train_set_all,
-                               model=model,
-                               save_path=save_path,
-                               device=device)
+    clf = train_2phase(train_set_all, model=model, save_path=save_path, device=device)
 
     plot(clf, save_path)
 
