@@ -18,7 +18,7 @@ channels = 42
 
 normalize = True
 if normalize:
-    normalize_str = 'Normalize/'
+    normalize_str = 'normalize/'
 else:
     normalize_str = 'notNormalize/'
 
@@ -62,7 +62,7 @@ for subject_id in subject_id_list:
     # Path to saving Models
     # mkdir path to save
     save_path = os.path.join('../../../Model_Params/HGD_Models/' + '22channels/' + '0-f/' +
-                             model_name + '/' + phase_number + '/' + normalize_str + str(subject_id)) + '/'
+                             model_name + '/' + phase_number + ' - ' + normalize_str + str(subject_id)) + '/'
 
     if not os.path.exists(save_path):
         os.makedirs(save_path)

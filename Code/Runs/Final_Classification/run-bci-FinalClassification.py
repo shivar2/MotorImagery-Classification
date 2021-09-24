@@ -12,7 +12,7 @@ model_name = "deep4"
 
 normalize = True
 if normalize:
-    normalize_str = 'Normalize/'
+    normalize_str = 'normalize/'
 else:
     normalize_str = 'notNormalize/'
 
@@ -51,7 +51,7 @@ for subject_id in subject_id_list:
     # Path to saving Models
     # mkdir path to save
     save_path = os.path.join('../../../Model_Params/Final_Classification/0-38/' +
-                             model_name + '/' + phase_number + '/' + normalize_str +
+                             model_name + '/' + phase_number + ' - ' + normalize_str +
                              str(fake_k) + '/' + str(subject_id)) + '/'
 
     if not os.path.exists(save_path):

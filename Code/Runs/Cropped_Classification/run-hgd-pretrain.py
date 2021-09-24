@@ -14,7 +14,7 @@ channels = 44
 
 normalize = True
 if normalize:
-    normalize_str = 'Normalize/'
+    normalize_str = 'normalize/'
 else:
     normalize_str = 'notNormalize/'
 
@@ -41,7 +41,7 @@ for subject_id in subject_id_list:
     # Path to saving Models
     # mkdir path to save
     save_path = os.path.join('../../../Model_Params/Pretrained_Models/42channels/0-f/' +
-                             model_name + '/' + phase_number + '/' + normalize_str)
+                             model_name + '/' + phase_number + ' - ' + normalize_str)
 
     if not os.path.exists(save_path):
         os.makedirs(save_path)
