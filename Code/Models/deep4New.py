@@ -9,7 +9,7 @@ from Code.Models.newDeepModules import Expression, AvgPool2dWithConv, Ensure4d, 
 from Code.Models.newDeepFunctions import identity, transpose_time_to_spat, squeeze_final_output, transpose_time_to_spat2
 
 
-class Deep4Net(nn.Sequential):
+class NewDeep4Net(nn.Sequential):
     """
     Deep ConvNet model from [1]_.
 

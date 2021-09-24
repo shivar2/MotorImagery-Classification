@@ -7,14 +7,22 @@ from braindecode.util import np_to_var
 
 
 class ReshapeTo(torch.nn.Module):
-    def forward(self,x):
-        x = x.view(-1 , 991, 7, 6)
+    def forward(self, x):
+        x = x.view(-1, 991, 7, 6)
         return x
 
 
 class Ensure4d(torch.nn.Module):
     def forward(self, x):
         while(len(x.shape) < 4):
+            x = x.unsqueeze(-1)
+        return x
+
+
+class Ensure5d(torch.nn.Module):
+    def forward(self, x):
+        x = x.view(-1, 7, 6, 1000)
+        while(len(x.shape) < 5):
             x = x.unsqueeze(-1)
         return x
 

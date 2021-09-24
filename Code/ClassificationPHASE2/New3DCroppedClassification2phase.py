@@ -6,14 +6,14 @@ from skorch.helper import predefined_split
 
 from braindecode.datasets.base import BaseConcatDataset
 from braindecode.util import set_random_seeds
-from braindecode.models.util import to_dense_prediction_model, get_output_shape
+from braindecode.models.util import get_output_shape
 from braindecode import EEGClassifier
 from braindecode.training.losses import CroppedLoss
 
+from Code.Models.deep4New3dutils import to_dense_prediction_model
 from Code.EarlyStopClass.EarlyStopClass import EarlyStopping
-from Code.base import detect_device, load_data_object,\
-    create_model_deep4, create_model_shallow, cut_compute_windows,\
-    split_into_train_valid, plot
+from Code.base import detect_device, load_data_object, cut_compute_windows,split_into_train_valid, plot,\
+    create_model_newDeep4_3d
 
 
 def train_cropped_trials(train_set_all, model, save_path, device='cpu'):
@@ -115,10 +115,7 @@ def run_model(data_load_path, model_name, save_path):
     n_classes = 4
     n_chans = dataset[0][0].shape[0]
 
-    if model_name == 'shallow':
-        model = create_model_shallow(input_window_samples, n_chans, n_classes)
-    else:
-        model = create_model_deep4(input_window_samples, n_chans, n_classes)
+    model = create_model_newDeep4_3d(input_window_samples, n_chans, n_classes)
 
     # Send model to GPU
     if cuda:

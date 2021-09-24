@@ -5,11 +5,11 @@ from torch.nn.functional import elu
 
 from braindecode.util import np_to_var
 
-from Code.Models.newDeepModules import Expression, AvgPool2dWithConv, Ensure4d, ReshapeTo
-from Code.Models.newDeepFunctions import identity, transpose_time_to_spat, squeeze_final_output, transpose_time_to_spat2
+from Code.Models.newDeepModules import Expression, AvgPool2dWithConv, Ensure5d
+from Code.Models.newDeepFunctions import identity, squeeze_final_output, transpose_time_to_spat2_3d
 
 
-class Deep4Net(nn.Sequential):
+class NewDeep4Net3D(nn.Sequential):
     """
     Deep ConvNet model from [1]_.
 
@@ -90,35 +90,52 @@ class Deep4Net(nn.Sequential):
         else:
             conv_stride = 1
             pool_stride = self.pool_time_stride
-        self.add_module("ensuredims", Ensure4d())
-        pool_class_dict = dict(max=nn.MaxPool2d, mean=AvgPool2dWithConv)
+        self.add_module("ensuredims", Ensure5d())
+        pool_class_dict = dict(max=nn.MaxPool3d, mean=AvgPool2dWithConv)
         first_pool_class = pool_class_dict[self.first_pool_mode]
         later_pool_class = pool_class_dict[self.later_pool_mode]
         if self.split_first_layer:
-            self.add_module("dimshuffle", Expression(transpose_time_to_spat))
+            self.add_module("dimshuffle", Expression(transpose_time_to_spat2_3d))
             self.add_module(
                 "conv_time",
-                nn.Conv2d(
+                nn.Conv3d(
                     1,
-                    1,
-                    # self.n_filters_time,
-                    (self.filter_time_length, 1),
-                    stride=1,
+                    self.n_filters_time,
+                    (self.filter_time_length, 1, 1),
+                    stride=(1, 1, 1),
                 ),
             )
-            self.add_module("reshape", ReshapeTo())
-            self.add_module("dimshuffle2", Expression(transpose_time_to_spat2))
             self.add_module(
                 "conv_spat",
-                nn.Conv2d(
-                    # self.n_filters_time,
-                    7,
+                nn.Conv3d(
+                    self.n_filters_time,
                     self.n_filters_spat,
-                    (1, 6),
-                    stride=(conv_stride, 1),
+                    (1, 3, 3),
+                    stride=(1, 1, 1),
                     bias=not self.batch_norm,
                 ),
             )
+            self.add_module(
+                    "conv_spat_2",
+                    nn.Conv3d(
+                        self.n_filters_time,
+                        self.n_filters_spat,
+                        (1, 3, 3),
+                        stride=(1, 1, 1),
+                        bias=not self.batch_norm,
+                    ),
+            )
+            self.add_module(
+                "conv_spat_3",
+                nn.Conv3d(
+                    self.n_filters_time,
+                    self.n_filters_spat,
+                    (1, 3, 2),
+                    stride=(1, 1, 1),
+                    bias=not self.batch_norm,
+                ),
+            )
+
             n_filters_conv = self.n_filters_spat
         else:
             self.add_module(
@@ -135,7 +152,7 @@ class Deep4Net(nn.Sequential):
         if self.batch_norm:
             self.add_module(
                 "bnorm",
-                nn.BatchNorm2d(
+                nn.BatchNorm3d(
                     n_filters_conv,
                     momentum=self.batch_norm_alpha,
                     affine=True,
@@ -145,9 +162,10 @@ class Deep4Net(nn.Sequential):
         self.add_module("conv_nonlin", Expression(self.first_nonlin))
         self.add_module(
             "pool",
-            first_pool_class(
-                kernel_size=(self.pool_time_length, 1), stride=(pool_stride, 1)
-            ),
+            # first_pool_class(
+            #     kernel_size=(self.pool_time_length, 1, 1), stride=(pool_stride, 1, 1)
+            # ),
+            nn.MaxPool3d(kernel_size=(self.pool_time_length, 1, 1), stride=(pool_stride, 1, 1))
         )
         self.add_module("pool_nonlin", Expression(self.first_pool_nonlin))
 
@@ -158,18 +176,18 @@ class Deep4Net(nn.Sequential):
             self.add_module("drop" + suffix, nn.Dropout(p=self.drop_prob))
             self.add_module(
                 "conv" + suffix,
-                nn.Conv2d(
+                nn.Conv3d(
                     n_filters_before,
                     n_filters,
-                    (filter_length, 1),
-                    stride=(conv_stride, 1),
+                    (filter_length, 1, 1),
+                    stride=(conv_stride, 1, 1),
                     bias=not self.batch_norm,
                 ),
             )
             if self.batch_norm:
                 self.add_module(
                     "bnorm" + suffix,
-                    nn.BatchNorm2d(
+                    nn.BatchNorm3d(
                         n_filters,
                         momentum=self.batch_norm_alpha,
                         affine=True,
@@ -181,8 +199,8 @@ class Deep4Net(nn.Sequential):
             self.add_module(
                 "pool" + suffix,
                 later_pool_class(
-                    kernel_size=(self.pool_time_length, 1),
-                    stride=(pool_stride, 1),
+                    kernel_size=(self.pool_time_length, 1, 1),
+                    stride=(pool_stride, 1, 1),
                 ),
             )
             self.add_module(
@@ -214,10 +232,10 @@ class Deep4Net(nn.Sequential):
             self.final_conv_length = n_out_time
         self.add_module(
             "conv_classifier",
-            nn.Conv2d(
+            nn.Conv3d(
                 self.n_filters_4,
                 self.n_classes,
-                (self.final_conv_length, 1),
+                (self.final_conv_length, 1, 1),
                 bias=True,
             ),
         )
@@ -232,8 +250,12 @@ class Deep4Net(nn.Sequential):
             init.constant_(self.conv_time.bias, 0)
         if self.split_first_layer:
             init.xavier_uniform_(self.conv_spat.weight, gain=1)
+            init.xavier_uniform_(self.conv_spat_2.weight, gain=1)
+            init.xavier_uniform_(self.conv_spat_3.weight, gain=1)
             if not self.batch_norm:
                 init.constant_(self.conv_spat.bias, 0)
+                init.constant_(self.conv_spat_2.bias, 0)
+                init.constant_(self.conv_spat_3.bias, 0)
         if self.batch_norm:
             init.constant_(self.bnorm.weight, 1)
             init.constant_(self.bnorm.bias, 0)
