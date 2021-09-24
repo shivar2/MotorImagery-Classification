@@ -12,7 +12,7 @@ from braindecode.training.losses import CroppedLoss
 
 from Code.EarlyStopClass.EarlyStopClass import EarlyStopping
 from Code.base import detect_device, cut_compute_windows,\
-    split_into_train_valid, plot
+    split_into_train_valid, plot, get_results
 
 
 def train_1phase(train_set, valid_set, model, device='cpu'):
@@ -170,19 +170,6 @@ def run_model(dataset, model, normalize, phase, save_path):
     plot(clf, save_path)
     torch.save(model, save_path + "model.pth")
 
-    # Calculate Mean Accuracy For Test set
-    i = 0
-    test = np.empty(shape=(len(test_set), n_chans, input_window_samples))
-    target = np.empty(shape=(len(test_set)))
-    for x, y, window_ind in test_set:
-        test[i] = x
-        target[i] = y
-        i += 1
-
-    score = clf.score(test, y=target)
-    print("EEG Cropped Classification Score (Accuracy) is:  " + str(score))
-
-    f = open(save_path + "test-result.txt", "w")
-    f.write("EEG Cropped Classification Score (Accuracy) is:  " + str(score))
-    f.close()
+    # Get results
+    get_results(clf, test_set, save_path=save_path, n_chans=n_chans,input_window_samples=1000)
 

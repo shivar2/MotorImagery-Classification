@@ -10,7 +10,7 @@ from braindecode import EEGClassifier
 from braindecode.training.losses import CroppedLoss
 
 from Code.EarlyStopClass.EarlyStopClass import EarlyStopping
-from Code.base import detect_device, cut_compute_windows, plot, load_data_object, split_hgd_into_train_valid
+from Code.base import detect_device, cut_compute_windows, plot, split_hgd_into_train_valid, get_results
 
 
 def train_2phase(train_set_all, model, save_path, device='cpu'):
@@ -149,21 +149,8 @@ def run_model(dataset, model, normalize, phase, save_path):
     clf_best.load_params(f_params=save_path + "params2.pt",
                          f_optimizer=save_path + "optimizers2.pt",
                          f_history=save_path + "history.json")
-    # Calculate Mean Accuracy For Test set
-    i = 0
-    test = np.empty(shape=(len(test_set), n_chans, input_window_samples))
-    target = np.empty(shape=(len(test_set)))
-    for x, y, window_ind in test_set:
-        test[i] = x
-        target[i] = y
-        i += 1
-
-    score = clf_best.score(test, y=target)
-    print("EEG Cropped Classification Score (Accuracy) is:  " + str(score))
-
-    f = open(save_path + "test-result.txt", "w")
-    f.write("EEG Cropped Classification Score (Accuracy) is:  " + str(score))
-    f.close()
+    # Get results
+    get_results(clf_best, test_set, save_path=save_path, n_chans=n_chans, input_window_samples=1000)
 
 
 
