@@ -106,7 +106,8 @@ def create_model_newDeep4_3d(input_window_samples=1000, n_chans=4, n_classes=4):
     return model
 
 
-def cut_compute_windows(dataset, n_preds_per_input, input_window_samples=1000, trial_start_offset_seconds=-0.5):
+def cut_compute_windows(dataset, n_preds_per_input, normalize=True,
+                        input_window_samples=1000, trial_start_offset_seconds=-0.5):
 
     sfreq = dataset.datasets[0].raw.info['sfreq']
     assert all([ds.raw.info['sfreq'] == sfreq for ds in dataset.datasets])
@@ -123,8 +124,9 @@ def cut_compute_windows(dataset, n_preds_per_input, input_window_samples=1000, t
         mapping={'left_hand': 0, 'right_hand': 1, 'feet': 2, 'tongue': 3},
     )
 
-    # max normalize
-    preprocess(windows_dataset, [Preprocessor(MaxNormalize)])
+    if normalize:
+        # max normalize
+        preprocess(windows_dataset, [Preprocessor(MaxNormalize)])
 
     return windows_dataset
 
