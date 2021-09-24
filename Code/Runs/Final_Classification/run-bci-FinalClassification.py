@@ -3,7 +3,6 @@ import os
 from Code.base import load_data_object, create_model_deep4,\
     create_model_newDeep4, create_model_newDeep4_3d, load_fake_data
 
-from Code.Models.PretrainedDeep4Model import PretrainedDeep4Model
 from Code.Classification import FinalClassification
 
 # Run Info
@@ -49,11 +48,6 @@ for subject_id in subject_id_list:
     # else:
     #     model = create_model_newDeep4_3d(input_window_samples, n_chans, n_classes)
 
-    model = PretrainedDeep4Model(n_chans=n_chans,
-                                 n_classes=n_classes,
-                                 input_window_samples=input_window_samples,
-                                 params_path=model_load_path + param_name)
-
     # Path to saving Models
     # mkdir path to save
     save_path = os.path.join('../../../Model_Params/Final_Classification/0-38/' +
@@ -64,7 +58,7 @@ for subject_id in subject_id_list:
         os.makedirs(save_path)
 
     FinalClassification.run_model(dataset=dataset, fake_set=fake_set,
-                                  model=model,
+                                  model_load_path=model_load_path + param_name,
                                   normalize=normalize,
                                   double_channel=double_channel, phase=phase_number, save_path=save_path)
 

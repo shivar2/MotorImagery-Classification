@@ -1,5 +1,7 @@
 import numpy as np
 import torch
+from torch import nn
+from torch.nn.functional import elu
 
 from skorch.callbacks import LRScheduler, Checkpoint
 from skorch.helper import predefined_split
@@ -8,12 +10,42 @@ from braindecode.datasets.base import BaseConcatDataset
 from braindecode.util import set_random_seeds
 from braindecode.models.util import to_dense_prediction_model, get_output_shape
 from braindecode.training.losses import CroppedLoss
+from braindecode.models import Deep4Net
+from braindecode.models.modules import Expression
+from braindecode.models.functions import squeeze_final_output
 
 from Code.Classifier.EEGTLClassifier import EEGTLClassifier
 from Code.EarlyStopClass.EarlyStopClass import EarlyStopping
 from Code.Classification.CroppedClassification import plot
 
 from Code.base import detect_device, cut_compute_windows, split_into_train_valid
+
+
+def create_pretrained_model(params_path, device, n_chans=22, n_classes=4, input_window_samples=1000):
+    model = Deep4Net(
+        in_chans=n_chans,
+        n_classes=n_classes,
+        input_window_samples=input_window_samples,
+        final_conv_length=2,
+    )
+    state_dict = torch.load(params_path, map_location=device)
+    model.load_state_dict(state_dict, strict=False)
+
+    # Freezing model
+    model.requires_grad_(requires_grad=False)
+
+    # Change conv_classifier layer to fine-tune
+    model.conv_classifier = nn.Conv2d(
+            200,
+            n_classes,
+            (2, 1),
+            stride=(1, 1),
+            bias=True)
+
+    model.softmax = nn.LogSoftmax(dim=1)
+    model.squeeze = Expression(squeeze_final_output)
+
+    return model
 
 
 def train_1phase(train_set, valid_set, model, double_channel=True, device='cpu'):
@@ -146,9 +178,8 @@ def train_2phase(train_set_all,
     return clf2
 
 
-def run_model(dataset, fake_set, model, normalize, double_channel, phase, save_path):
+def run_model(dataset, fake_set, model_load_path, normalize, double_channel, phase, save_path):
     input_window_samples = 1000
-    n_classes = 4
     if double_channel:
         n_chans = dataset[0][0].shape[0] * 2
     else:
@@ -158,6 +189,11 @@ def run_model(dataset, fake_set, model, normalize, double_channel, phase, save_p
     seed = 20200220
     set_random_seeds(seed=seed, cuda=cuda)
 
+    model = create_pretrained_model(n_chans=n_chans,
+                                    n_classes=4,
+                                    input_window_samples=input_window_samples,
+                                    params_path=model_load_path,
+                                    device=device)
     # Send model to GPU
     if cuda:
         model.cuda()
