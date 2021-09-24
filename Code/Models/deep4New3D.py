@@ -5,8 +5,8 @@ from torch.nn.functional import elu
 
 from braindecode.util import np_to_var
 
-from Code.Models.newDeepModules import Expression, AvgPool2dWithConv, Ensure5d
-from Code.Models.newDeepFunctions import identity, squeeze_final_output, transpose_time_to_spat2_3d
+from Code.Models.deepNewUtils.newDeepModules import Expression, AvgPool2dWithConv, Ensure5d
+from Code.Models.deepNewUtils.newDeepFunctions import identity, squeeze_final_output, transpose_time_to_spat2_3d
 
 
 class NewDeep4Net3D(nn.Sequential):
@@ -110,7 +110,7 @@ class NewDeep4Net3D(nn.Sequential):
                 nn.Conv3d(
                     self.n_filters_time,
                     self.n_filters_spat,
-                    (1, 3, 3),
+                    (1, 4, 4),
                     stride=(1, 1, 1),
                     bias=not self.batch_norm,
                 ),
@@ -120,21 +120,21 @@ class NewDeep4Net3D(nn.Sequential):
                     nn.Conv3d(
                         self.n_filters_time,
                         self.n_filters_spat,
-                        (1, 3, 3),
+                        (1, 4, 3),
                         stride=(1, 1, 1),
                         bias=not self.batch_norm,
                     ),
             )
-            self.add_module(
-                "conv_spat_3",
-                nn.Conv3d(
-                    self.n_filters_time,
-                    self.n_filters_spat,
-                    (1, 3, 2),
-                    stride=(1, 1, 1),
-                    bias=not self.batch_norm,
-                ),
-            )
+            # self.add_module(
+            #     "conv_spat_3",
+            #     nn.Conv3d(
+            #         self.n_filters_time,
+            #         self.n_filters_spat,
+            #         (1, 3, 2),
+            #         stride=(1, 1, 1),
+            #         bias=not self.batch_norm,
+            #     ),
+            # )
 
             n_filters_conv = self.n_filters_spat
         else:
@@ -251,11 +251,11 @@ class NewDeep4Net3D(nn.Sequential):
         if self.split_first_layer:
             init.xavier_uniform_(self.conv_spat.weight, gain=1)
             init.xavier_uniform_(self.conv_spat_2.weight, gain=1)
-            init.xavier_uniform_(self.conv_spat_3.weight, gain=1)
+            # init.xavier_uniform_(self.conv_spat_3.weight, gain=1)
             if not self.batch_norm:
                 init.constant_(self.conv_spat.bias, 0)
                 init.constant_(self.conv_spat_2.bias, 0)
-                init.constant_(self.conv_spat_3.bias, 0)
+                # init.constant_(self.conv_spat_3.bias, 0)
         if self.batch_norm:
             init.constant_(self.bnorm.weight, 1)
             init.constant_(self.bnorm.bias, 0)
