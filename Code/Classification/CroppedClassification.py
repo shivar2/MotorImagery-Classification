@@ -10,20 +10,14 @@ from braindecode.models.util import to_dense_prediction_model, get_output_shape
 from braindecode import EEGClassifier
 from braindecode.training.losses import CroppedLoss
 
-from Code.base import detect_device, load_data_object,\
-    create_model_deep4, create_model_shallow, cut_compute_windows,\
-    split_into_train_valid, get_test_data, plot
+from Code.base import detect_device, cut_compute_windows,\
+    split_into_train_valid, plot
 
 
-def train_cropped_trials(train_set, valid_set, model, model_name='shallow', device='cpu'):
-    if model_name == 'shallow':
-        # These values we found good for shallow network:
-        lr = 0.0625 * 0.01
-        weight_decay = 0
-    else:
-        # For deep4 they should be:
-        lr = 1 * 0.01
-        weight_decay = 0.5 * 0.001
+def train_cropped_trials(train_set, valid_set, model, device='cpu'):
+    # For deep4 they should be:
+    lr = 1 * 0.01
+    weight_decay = 0.5 * 0.001
 
     batch_size = 64
     n_epochs = 20
@@ -52,22 +46,13 @@ def train_cropped_trials(train_set, valid_set, model, model_name='shallow', devi
     return clf
 
 
-def run_model(data_load_path, model_name, save_path):
+def run_model(dataset, model, normalize, save_path):
     input_window_samples = 1000
-    cuda, device = detect_device()
-
-    seed = 20200220
-    set_random_seeds(seed=seed, cuda=cuda)
-
-    dataset = load_data_object(data_load_path)
-
-    n_classes = 4
     n_chans = dataset[0][0].shape[0]
 
-    if model_name == 'shallow':
-        model = create_model_shallow(input_window_samples, n_chans, n_classes)
-    else:
-        model = create_model_deep4(input_window_samples, n_chans, n_classes)
+    cuda, device = detect_device()
+    seed = 20200220
+    set_random_seeds(seed=seed, cuda=cuda)
 
     # Send model to GPU
     if cuda:
@@ -83,6 +68,7 @@ def run_model(data_load_path, model_name, save_path):
 
     windows_dataset = cut_compute_windows(dataset,
                                           n_preds_per_input,
+                                          normalize=normalize,
                                           input_window_samples=input_window_samples,
                                           trial_start_offset_seconds=trial_start_offset_seconds)
 
@@ -91,7 +77,6 @@ def run_model(data_load_path, model_name, save_path):
     clf = train_cropped_trials(train_set,
                                test_set,
                                model=model,
-                               model_name=model_name,
                                device=device)
 
     plot(clf, save_path)

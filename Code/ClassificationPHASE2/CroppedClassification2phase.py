@@ -11,9 +11,7 @@ from braindecode import EEGClassifier
 from braindecode.training.losses import CroppedLoss
 
 from Code.EarlyStopClass.EarlyStopClass import EarlyStopping
-from Code.base import detect_device, load_data_object,\
-    create_model_deep4, create_model_shallow, cut_compute_windows,\
-    split_into_train_valid, plot
+from Code.base import detect_device, cut_compute_windows, split_into_train_valid, plot
 
 
 def train_cropped_trials(train_set_all, model, save_path, device='cpu'):
@@ -103,22 +101,13 @@ def train_cropped_trials(train_set_all, model, save_path, device='cpu'):
     return clf2
 
 
-def run_model(data_load_path, model_name, save_path):
+def run_model(dataset, model, normalize, save_path):
     input_window_samples = 1000
-    cuda, device = detect_device()
-
-    seed = 20200220
-    set_random_seeds(seed=seed, cuda=cuda)
-
-    dataset = load_data_object(data_load_path)
-
-    n_classes = 4
     n_chans = dataset[0][0].shape[0]
 
-    if model_name == 'shallow':
-        model = create_model_shallow(input_window_samples, n_chans, n_classes)
-    else:
-        model = create_model_deep4(input_window_samples, n_chans, n_classes)
+    cuda, device = detect_device()
+    seed = 20200220
+    set_random_seeds(seed=seed, cuda=cuda)
 
     # Send model to GPU
     if cuda:
@@ -134,6 +123,7 @@ def run_model(data_load_path, model_name, save_path):
 
     windows_dataset = cut_compute_windows(dataset,
                                           n_preds_per_input,
+                                          normalize=normalize,
                                           input_window_samples=input_window_samples,
                                           trial_start_offset_seconds=trial_start_offset_seconds)
 
