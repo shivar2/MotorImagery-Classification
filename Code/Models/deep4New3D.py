@@ -5,8 +5,8 @@ from torch.nn.functional import elu
 
 from braindecode.util import np_to_var
 
-from Code.Models.newDeepModules import Expression, AvgPool2dWithConv, Ensure5d
-from Code.Models.newDeepFunctions import identity, squeeze_final_output, transpose_time_to_spat2_3d
+from Code.Models.deepNewUtils.newDeepModules import Expression, AvgPool2dWithConv, Ensure5d
+from Code.Models.deepNewUtils.newDeepFunctions import identity, squeeze_final_output, transpose_time_to_spat2_3d
 
 
 class NewDeep4Net3D(nn.Sequential):
