@@ -1,6 +1,6 @@
 import os
 
-from Code.ClassificationPHASE2.FinalClassification2phase import run_model
+from Code.ClassificationPHASE2.FinalCustomClassification2phase import run_model
 
 fake_k = 3
 subject_id_list = [1]
@@ -13,7 +13,9 @@ for subject_id in subject_id_list:
     model_load_path = '../../../Model_Params/Pretrained_Models/22channels/0-f/'
 
     # Save results
-    save_path = os.path.join('../../../Model_Params/Final_Classification/phase2/22channels/0-38/' + str(subject_id)) + '/Run 2/'
+    save_path = os.path.join('../../../Model_Params/Final_Classification/phase2/22channels/0-38/' +
+                             str(subject_id)) + '/Run 2/'
+
     if not os.path.exists(save_path):
         os.makedirs(save_path)
 
@@ -24,5 +26,5 @@ for subject_id in subject_id_list:
               fake_k=fake_k,
               double_channel=False,
               model_load_path=model_load_path,
-              params_name='params_19.pt',
+              params_name='params2.pt',
               save_path=save_path)

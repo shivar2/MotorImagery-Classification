@@ -1,29 +1,31 @@
 import os
 
 from Code.base import load_data_object, create_model_deep4,\
-    create_model_newDeep4, create_model_newDeep4_3d
+    create_model_newDeep4, create_model_newDeep4_3d, load_fake_data
 
-from Code.Preprocess.MIpreprocess import add_channel_to_raw
-from Code.Classification import HGDCroppedClassification
+from Code.Classification import GanClassification
 
 # Run Info
 subject_id_list = [1]
 phase_number = '2'
 model_name = "deep4"
-channels = 44
-
 normalize = True
 if normalize:
     normalize_str = 'Normalize/'
 else:
     normalize_str = 'notNormalize/'
 
+# Fake data info
+fake_k = 2
+gan_version = 'WGan-GP-Signal-VERSION5/'
+
 for subject_id in subject_id_list:
     # data
-    data_load_path = os.path.join('../../../Data/Real_Data/HGD/22channels/0-f/' + str(subject_id)) + '/'
+    data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/' + str(subject_id)) + '/'
     dataset = load_data_object(data_load_path)
-    if channels == 42:
-        dataset = add_channel_to_raw(dataset)
+
+    fake_data_load_path = os.path.join('../../../Data/Fake_Data/' + gan_version + str(subject_id)) + '/Runs/'
+    fake_set = load_fake_data(fake_data_load_path, fake_k)
 
     input_window_samples = 1000
     n_classes = 4
@@ -40,12 +42,11 @@ for subject_id in subject_id_list:
 
     # Path to saving Models
     # mkdir path to save
-    save_path = os.path.join('../../../Model_Params/HGD_Models/42channels/0-f/' +
-                             model_name + '/' + phase_number + '/' + normalize_str + str(subject_id)) + '/'
+    save_path = os.path.join('../../../Model_Params/FakeClassification/0-38/' +
+                             model_name + '/' + phase_number + '/' + normalize_str + str(fake_k) + '/' + str(subject_id)) + '/'
 
     if not os.path.exists(save_path):
         os.makedirs(save_path)
 
-    HGDCroppedClassification.run_model(dataset=dataset, model=model, normalize=normalize, phase=phase_number, save_path=save_path)
-
-
+    GanClassification.run_model(dataset=dataset, fake_set=fake_set, model=model, normalize=normalize,
+                                phase=phase_number, save_path=save_path)
