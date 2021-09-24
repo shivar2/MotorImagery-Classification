@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 import pandas as pd
 
+from braindecode.datasets.base import BaseConcatDataset
 from braindecode.datautil.serialization import load_concat_dataset
 from braindecode.models import ShallowFBCSPNet, Deep4Net
 from braindecode.datautil.windowers import create_windows_from_events
@@ -35,6 +36,23 @@ def load_data_object(data_path):
         target_name=None,)
 
     return dataset
+
+
+def load_all_data_object(data_path):
+    subject_id_list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+    dataset_all = []
+
+    for subject in subject_id_list:
+        dataset = load_concat_dataset(
+            path=data_path + str(subject) + '/',
+            preload=True,
+            target_name=None,)
+        dataset_all.append(dataset)
+        del dataset
+
+    dataset_obj = BaseConcatDataset(dataset_all)
+
+    return dataset_obj
 
 
 def load_fake_data_oneByOne(fake_data_path, fake_k_ind):
@@ -139,6 +157,22 @@ def split_into_train_valid(windows_dataset, use_final_eval):
         valid_set = splitted['session_E']
     else:
         full_train_set = splitted['session_T']
+        n_split = int(np.round(0.8 * len(full_train_set)))
+        # ensure this is multiple of 2 (number of windows per trial)
+        n_windows_per_trial = 2  # here set by hand
+        n_split = n_split - (n_split % n_windows_per_trial)
+        valid_set = Subset(full_train_set, range(n_split, len(full_train_set)))
+        train_set = Subset(full_train_set, range(0, n_split))
+    return train_set, valid_set
+
+
+def split_hgd_into_train_valid(windows_dataset, use_final_eval):
+    splitted = windows_dataset.split('run')
+    if use_final_eval:
+        train_set = splitted['train']
+        valid_set = splitted['test']
+    else:
+        full_train_set = splitted['train']
         n_split = int(np.round(0.8 * len(full_train_set)))
         # ensure this is multiple of 2 (number of windows per trial)
         n_windows_per_trial = 2  # here set by hand
