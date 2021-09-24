@@ -11,6 +11,10 @@ subject_id_list = [1]
 phase_number = '2'
 model_name = "deep4"
 normalize = True
+if normalize:
+    normalize_str = 'Normalize/'
+else:
+    normalize_str = 'notNormalize/'
 
 # Fake data info
 fake_k = 2
@@ -40,7 +44,7 @@ for subject_id in subject_id_list:
     # Path to saving Models
     # mkdir path to save
     save_path = os.path.join('../../../Model_Params/Fake_Cropped_Classification/0-38/' +
-                             model_name + '/' + phase_number + '/' + str(fake_k) + '/' + str(subject_id)) + '/'
+                             model_name + '/' + phase_number + '/' + normalize_str + str(fake_k) + '/' + str(subject_id)) + '/'
 
     if not os.path.exists(save_path):
         os.makedirs(save_path)
