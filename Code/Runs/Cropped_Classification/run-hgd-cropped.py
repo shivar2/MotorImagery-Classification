@@ -11,7 +11,7 @@ from Code.Classification import HGDCroppedClassification
 from Code.Models.deepNewUtils import deep4New3dutils
 
 # Run Info
-subject_id_list = [12]
+subject_id_list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
 phase_number = '2'
 model_name = "deep43D"
 channels = 42
@@ -61,7 +61,7 @@ for subject_id in subject_id_list:
 
     # Path to saving Models
     # mkdir path to save
-    save_path = os.path.join('../../../Model_Params/HGD_Models/' + '22channels/' + '0-f/' +
+    save_path = os.path.join('../../../Model_Params/HGD_Models/' + '42channels/' + '0-f/' +
                              model_name + '/' + phase_number + ' - ' + normalize_str + str(subject_id)) + '/'
 
     if not os.path.exists(save_path):
