@@ -66,7 +66,8 @@ for subject_id in subject_id_list:
         # Path to saving Models
         # mkdir path to save
         save_path = os.path.join('../../../Model_Params/FakeClassification-each/0-38/' +
-                                 model_name + '/' + phase_number + ' - ' + normalize_str + str(subject_id)) + ' - '
+                                 model_name + '/' + phase_number + ' - ' + normalize_str +
+                                 str(subject_id)) + ' / ' + 'fake number ' + str(fake_ind) +'/'
 
         if not os.path.exists(save_path):
             os.makedirs(save_path)
