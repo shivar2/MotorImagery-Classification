@@ -150,7 +150,7 @@ def run_model(dataset, model, normalize, phase, n_preds_per_input, device, save_
 
     train_set, test_set = split_into_train_valid(windows_dataset, use_final_eval=True)
 
-    if phase == 1:
+    if phase == '1':
         clf = train_1phase(train_set, test_set, model=model, device=device)
     else:
         clf = train_2phase(train_set, model=model, save_path=save_path, device=device)
