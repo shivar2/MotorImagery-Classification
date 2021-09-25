@@ -136,7 +136,7 @@ def split_hgd_into_train_valid(windows_dataset, use_final_eval):
         valid_set = splitted['test']
     else:
         full_train_set = splitted['train']
-        n_split = int(np.round(0.8 * len(full_train_set)))
+        n_split = int(np.round(0.7 * len(full_train_set)))
         # ensure this is multiple of 2 (number of windows per trial)
         n_windows_per_trial = 2  # here set by hand
         n_split = n_split - (n_split % n_windows_per_trial)
