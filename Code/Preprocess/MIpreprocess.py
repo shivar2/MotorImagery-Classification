@@ -71,7 +71,7 @@ def basic_preprocess(dataset, low_cut_hz=4., high_cut_hz=38., factor_new=1e-3, i
                  'demean': exponential_moving_demean}[exponential_moving_fn]
 
     preprocessors = [
-        MNEPreproc(fn='pick_channels', ch_names=A, ordered=True),
+        MNEPreproc(fn='pick_channels', ch_names=C_22_sensors, ordered=True),
         NumpyPreproc(fn=lambda x: x * 1e6),
         NumpyPreproc(fn=lambda x: np.clip(x, -800, 800)),
     ]
