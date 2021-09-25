@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 
-from skorch.callbacks import Checkpoint
+from skorch.callbacks import LRScheduler, Checkpoint
 from skorch.helper import predefined_split
 
 from braindecode import EEGClassifier
@@ -12,12 +12,47 @@ from Code.EarlyStopClass.EarlyStopClass import EarlyStopping
 from Code.base import cut_compute_windows, plot, split_hgd_into_train_valid, get_results, detect_device
 
 
+def train_1phase(train_set, valid_set, model, device='cpu'):
+    # For deep4 they should be:
+    lr = 1 * 0.01
+    weight_decay = 0.5 * 0.001
+
+    batch_size = 64
+    n_epochs = 35
+
+    callbacks = [
+        "accuracy",
+        ("lr_scheduler", LRScheduler('CosineAnnealingLR', T_max=n_epochs - 1)),
+    ]
+
+    clf = EEGClassifier(
+        model,
+        cropped=True,
+        max_epochs=n_epochs,
+        criterion=CroppedLoss,
+        criterion__loss_function=torch.nn.functional.nll_loss,
+        optimizer=torch.optim.AdamW,
+        train_split=predefined_split(valid_set),
+        optimizer__lr=lr,
+        optimizer__weight_decay=weight_decay,
+        iterator_train__shuffle=True,
+        batch_size=batch_size,
+        callbacks=callbacks,
+        device=device,
+    )
+    clf.fit(train_set, y=None)
+    return clf
+
+
 def train_2phase(train_set_all, model, save_path, device='cpu'):
 
     train_set, valid_set = split_hgd_into_train_valid(train_set_all, use_final_eval=False)
 
     batch_size = 64
     n_epochs = 800
+
+    lr = 0.1 * 0.01
+    weight_decay = 0
 
     # Checkpoint will save the model with the lowest valid_loss
     cp = Checkpoint(monitor='valid_accuracy_best',
@@ -117,7 +152,10 @@ def run_model(dataset, model, normalize, phase, n_preds_per_input, device, save_
 
     train_set_all, test_set = split_hgd_into_train_valid(windows_dataset, use_final_eval=True)
 
-    clf = train_2phase(train_set_all, model=model, save_path=save_path, device=device)
+    if phase == '1':
+        clf = train_1phase(train_set_all, test_set, model=model, device=device)
+    else:
+        clf = train_2phase(train_set_all, model=model, save_path=save_path, device=device)
 
     plot(clf, save_path)
 
