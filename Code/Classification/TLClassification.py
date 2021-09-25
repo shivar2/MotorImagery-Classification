@@ -6,60 +6,74 @@ from torch.nn.functional import elu
 from skorch.callbacks import LRScheduler, Checkpoint
 from skorch.helper import predefined_split
 
-from braindecode.datasets.base import BaseConcatDataset
-from braindecode.util import set_random_seeds
-from braindecode.models.util import to_dense_prediction_model, get_output_shape
 from braindecode.training.losses import CroppedLoss
-from braindecode.models import Deep4Net
-from braindecode.models.modules import Expression
-from braindecode.models.functions import squeeze_final_output
 
 from Code.Classifier.EEGTLClassifier import EEGTLClassifier
 
 from Code.EarlyStopClass.EarlyStopClass import EarlyStopping
 from Code.base import detect_device, cut_compute_windows, split_into_train_valid, plot, get_results
 
+from braindecode.models.modules import Expression, Ensure4d
+from braindecode.models.functions import identity, transpose_time_to_spat, squeeze_final_output
 
-def create_pretrained_model(params_path, device, n_chans=22, n_classes=4, input_window_samples=1000):
-    model = Deep4Net(
-        in_chans=n_chans,
-        n_classes=n_classes,
-        input_window_samples=input_window_samples,
-        final_conv_length=2,
-    )
-    state_dict = torch.load(params_path, map_location=device)
-    model.load_state_dict(state_dict, strict=False)
 
+def freezing_model(model, layer):
     # Freezing model
     model.requires_grad_(requires_grad=False)
 
-    # Change conv_classifier layer to fine-tune
-    model.conv_classifier = nn.Conv2d(
-            200,
-            n_classes,
-            (2, 1),
-            stride=(1, 1),
-            bias=True)
+    if layer == 1:
+        # model.ensuredims = Ensure4d()
+        # model.dimshuffle = Expression(transpose_time_to_spat)
+        model.conv_time = nn.Conv2d(1, 25, kernel_size=(10, 1), stride=(1, 1))
+        model.conv_spat = nn.Conv2d(25, 25, kernel_size=(1, 22), stride=(1, 1), bias=False)
+        model.conv_bnorm = nn.BatchNorm2d(25, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        model.conv_nonlin = Expression(elu)
+        model.pool = nn.MaxPool2d(kernel_size=(3, 1), stride=(3, 1), padding=0, dilation=1, ceil_mode=False)
+        model.pool_nonlin = Expression(identity)
 
-    model.softmax = nn.LogSoftmax(dim=1)
-    model.squeeze = Expression(squeeze_final_output)
+    elif layer == 2:
+        model.drop_2 = nn.Dropout(p=0.5, inplace=False)
+        model.conv_2 = nn.Conv2d(25, 50, kernel_size=(10, 1), stride=(1, 1), bias=False)
+        model.bnorm_2 = nn.BatchNorm2d(50, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        model.nonlin_2 = Expression(elu)
+        model.pool_2 = nn.MaxPool2d(kernel_size=(3, 1), stride=(3, 1), padding=0, dilation=1, ceil_mode=False)
+        model.pool_nonlin_2 = Expression(identity)
+
+    elif layer == 3:
+        model.drop_3 = nn.Dropout(p=0.5, inplace=False)
+        model.conv_3 = nn.Conv2d(50, 100, kernel_size=(10, 1), stride=(1, 1), bias=False)
+        model.bnorm_3 = nn.BatchNorm2d(100, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        model.nonlin_3 = Expression(elu)
+        model.pool_3 = nn.MaxPool2d(kernel_size=(3, 1), stride=(3, 1), padding=0, dilation=1, ceil_mode=False)
+        model.pool_nonlin_3 = Expression(identity)
+
+    elif layer == 4:
+        model.drop_4 = nn.Dropout(p=0.5, inplace=False)
+        model.conv_4 = nn.Conv2d(100, 200, kernel_size=(10, 1), stride=(1, 1), bias=False)
+        model.bnorm_4 = nn.BatchNorm2d(200, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        model.nonlin_4 = Expression(elu)
+        model.pool_4 = nn.MaxPool2d(kernel_size=(3, 1), stride=(3, 1), padding=0, dilation=1, ceil_mode=False)
+        model.pool_nonlin_4 = Expression(identity)
+
+    elif layer == 5:
+        model.conv_classifier = nn.Conv2d(200, 4, kernel_size=(2, 1), stride=(1, 1))
+        model.softmax = nn.LogSoftmax(dim=1)
+        model.squeeze = Expression(squeeze_final_output)
 
     return model
 
 
-def train_2phase(train_set, valid_set, save_path, model, double_channel=False, device='cpu'):
-    
-    # For deep4 they should be:
-    lr = 1 * 0.01
-    weight_decay = 0.5 * 0.001
+def train_2phase(train_set_all, save_path, model, double_channel=False, device='cpu'):
+    train_set, valid_set = split_into_train_valid(train_set_all, use_final_eval=False)
 
     batch_size = 64
+    # Freezing model
+    model.requires_grad_(requires_grad=False)
 
     # PHASE 1
+    n_epochs = 800
 
-    n_epochs = 20
-
-    # Checkpoint will save the history 
+    # Checkpoint will save the history
     cp = Checkpoint(monitor='valid_accuracy_best',
                     f_params="params1.pt",
                     f_optimizer="optimizers1.pt",
@@ -76,6 +90,8 @@ def train_2phase(train_set, valid_set, save_path, model, double_channel=False, d
         ("lr_scheduler", LRScheduler('CosineAnnealingLR', T_max=n_epochs - 1)),
     ]
 
+    model = freezing_model(model, layer=5)
+
     clf1 = EEGTLClassifier(
         model,
         double_channel=double_channel,
@@ -86,8 +102,6 @@ def train_2phase(train_set, valid_set, save_path, model, double_channel=False, d
         criterion__loss_function=torch.nn.functional.nll_loss,
         optimizer=torch.optim.AdamW,
         train_split=predefined_split(valid_set),
-        optimizer__lr=lr,
-        optimizer__weight_decay=weight_decay,
         iterator_train__shuffle=True,
         batch_size=batch_size,
         callbacks=callbacks,
@@ -143,13 +157,12 @@ def train_2phase(train_set, valid_set, save_path, model, double_channel=False, d
     clf2.load_params(f_params=save_path + "params1.pt",
                      f_optimizer=save_path + "optimizers1.pt",
                      f_history=save_path + "history1.json")
-    phase2_train = BaseConcatDataset([train_set, valid_set])
-    clf2.fit(phase2_train, y=None)
+
+    clf2.fit(train_set_all, y=None)
     return clf2
 
 
-def run_model(dataset, model_load_path, normalize, double_channel, phase, save_path):
-
+def run_model(dataset, model, normalize, double_channel, phase, n_preds_per_input, device, save_path):
     input_window_samples = 1000
     n_classes = 4
     # Extract number of chans and time steps from dataset
@@ -157,22 +170,6 @@ def run_model(dataset, model_load_path, normalize, double_channel, phase, save_p
         n_chans = dataset[0][0].shape[0] * 2
     else:
         n_chans = dataset[0][0].shape[0]
-
-    cuda, device = detect_device()
-    seed = 20200220
-    set_random_seeds(seed=seed, cuda=cuda)
-
-    model = create_pretrained_model(n_chans=n_chans,
-                                    n_classes=4,
-                                    input_window_samples=input_window_samples,
-                                    params_path=model_load_path,
-                                    device=device)
-    # Send model to GPU
-    if cuda:
-        model.cuda()
-
-    to_dense_prediction_model(model)
-    n_preds_per_input = get_output_shape(model, n_chans, input_window_samples)[2]
 
     trial_start_offset_seconds = -0.5
 
@@ -184,7 +181,7 @@ def run_model(dataset, model_load_path, normalize, double_channel, phase, save_p
 
     train_set, test_set = split_into_train_valid(windows_dataset, use_final_eval=True)
 
-    clf = train_2phase(train_set, test_set, model=model, save_path=save_path,
+    clf = train_2phase(train_set, model=model, save_path=save_path,
                        double_channel=double_channel, device=device)
 
     plot(clf, save_path)
