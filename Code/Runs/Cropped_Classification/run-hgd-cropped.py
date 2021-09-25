@@ -11,7 +11,7 @@ from Code.Classification import HGDCroppedClassification
 from Code.Models.deepNewUtils import deep4New3dutils
 
 # Run Info
-subject_id_list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+subject_id_list = [12]
 phase_number = '2'
 model_name = "deep43D"
 channels = 42

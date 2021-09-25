@@ -7,9 +7,10 @@ from skorch.callbacks import LRScheduler, Checkpoint
 
 from braindecode import EEGClassifier
 from braindecode.training.losses import CroppedLoss
+from braindecode.util import set_random_seeds
 
 from Code.EarlyStopClass.EarlyStopClass import EarlyStopping
-from Code.base import cut_compute_windows, split_into_train_valid, plot, get_results
+from Code.base import cut_compute_windows, split_into_train_valid, plot, get_results, detect_device
 
 
 def train_1phase(train_set, valid_set, model, device='cpu'):
@@ -132,6 +133,10 @@ def train_2phase(train_set_all, model, save_path, device='cpu'):
 
 
 def run_model(dataset, model, normalize, phase, n_preds_per_input, device, save_path):
+    cuda, device = detect_device()
+    seed = 20200220
+    set_random_seeds(seed=seed, cuda=cuda)
+
     input_window_samples = 1000
     n_chans = dataset[0][0].shape[0]
 
