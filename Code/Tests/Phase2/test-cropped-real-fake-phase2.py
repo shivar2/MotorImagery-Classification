@@ -39,6 +39,7 @@ def test_clf(data_load_path, clf_load_path, save_path):
 
     windows_dataset = cut_compute_windows(dataset,
                                           n_preds_per_input,
+                                          normalize=True,
                                           input_window_samples=input_window_samples,
                                           trial_start_offset_seconds=trial_start_offset_seconds)
 
@@ -97,19 +98,29 @@ def test_clf(data_load_path, clf_load_path, save_path):
 #   Test Cropped And Fake Classification
 ########################################
 
-subject_id_list = [9]
+subject_id_list = [2]
 for subject_id in subject_id_list:
-    data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/' + str(subject_id)) + '/'
+    for fake_ind in range(0, 6):
+        data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels/' + str(subject_id)) + '/'
 
-    # clf_load_path = os.path.join('../../../Model_Params/BCI_Models/phase2/0-38/' + str(subject_id)) + '/Run 1/'
-    clf_load_path = os.path.join('../../../Model_Params/Fake_Cropped_Classification/phase2/0-38/' +
-                                 str(subject_id)) + '/Run 2/'
+        # clf_load_path = os.path.join('../../../Model_Params/BCI_Models/phase2/0-38/' + str(subject_id)) + '/Run 1/'
+        # clf_load_path = os.path.join('../../../Model_Params/FakeClassification/phase2/0-38/' +
+        #                              str(subject_id)) + '/Run 2/'
 
-    # save_path = os.path.join('../../../Result/BCI_Models/phase2/0-38/' + str(subject_id)) + '/Run 1/'
-    save_path = os.path.join('../../../Result/Fake_Cropped_Classification-MAX/phase2/0-38/' +
-                             str(subject_id)) + '/Run 2/'
+        clf_load_path = os.path.join('../../../Model_Params/FakeClassification-each/0-38/' +
+                                     'deep4/' + 'phase2' + ' - ' + 'normalize/' +
+                                     str(subject_id)) + '/' + 'fake number ' + str(fake_ind) + '/'
 
-    if not os.path.exists(save_path):
-        os.makedirs(save_path)
 
-    test_clf(data_load_path=data_load_path, clf_load_path=clf_load_path, save_path=save_path)
+        # save_path = os.path.join('../../../Result/BCI_Models/phase2/0-38/' + str(subject_id)) + '/Run 1/'
+        # save_path = os.path.join('../../../Result/Fake_Cropped_Classification-MAX/phase2/0-38/' +
+        #                          str(subject_id)) + '/Run 2/'
+
+        save_path = os.path.join('../../../Result/FakeClassification-each/0-38/' +
+                                     'deep4' + '/' + 'phase2' + ' - ' + 'normalize/' +
+                                     str(subject_id) + '/' + 'fake number ' + str(fake_ind) + '/')
+
+        if not os.path.exists(save_path):
+            os.makedirs(save_path)
+
+        test_clf(data_load_path=data_load_path, clf_load_path=clf_load_path, save_path=save_path)
