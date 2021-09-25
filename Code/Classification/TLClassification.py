@@ -22,8 +22,8 @@ def freezing_model(model, layer):
     model.requires_grad_(requires_grad=False)
 
     if layer == 1:
-        # model.ensuredims = Ensure4d()
-        # model.dimshuffle = Expression(transpose_time_to_spat)
+        model.ensuredims = Ensure4d()
+        model.dimshuffle = Expression(transpose_time_to_spat)
         model.conv_time = nn.Conv2d(1, 25, kernel_size=(10, 1), stride=(1, 1))
         model.conv_spat = nn.Conv2d(25, 25, kernel_size=(1, 22), stride=(1, 1), bias=False)
         model.conv_bnorm = nn.BatchNorm2d(25, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
@@ -67,8 +67,6 @@ def train_2phase(train_set_all, save_path, model, double_channel=False, device='
     train_set, valid_set = split_into_train_valid(train_set_all, use_final_eval=False)
 
     batch_size = 64
-    # Freezing model
-    model.requires_grad_(requires_grad=False)
 
     # PHASE 1
     n_epochs = 800
