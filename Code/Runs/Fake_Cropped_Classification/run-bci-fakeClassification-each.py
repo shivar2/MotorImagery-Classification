@@ -10,7 +10,7 @@ from Code.Classification import GanClassification
 from Code.Models.deepNewUtils import deep4New3dutils
 
 # Run Info
-subject_id_list = [1]
+subject_id_list = [6]
 phase_number = '2'
 model_name = "deep4"
 normalize = True
@@ -35,7 +35,7 @@ for subject_id in subject_id_list:
         dataset = load_data_object(data_load_path)
 
         fake_data_load_path = os.path.join('../../../Data/Fake_Data/' + gan_version + str(subject_id)) + '/Runs/'
-        fake_set = load_fake_data_oneByOne(fake_data_load_path, fake_k)
+        fake_set = load_fake_data_oneByOne(fake_data_load_path, fake_ind)
 
         input_window_samples = 1000
         n_classes = 4
@@ -67,7 +67,7 @@ for subject_id in subject_id_list:
         # mkdir path to save
         save_path = os.path.join('../../../Model_Params/FakeClassification-each/0-38/' +
                                  model_name + '/' + phase_number + ' - ' + normalize_str +
-                                 str(subject_id)) + ' / ' + 'fake number ' + str(fake_ind) +'/'
+                                 str(subject_id)) + '/' + 'fake number ' + str(fake_ind) + '/'
 
         if not os.path.exists(save_path):
             os.makedirs(save_path)
