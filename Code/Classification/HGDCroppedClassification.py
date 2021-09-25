@@ -99,7 +99,7 @@ def train_2phase(train_set_all, model, save_path, device='cpu'):
     return clf2
 
 
-def run_model(dataset, model, normalize, phase, n_preds_per_input, save_path):
+def run_model(dataset, model, normalize, phase, n_preds_per_input, device, save_path):
     cuda, device = detect_device()
     seed = 20200220
     set_random_seeds(seed=seed, cuda=cuda)
