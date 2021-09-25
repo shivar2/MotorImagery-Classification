@@ -12,7 +12,7 @@ from Code.EarlyStopClass.EarlyStopClass import EarlyStopping
 from Code.base import cut_compute_windows, plot, split_hgd_into_train_valid, get_results, detect_device
 
 
-def train_1phase(train_set, valid_set, model, device='cpu'):
+def train_1phase(train_set, valid_set, model, save_path, device='cpu'):
     # For deep4 they should be:
     lr = 1 * 0.01
     weight_decay = 0.5 * 0.001
@@ -20,8 +20,15 @@ def train_1phase(train_set, valid_set, model, device='cpu'):
     batch_size = 64
     n_epochs = 35
 
+    cp = Checkpoint(monitor=None,
+                    f_params="params_{last_epoch[epoch]}.pt",
+                    f_optimizer="optimizer_{last_epoch[epoch]}.pt",
+                    f_history="history.json",
+                    dirname=save_path, f_criterion=None)
+
     callbacks = [
         "accuracy",
+        ('cp', cp),
         ("lr_scheduler", LRScheduler('CosineAnnealingLR', T_max=n_epochs - 1)),
     ]
 
@@ -50,9 +57,6 @@ def train_2phase(train_set_all, model, save_path, device='cpu'):
 
     batch_size = 64
     n_epochs = 800
-
-    lr = 0.1 * 0.01
-    weight_decay = 0
 
     # Checkpoint will save the model with the lowest valid_loss
     cp = Checkpoint(monitor='valid_accuracy_best',
@@ -153,7 +157,7 @@ def run_model(dataset, model, normalize, phase, n_preds_per_input, device, save_
     train_set_all, test_set = split_hgd_into_train_valid(windows_dataset, use_final_eval=True)
 
     if phase == '1':
-        clf = train_1phase(train_set_all, test_set, model=model, device=device)
+        clf = train_1phase(train_set_all, test_set, model=model, save_path=save_path, device=device)
     else:
         clf = train_2phase(train_set_all, model=model, save_path=save_path, device=device)
 
