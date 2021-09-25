@@ -10,10 +10,10 @@ from Code.Classification import CroppedClassification
 from Code.Models.deepNewUtils import deep4New3dutils
 
 # Run Info
-subject_id_list = [1]
+subject_id_list = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 phase_number = '2'
-model_name = "deep4"
-normalize = True
+model_name = "deep4New"
+normalize = False
 
 if normalize:
     normalize_str = 'normalize/'
@@ -26,7 +26,7 @@ set_random_seeds(seed=seed, cuda=cuda)
 
 for subject_id in subject_id_list:
     # data
-    data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels/' + str(subject_id)) + '/'
+    data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/42channels/' + str(subject_id)) + '/'
     dataset = load_data_object(data_load_path)
 
     input_window_samples = 1000

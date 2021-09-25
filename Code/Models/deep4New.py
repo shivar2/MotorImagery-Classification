@@ -6,7 +6,7 @@ from torch.nn.functional import elu
 from braindecode.util import np_to_var
 
 from Code.Models.deepNewUtils.newDeepModules import Expression, AvgPool2dWithConv, Ensure4d, ReshapeTo
-from Code.Models.deepNewUtils.newDeepFunctions import identity, transpose_time_to_spat, squeeze_final_output, transpose_time_to_spat2
+from Code.Models.deepNewUtils.newDeepFunctions import identity, transpose_time_to_spat, squeeze_final_output_new, transpose_time_to_spat2
 
 
 class NewDeep4Net(nn.Sequential):
@@ -222,7 +222,7 @@ class NewDeep4Net(nn.Sequential):
             ),
         )
         self.add_module("softmax", nn.LogSoftmax(dim=1))
-        self.add_module("squeeze", Expression(squeeze_final_output))
+        self.add_module("squeeze", Expression(squeeze_final_output_new))
 
         # Initialization, xavier is same as in our paper...
         # was default from lasagne
