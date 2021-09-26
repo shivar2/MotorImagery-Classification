@@ -118,7 +118,7 @@ for key, value in mapping.items():
         #########################
 
         batchsize = 64
-        epochs = 1500
+        epochs = 2500
 
         net = WGANGP(subject=subject_id,
                      n_epochs=epochs,
