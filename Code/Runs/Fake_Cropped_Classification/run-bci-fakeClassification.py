@@ -10,7 +10,7 @@ from Code.Classification import GanClassification
 from Code.Models.deepNewUtils import deep4New3dutils
 
 # Run Info
-subject_id_list = [1]
+subject_id_list = [9]
 phase_number = '2'
 model_name = "deep4"
 normalize = True
@@ -32,7 +32,7 @@ for subject_id in subject_id_list:
     data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels/' + str(subject_id)) + '/'
     dataset = load_data_object(data_load_path)
 
-    fake_data_load_path = os.path.join('../../../Data/Fake_Data/' + gan_version +'MaxNormalize/'+ str(subject_id)) + '/Runs/'
+    fake_data_load_path = os.path.join('../../../Data/Fake_Data/' + gan_version + str(subject_id)) + '/Runs/'
     fake_set = load_fake_data(fake_data_load_path, fake_k)
 
     input_window_samples = 1000
