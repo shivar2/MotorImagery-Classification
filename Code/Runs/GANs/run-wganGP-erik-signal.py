@@ -52,7 +52,7 @@ def get_data(data_load_path,
 
     i = 0
     events_num = train_set.datasets[0].windows.events.shape[0]
-    runs_num = len(dataset.datasets)
+    runs_num = len(train_set.datasets)
     epochs_num = events_num * runs_num
 
     data = np.empty(shape=(epochs_num, n_chans, time_sample))
@@ -66,8 +66,8 @@ def get_data(data_load_path,
 #########################
 # load data             #
 #########################
-subject_id = 4
-data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/' + str(subject_id)) + '/'
+subject_id = 1
+data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels/' + str(subject_id)) + '/'
 
 time_sample = 1000
 window_stride_samples = 467

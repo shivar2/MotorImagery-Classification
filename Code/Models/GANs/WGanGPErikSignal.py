@@ -23,8 +23,8 @@ class WGANGP(nn.Module):
         self.n_epochs = n_epochs                            # number of epochs of training
         self.batch_size = batch_size                        # size of the batches
         self.lr = 0.001                                    # adam: learning rate
-        self.b1 = 0.555                                      # adam: decay of first order momentum of gradient
-        self.b2 = 0.95                                     # adam: decay of first order momentum of gradient
+        self.b1 = 0.5                                      # adam: decay of first order momentum of gradient
+        self.b2 = 0.999                                     # adam: decay of first order momentum of gradient
         self.n_cpu = 8                                      # number of cpu threads to use during batch generation
         self.noise = 100                                    # dimensionality of the latent space
         self.time_sample = time_sample                      # size of each image dimension
@@ -217,8 +217,8 @@ class WGANGP(nn.Module):
         plt.legend(['Generator', 'Discriminator'])
         plt.grid()
         plt.savefig("%s/%s-.png" % (self.dir, 'results-plot'))
-        # plt.show()
-        plt.close()
+        plt.show()
+        # plt.close()
 
         # Save subject and task data such that it can be used to generate
         # Fake samples later
