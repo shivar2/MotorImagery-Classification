@@ -26,7 +26,11 @@ set_random_seeds(seed=seed, cuda=cuda)
 
 for subject_id in subject_id_list:
     # data
-    data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/42channels/' + str(subject_id)) + '/'
+    if model_name == 'deep4':
+        data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels/' + str(subject_id)) + '/'
+    else:
+        data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/42channels/' + str(subject_id)) + '/'
+
     dataset = load_data_object(data_load_path)
 
     input_window_samples = 1000
