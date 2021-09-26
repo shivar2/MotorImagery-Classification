@@ -217,8 +217,8 @@ class WGANGP(nn.Module):
         plt.legend(['Generator', 'Discriminator'])
         plt.grid()
         plt.savefig("%s/%s-.png" % (self.dir, 'results-plot'))
-        plt.show()
-        # plt.close()
+        # plt.show()
+        plt.close()
 
         # Save subject and task data such that it can be used to generate
         # Fake samples later
