@@ -154,9 +154,9 @@ def tanhNormalize(data):
 
 
 def MaxNormalize(data):
-    max = np.max(data)
-    if max == 0:
-        max = 0.00001
+    max = np.max(data, keepdims=True, axis=-1)
+    # if max == 0:
+    #     max = 0.00001
     normal_data = data / max
     return normal_data
 
