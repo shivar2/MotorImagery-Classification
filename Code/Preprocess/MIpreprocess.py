@@ -32,6 +32,28 @@ def load_preprocessed_data(data_path='../Dataset-Files/data-file/', subject_id=1
     return dataset
 
 
+def besic_raw_preprocess(dataset, low_cut_hz=4., high_cut_hz=38.):
+    C_22_sensors = [
+        'FC1', 'FC2',
+        'C3', 'Cz', 'C4',
+        'CP1', 'CP2',
+        'FC3', 'FCz', 'FC4', 'C5', 'C1', 'C2', 'C6',
+        'CP3', 'CPz', 'CP4',
+        'Fz', 'P1', 'Pz', 'P2', 'POz']
+
+    preprocessors = [
+        MNEPreproc(fn='pick_channels', ch_names=C_22_sensors, ordered=True),
+        # NumpyPreproc(fn=lambda x: x * 1e6),
+        # NumpyPreproc(fn=lambda x: np.clip(x, -800, 800)),
+        MNEPreproc(fn='filter', l_freq=low_cut_hz, h_freq=high_cut_hz),
+        MNEPreproc(fn='notch_filter', freqs=50.)
+    ]
+
+    # Transform the data
+    preprocess(dataset, preprocessors)
+    return dataset
+
+
 def basic_preprocess(dataset, low_cut_hz=4., high_cut_hz=38., factor_new=1e-3, init_block_size=1000):
     low_cut_hz = low_cut_hz  # low cut frequency for filtering
     high_cut_hz = high_cut_hz  # high cut frequency for filtering
@@ -72,8 +94,8 @@ def basic_preprocess(dataset, low_cut_hz=4., high_cut_hz=38., factor_new=1e-3, i
 
     preprocessors = [
         MNEPreproc(fn='pick_channels', ch_names=C_22_sensors, ordered=True),
-        NumpyPreproc(fn=lambda x: x * 1e6),
-        NumpyPreproc(fn=lambda x: np.clip(x, -800, 800)),
+        # NumpyPreproc(fn=lambda x: x * 1e6),
+        # NumpyPreproc(fn=lambda x: np.clip(x, -800, 800)),
     ]
 
     # preprocessors.append(MNEPreproc(fn='set_eeg_reference', ref_channels='average'), )
@@ -83,8 +105,9 @@ def basic_preprocess(dataset, low_cut_hz=4., high_cut_hz=38., factor_new=1e-3, i
         # bandpass filter
         MNEPreproc(fn='filter', l_freq=low_cut_hz, h_freq=high_cut_hz),
         # exponential moving standardization
-        NumpyPreproc(fn=moving_fn, factor_new=factor_new,
-                     init_block_size=init_block_size),
+        # NumpyPreproc(fn=moving_fn, factor_new=factor_new,
+        #              init_block_size=init_block_size),
+        MNEPreproc(fn='notch_filter', freqs=50.)
 
     ])
 
