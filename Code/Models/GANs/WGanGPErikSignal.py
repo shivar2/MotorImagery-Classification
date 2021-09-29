@@ -89,6 +89,7 @@ class WGANGP(nn.Module):
         # ----------
         #  Training
         # ----------
+        dataset = dataset.reshape(-1, 1, 250)
         data_batches = torch.utils.data.DataLoader(dataset, batch_size=self.batch_size, shuffle=True)
 
         for epoch in range(self.n_epochs):

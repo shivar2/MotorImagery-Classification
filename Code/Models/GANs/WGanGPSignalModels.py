@@ -21,11 +21,11 @@ class Generator(nn.Module):
             return layers
 
         self.model = nn.Sequential(
-            *block(self.noise, 128, normalize=False),
-            *block(128, 256),
-            *block(256, 512),
-            *block(512, 1024),
-            nn.Linear(1024, int(np.prod(self.eeg_shape))),
+            *block(self.noise, 250, normalize=False),
+            *block(250, 500),
+            *block(500, 1000),
+            *block(1000, 2000),
+            nn.Linear(2000, int(np.prod(self.eeg_shape))),
             nn.Tanh()
         )
 
@@ -45,11 +45,11 @@ class Discriminator(nn.Module):
         self.eeg_shape = (self.channels, self.time_sample)
 
         self.model = nn.Sequential(
-            nn.Linear(int(np.prod(self.eeg_shape)), 512),
+            nn.Linear(int(np.prod(self.eeg_shape)), 1000),
             nn.LeakyReLU(0.2, inplace=True),
-            nn.Linear(512, 256),
+            nn.Linear(1000, 500),
             nn.LeakyReLU(0.2, inplace=True),
-            nn.Linear(256, 1),
+            nn.Linear(500, 1),
         )
 
     def forward(self, img):

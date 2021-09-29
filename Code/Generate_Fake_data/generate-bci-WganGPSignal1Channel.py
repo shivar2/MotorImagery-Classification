@@ -16,14 +16,15 @@ from Code.Models.GANs.WGanGPSignalModels import Generator
 # os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 
 
-subject_id_list = [9]
+subject_id_list = [8]
+normalizer_name = 'tanhNormalized/'       # 'maxNormalized/'
 
 # number of images to generate
-batch_size = 24
+batch_size = 24 * 4
 
 # GAN info
 sfreq = 250
-time_sample = 1000
+time_sample = 250
 noise = 100
 
 cuda = True if torch.cuda.is_available() else False
@@ -51,7 +52,7 @@ for subject_id in subject_id_list:
 
             for channel in all_channels:
                 # path to generator weights .pth file
-                saved_models_path = '../../Model_Params/GANs/WGan-GP-Signal-VERSION5/' + str(subject_id) + '/' + task + '/' + channel + '/'
+                saved_models_path = '../../Model_Params/GANs/WGan-GP-Signal-250-2000-changedata/RAW/' + normalizer_name + str(subject_id) + '/' + task + '/' + channel + '/'
                 saved_models_path += 'generator_state_dict.pth'
 
                 # Calculate mean and varians for unNormalize output later
@@ -85,6 +86,8 @@ for subject_id in subject_id_list:
             target = task_dict[task]
             event_dict = {task: target}
 
+            # merge 4s together to create 1 epoch
+            task_channels_trials = task_channels_trials.reshape(-1, 22, 1000)
             # Creating Epoch objects
             for task_channels_trial in task_channels_trials:
 
@@ -100,7 +103,7 @@ for subject_id in subject_id_list:
                 })
 
                 epoch_data = np.array(task_channels_trial)
-                epoch_data = np.reshape(epoch_data, newshape=(-1, len(all_channels), time_sample))
+                epoch_data = np.reshape(epoch_data, newshape=(-1, len(all_channels), time_sample*4))
 
                 simulated_epoch = mne.EpochsArray(epoch_data, info, tmin=-0.5, events=events, event_id=event_dict, metadata=metadata)
                 # simulated_epoch.plot(show_scrollbars=False, events=events, event_id=event_dict)
@@ -122,7 +125,7 @@ for subject_id in subject_id_list:
 
 
         # path to to fake eeg directory
-        fake_data_path = '../../Data/Fake_Data/WGan-GP-Signal-VERSION5/' + str(subject_id) + '/' + 'Runs' + '/' + str(run) +'/'
+        fake_data_path = '../../Data/Fake_Data/WGan-GP-Signal-250-2000-changedata/tanhNormalized/' + str(subject_id) + '/' + 'Runs' + '/' + str(run) +'/'
         if not os.path.exists(fake_data_path):
             os.makedirs(fake_data_path)
 

@@ -36,15 +36,17 @@ def get_data(data_load_path,
         dataset,
         trial_start_offset_samples=trial_start_offset_samples,
         trial_stop_offset_samples=0,
-        preload=False,
+        preload=True,
         window_size_samples=time_sample,
         window_stride_samples=window_stride_samples,
         drop_bad_windows=True,
         picks=pick_channels,
         mapping=mapping,
     )
+    # max normalize
+    # preprocess(windows_dataset, [Preprocessor(MaxNormalize)])
     # tanh normalize
-    preprocess(windows_dataset, [Preprocessor(MaxNormalize)])
+    preprocess(windows_dataset, [Preprocessor(tanhNormalize)])
 
     splitted = windows_dataset.split('session')
     train_set = splitted['session_T']
@@ -66,12 +68,16 @@ def get_data(data_load_path,
 #########################
 # load data             #
 #########################
-subject_id = 1
-data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels/' + str(subject_id)) + '/'
+subject_id = 8
+data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels-raw/' + str(subject_id)) + '/'
+
+normalizer_name = 'tanhNormalized/'
 
 time_sample = 1000
 window_stride_samples = 467
-mapping = {'left_hand': 0, 'right_hand': 1, 'feet': 2, 'tongue': 3}
+mapping = {'left_hand': 0,
+           'right_hand': 1, 'feet': 2, 'tongue': 3
+           }
 
 all_channels = ['Fz',
                  'FC1', 'FC2',
@@ -91,12 +97,12 @@ for key, value in mapping.items():
             key: value
         }
 
-        save_result_path = '../../../Result/GANs/WGan-GP-Signal-VERSION5/' + str(
+        save_result_path = '../../../Result/GANs/WGan-GP-Signal-250-2000-changedata/RAW/' + normalizer_name + str(
             subject_id) + '/' + tasks_name + '/' + channels_name + '/'
         if not os.path.exists(save_result_path):
             os.makedirs(save_result_path)
 
-        save_model_path = '../../../Model_Params/GANs/WGan-GP-Signal-VERSION5/' + str(
+        save_model_path = '../../../Model_Params/GANs/WGan-GP-Signal-250-2000-changedata/RAW/' + normalizer_name + str(
             subject_id) + '/' + tasks_name + '/' + channels_name + '/'
         if not os.path.exists(save_model_path):
             os.makedirs(save_model_path)
@@ -118,12 +124,12 @@ for key, value in mapping.items():
         #########################
 
         batchsize = 64
-        epochs = 2500
+        epochs = 1000
 
         net = WGANGP(subject=subject_id,
                      n_epochs=epochs,
                      batch_size=batchsize,
-                     time_sample=time_sample,
+                     time_sample=250,
                      channels=n_chans,
                      sample_interval=400,
                      result_path=save_result_path,
