@@ -10,10 +10,10 @@ from Code.Classification import GanClassification
 from Code.Models.deepNewUtils import deep4New3dutils
 
 # Run Info
-subject_id_list = [6]
+subject_id_list = [8]
 phase_number = '2'
 model_name = "deep4"
-normalize = True
+normalize = False
 if normalize:
     normalize_str = 'normalize/'
 else:
@@ -22,7 +22,7 @@ else:
 # Fake data info
 fake_k = 2
 gan_version = 'WGan-GP-Signal-VERSION5/'
-
+normalizer_name = 'tanhNormalized/'
 
 cuda, device = detect_device()
 seed = 20200220
@@ -40,7 +40,7 @@ for subject_id in subject_id_list:
 
         dataset = load_data_object(data_load_path)
 
-        fake_data_load_path = os.path.join('../../../Data/Fake_Data/' + gan_version + str(subject_id)) + '/Runs/'
+        fake_data_load_path = os.path.join('../../../Data/Fake_Data/' + gan_version + normalizer_name + str(subject_id)) + '/Runs/'
         fake_set = load_fake_data_oneByOne(fake_data_load_path, fake_ind)
 
         input_window_samples = 1000
@@ -71,8 +71,8 @@ for subject_id in subject_id_list:
 
         # Path to saving Models
         # mkdir path to save
-        save_path = os.path.join('../../../Model_Params/FakeClassification-each/0-38/' +
-                                 model_name + '/' + phase_number + ' - ' + normalize_str +
+        save_path = os.path.join('../../../Model_Params/FakeClassification-each-not normalize/0-38/' +
+                                 model_name + '/' + phase_number + ' - ' + normalizer_name +
                                  str(subject_id)) + '/' + 'fake number ' + str(fake_ind) + '/'
 
         if not os.path.exists(save_path):
