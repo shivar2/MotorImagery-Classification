@@ -62,6 +62,7 @@ def get_data(data_load_path,
         data[i] = x
         i += 1
 
+    data = data.reshape(-1, n_chans, 250)
     return data, n_chans
 
 
@@ -69,7 +70,7 @@ def get_data(data_load_path,
 # load data             #
 #########################
 subject_id = 8
-data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels-raw/' + str(subject_id)) + '/'
+data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels/' + str(subject_id)) + '/'
 
 normalizer_name = 'tanhNormalized/'
 
@@ -97,12 +98,12 @@ for key, value in mapping.items():
             key: value
         }
 
-        save_result_path = '../../../Result/GANs/WGan-GP-Signal-250-2000-changedata/RAW/' + normalizer_name + str(
+        save_result_path = '../../../Result/GANs/WGan-GP-Signal/' + normalizer_name + str(
             subject_id) + '/' + tasks_name + '/' + channels_name + '/'
         if not os.path.exists(save_result_path):
             os.makedirs(save_result_path)
 
-        save_model_path = '../../../Model_Params/GANs/WGan-GP-Signal-250-2000-changedata/RAW/' + normalizer_name + str(
+        save_model_path = '../../../Model_Params/GANs/WGan-GP-Signal/' + normalizer_name + str(
             subject_id) + '/' + tasks_name + '/' + channels_name + '/'
         if not os.path.exists(save_model_path):
             os.makedirs(save_model_path)

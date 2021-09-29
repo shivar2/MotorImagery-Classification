@@ -49,8 +49,8 @@ class WGANGP(nn.Module):
             self.discriminator.cuda()
 
         # Optimizers
-        self.optimizer_G = torch.optim.Adam(self.generator.parameters(), lr=0.001, betas=(self.b1, self.b2))
-        self.optimizer_D = torch.optim.Adam(self.discriminator.parameters(), lr=0.0001, betas=(self.b1, self.b2))
+        self.optimizer_G = torch.optim.Adam(self.generator.parameters(), lr=self.lr, betas=(self.b1, self.b2))
+        self.optimizer_D = torch.optim.Adam(self.discriminator.parameters(), lr=self.lr, betas=(self.b1, self.b2))
 
     def compute_gradient_penalty(self, D, real_samples, fake_samples):
         """Calculates the gradient penalty loss for WGAN GP"""
@@ -89,7 +89,6 @@ class WGANGP(nn.Module):
         # ----------
         #  Training
         # ----------
-        dataset = dataset.reshape(-1, 1, 250)
         data_batches = torch.utils.data.DataLoader(dataset, batch_size=self.batch_size, shuffle=True)
 
         for epoch in range(self.n_epochs):
