@@ -11,7 +11,7 @@ from Code.Classification import TLClassification
 
 
 # Run Info
-subject_id_list = [1]
+subject_id_list = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 phase_number = '2'
 model_name = "deep4"
 
@@ -22,7 +22,7 @@ else:
     normalize_str = 'notNormalize/'
 
 # TL
-param_name = "params_19.pt"
+param_name = "params_30.pt"
 double_channel = False
 
 cuda, device = detect_device()
@@ -39,7 +39,7 @@ for subject_id in subject_id_list:
     n_chans = dataset[0][0].shape[0]
 
     # Load model path
-    model_load_path = '../../../Model_Params/Pretrained_Models/22channels/0-f/'
+    model_load_path = '../../../Model_Params/Pretrained_Models/22channels/0-f/deep4/1 - normalize/'
 
     if model_name == 'deep4':
         model = create_model_deep4(input_window_samples, n_chans, n_classes)
@@ -64,7 +64,7 @@ for subject_id in subject_id_list:
     # Path to saving Models
     # mkdir path to save
     save_path = os.path.join('../../../Model_Params/TL_Classification/0-38/22channel/' +
-                             model_name + '/' + phase_number + ' - ' + normalize_str + str(subject_id)) + '/'
+                             model_name + '/' + phase_number + ' - ' + normalize_str + str(subject_id)) + '/step_by_step/'
 
     if not os.path.exists(save_path):
         os.makedirs(save_path)
