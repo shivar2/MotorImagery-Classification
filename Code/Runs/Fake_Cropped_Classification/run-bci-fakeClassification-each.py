@@ -29,7 +29,7 @@ seed = 20200220
 set_random_seeds(seed=seed, cuda=cuda)
 
 for subject_id in subject_id_list:
-    for fake_ind in range(0, 6):
+    for fake_ind in range(0, 10):
         # data
         if model_name == 'deep4':
             data_load_path = os.path.join(
@@ -40,7 +40,7 @@ for subject_id in subject_id_list:
 
         dataset = load_data_object(data_load_path)
 
-        fake_data_load_path = os.path.join('../../../Data/Fake_Data/' + gan_version + normalizer_name + str(subject_id)) + '/Runs/'
+        fake_data_load_path = os.path.join('../../../Data/Fake_Data/' + gan_version + str(subject_id)) + '/Runs/'
         fake_set = load_fake_data_oneByOne(fake_data_load_path, fake_ind)
 
         input_window_samples = 1000
