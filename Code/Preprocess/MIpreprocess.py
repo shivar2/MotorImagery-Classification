@@ -176,9 +176,18 @@ def tanhNormalize(data):
 
 def MaxNormalize(data):
     max = np.max(data, keepdims=True, axis=-1)
-    # if max == 0:
-    #     max = 0.00001
     normal_data = data / max
+    return normal_data
+
+
+def MaxNormalize_1sec(data, n_chans=22, window_time=250):
+    orginal_shape = data.shape
+    data = data.reshape(-1, n_chans, window_time)
+
+    max = np.max(data, keepdims=True, axis=-1)
+    normal_data = data / max
+
+    normal_data = normal_data.reshape(orginal_shape)
     return normal_data
 
 

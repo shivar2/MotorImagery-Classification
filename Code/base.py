@@ -16,7 +16,7 @@ from braindecode.datautil.windowers import create_windows_from_events
 
 
 from braindecode.datautil.preprocess import preprocess, Preprocessor
-from Code.Preprocess import MaxNormalize, tanhNormalize
+from Code.Preprocess import MaxNormalize, tanhNormalize, MaxNormalize_1sec
 from Code.Models.deep4New import NewDeep4Net
 from Code.Models.deep4New3D import NewDeep4Net3D
 from Code.Evaluation.confusion_matrix import plot_confusion_matrix
@@ -108,7 +108,7 @@ def cut_compute_windows(dataset, n_preds_per_input, normalize=True, normalizer='
     if normalize:
         if normalizer == 'maxNormalize':
             # max normalize
-            preprocess(windows_dataset, [Preprocessor(MaxNormalize)])
+            preprocess(windows_dataset, [Preprocessor(MaxNormalize_1sec)])
         else:
             preprocess(windows_dataset, [Preprocessor(tanhNormalize)])
 
