@@ -5,8 +5,7 @@ import numpy as np
 
 from braindecode.datasets.moabb import MOABBDataset
 from braindecode.datautil.preprocess import MNEPreproc, NumpyPreproc, preprocess
-from braindecode.datautil.preprocess import exponential_moving_standardize
-from braindecode.datautil.preprocess import exponential_moving_demean
+from braindecode.datautil.preprocess import exponential_moving_standardize, exponential_moving_demean, zscore, scale
 
 from braindecode.datautil.serialization import load_concat_dataset
 
@@ -32,7 +31,7 @@ def load_preprocessed_data(data_path='../Dataset-Files/data-file/', subject_id=1
     return dataset
 
 
-def besic_raw_preprocess(dataset, low_cut_hz=4., high_cut_hz=38.):
+def basic_raw_preprocess(dataset, low_cut_hz=4., high_cut_hz=38.):
     C_22_sensors = [
         'FC1', 'FC2',
         'C3', 'Cz', 'C4',
@@ -94,8 +93,8 @@ def basic_preprocess(dataset, low_cut_hz=4., high_cut_hz=38., factor_new=1e-3, i
 
     preprocessors = [
         MNEPreproc(fn='pick_channels', ch_names=C_22_sensors, ordered=True),
-        # NumpyPreproc(fn=lambda x: x * 1e6),
-        # NumpyPreproc(fn=lambda x: np.clip(x, -800, 800)),
+        NumpyPreproc(fn=lambda x: x * 1e6),
+        NumpyPreproc(fn=lambda x: np.clip(x, -800, 800)),
     ]
 
     # preprocessors.append(MNEPreproc(fn='set_eeg_reference', ref_channels='average'), )
@@ -105,9 +104,8 @@ def basic_preprocess(dataset, low_cut_hz=4., high_cut_hz=38., factor_new=1e-3, i
         # bandpass filter
         MNEPreproc(fn='filter', l_freq=low_cut_hz, h_freq=high_cut_hz),
         # exponential moving standardization
-        # NumpyPreproc(fn=moving_fn, factor_new=factor_new,
-        #              init_block_size=init_block_size),
-        MNEPreproc(fn='notch_filter', freqs=50.)
+        NumpyPreproc(fn=moving_fn, factor_new=factor_new,
+                     init_block_size=init_block_size),
 
     ])
 
