@@ -87,7 +87,7 @@ def load_fake_data(fake_data_path, fake_k):
     return ds_list
 
 
-def cut_compute_windows(dataset, n_preds_per_input, normalize=True, normalizer='tanhNormalize',
+def cut_compute_windows(dataset, n_preds_per_input, normalize=True, normalizer='maxNormalize',
                         input_window_samples=1000, trial_start_offset_seconds=-0.5):
 
     sfreq = dataset.datasets[0].raw.info['sfreq']
