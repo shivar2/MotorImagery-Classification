@@ -9,10 +9,8 @@ import numpy as np
 from braindecode.datautil.windowers import create_windows_from_events
 from braindecode.datautil.serialization import load_concat_dataset
 from braindecode.util import set_random_seeds
-from braindecode.datautil.preprocess import preprocess, Preprocessor
 
 from Code.Models.GANs.WGanGPErikSignal import WGANGP
-from Code.Preprocess import tanhNormalize, MaxNormalize
 
 
 def get_data(data_load_path,
@@ -43,10 +41,6 @@ def get_data(data_load_path,
         picks=pick_channels,
         mapping=mapping,
     )
-    # max normalize
-    # preprocess(windows_dataset, [Preprocessor(MaxNormalize)])
-    # tanh normalize
-    preprocess(windows_dataset, [Preprocessor(tanhNormalize)])
 
     splitted = windows_dataset.split('session')
     train_set = splitted['session_T']
@@ -62,8 +56,12 @@ def get_data(data_load_path,
         data[i] = x
         i += 1
 
+    # max Normalize
     data = data.reshape(-1, n_chans, 250)
-    return data, n_chans
+    max = np.max(data, keepdims=True, axis=-1)
+    normal_data = data / max
+
+    return normal_data, n_chans
 
 
 #########################
@@ -72,7 +70,7 @@ def get_data(data_load_path,
 subject_id = 8
 data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels/' + str(subject_id)) + '/'
 
-normalizer_name = 'tanhNormalized/'
+normalizer_name = 'MaxNormalized/'
 
 time_sample = 1000
 window_stride_samples = 467
@@ -98,12 +96,12 @@ for key, value in mapping.items():
             key: value
         }
 
-        save_result_path = '../../../Result/GANs/WGan-GP-Signal/' + normalizer_name + str(
+        save_result_path = '../../../Result/GANs/WGan-GP-Signal-VERSION7/' + normalizer_name + str(
             subject_id) + '/' + tasks_name + '/' + channels_name + '/'
         if not os.path.exists(save_result_path):
             os.makedirs(save_result_path)
 
-        save_model_path = '../../../Model_Params/GANs/WGan-GP-Signal/' + normalizer_name + str(
+        save_model_path = '../../../Model_Params/GANs/WGan-GP-Signal-VERSION7/' + normalizer_name + str(
             subject_id) + '/' + tasks_name + '/' + channels_name + '/'
         if not os.path.exists(save_model_path):
             os.makedirs(save_model_path)
@@ -125,7 +123,7 @@ for key, value in mapping.items():
         #########################
 
         batchsize = 64
-        epochs = 1000
+        epochs = 2500
 
         net = WGANGP(subject=subject_id,
                      n_epochs=epochs,
