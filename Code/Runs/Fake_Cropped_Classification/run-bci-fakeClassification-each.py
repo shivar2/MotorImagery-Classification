@@ -22,7 +22,7 @@ else:
 # Fake data info
 
 gan_version = 'WGan-GP-Signal-VERSION7/'
-normalizer_name = 'tanhNormalized/'
+normalizer_name = 'maxNormalized/'
 
 cuda, device = detect_device()
 seed = 20200220

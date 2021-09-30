@@ -13,6 +13,7 @@ from Code.Models.deepNewUtils import deep4New3dutils
 subject_id_list = [9]
 phase_number = '2'
 model_name = "deep4"
+
 normalize = True
 if normalize:
     normalize_str = 'normalize/'
@@ -21,7 +22,7 @@ else:
 
 # Fake data info
 fake_k = 3
-gan_version = 'WGan-GP-Signal-VERSION5/'
+gan_version = 'WGan-GP-Signal-VERSION7/'
 
 cuda, device = detect_device()
 seed = 20200220
