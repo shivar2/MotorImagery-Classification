@@ -14,7 +14,7 @@ from Code.Models.GANs.WGanGPSignalModels import Generator
 
 
 subject_id_list = [8]
-normalizer_name = 'MaxNormalized'       # 'tanhNormalized/'
+normalizer_name = 'MaxNormalized/'       # 'tanhNormalized/'
 
 # number of images to generate
 batch_size = 24 * 4
