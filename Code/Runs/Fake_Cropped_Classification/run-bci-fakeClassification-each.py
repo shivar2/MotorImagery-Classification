@@ -13,15 +13,15 @@ from Code.Models.deepNewUtils import deep4New3dutils
 subject_id_list = [8]
 phase_number = '2'
 model_name = "deep4"
-normalize = False
+normalize = True
 if normalize:
     normalize_str = 'normalize/'
 else:
     normalize_str = 'notNormalize/'
 
 # Fake data info
-fake_k = 2
-gan_version = 'WGan-GP-Signal-VERSION5/'
+
+gan_version = 'WGan-GP-Signal-VERSION7/'
 normalizer_name = 'tanhNormalized/'
 
 cuda, device = detect_device()
@@ -71,7 +71,7 @@ for subject_id in subject_id_list:
 
         # Path to saving Models
         # mkdir path to save
-        save_path = os.path.join('../../../Model_Params/FakeClassification-each-not normalize/0-38/' +
+        save_path = os.path.join('../../../Model_Params/FakeClassification-each/0-38/' + gan_version +
                                  model_name + '/' + phase_number + ' - ' + normalizer_name +
                                  str(subject_id)) + '/' + 'fake number ' + str(fake_ind) + '/'
 
