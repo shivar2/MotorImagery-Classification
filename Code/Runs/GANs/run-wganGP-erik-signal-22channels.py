@@ -65,15 +65,19 @@ def get_data(data_load_path,
 
 
 #########################
-# load data             #
+# MAIN                  #
+#########################
+cuda = True if torch.cuda.is_available() else False
+
+seed = 20200220  # random seed to make results reproducible
+set_random_seeds(seed=seed, cuda=cuda)
+
+#########################
+# Load data            #
 #########################
 subject_id = 8
 data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels/' + str(subject_id)) + '/'
 
-normalizer_name = 'MaxNormalized/'
-
-time_sample = 1000
-window_stride_samples = 467
 mapping = {'left_hand': 0, 'right_hand': 1, 'feet': 2, 'tongue': 3 }
 
 all_channels = ['Fz',
@@ -82,6 +86,11 @@ all_channels = ['Fz',
                  'Pz', 'POz', 'FC3', 'FCz', 'FC4',
                  'C5', 'C1', 'C2', 'C6', 'CP3', 'CPz', 'CP4',
                  'P1', 'P2']
+
+
+normalizer_name = 'MaxNormalized/'
+time_sample = 1000
+window_stride_samples = 467
 
 for key, value in mapping.items():
         tasks_name = key
@@ -98,11 +107,6 @@ for key, value in mapping.items():
             subject_id) + '/' + tasks_name + '/'
         if not os.path.exists(save_model_path):
             os.makedirs(save_model_path)
-
-        cuda = True if torch.cuda.is_available() else False
-
-        seed = 20200220  # random seed to make results reproducible
-        set_random_seeds(seed=seed, cuda=cuda)
 
         data, n_chans = get_data(data_load_path=data_load_path,
                                  time_sample=time_sample,
