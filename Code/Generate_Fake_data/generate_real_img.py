@@ -1,15 +1,12 @@
 import os
 import numpy as np
 import torch.utils.data
-from torch.autograd import Variable
 
 import matplotlib.pyplot as plt
 
 from braindecode.datautil.windowers import create_windows_from_events
 from braindecode.datautil.serialization import load_concat_dataset
 from braindecode.util import set_random_seeds
-
-from Code.Models.GANs.WGanGPSignalModels import Generator
 
 
 cuda = True if torch.cuda.is_available() else False
@@ -117,7 +114,7 @@ for subject_id in subject_id_list:
                                      )
 
             # ---------------------
-            #  PLOT FAKE
+            #  PLOT REAL
             # ---------------------
             for i in range(0, batch_size):
                 real_img = data[i]
@@ -128,51 +125,3 @@ for subject_id in subject_id_list:
                 plt.savefig("%s/%d.png" % (save_real_path, i))
                 # plt.show()
                 plt.close()
-
-            # ---------------------
-            #  FAKE
-            # ---------------------
-
-            # Save path
-            save_fake_path = '../../Result/GANs/IMG/WGan-GP-Signal-VERSION7/FAKE/' + normalizer_name +\
-                             str(subject_id) + '/' + tasks_name + '/'
-
-            if not os.path.exists(save_fake_path):
-                os.makedirs(save_fake_path)
-
-            # path to generator weights .pth file
-            saved_models_path = '../../Model_Params/GANs/WGan-GP-Signal-VERSION7/' +\
-                                    normalizer_name + str(subject_id) + '/' + key + '/'
-            saved_models_path += 'generator_state_dict.pth'
-
-            # Create fake samples
-            netG = Generator(time_sample=time_sample, noise=noise, channels=22)
-
-            # load weights
-            netG.load_state_dict(torch.load(saved_models_path))
-
-            if cuda:
-                netG.cuda()
-
-            # initialize noise
-            z = Variable(Tensor(np.random.normal(0, 1, (batch_size, noise))))
-
-            gen_sig = netG(z)
-
-            # ---------------------
-            #  PLOT FAKE
-            # ---------------------
-            j = 0
-            for fake_img in gen_sig:
-                fig, axs = plt.subplots(1, 1)
-                fig.tight_layout()
-
-                fake_img = Variable(fake_img, requires_grad=True)
-                fake_img = fake_img.detach().cpu().numpy()
-
-                axs.imshow(fake_img, aspect='auto')
-                plt.savefig("%s/%d.png" % (save_fake_path, j))
-                # plt.show()
-                plt.close()
-                j += 1
-
