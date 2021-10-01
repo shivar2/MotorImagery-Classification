@@ -12,9 +12,10 @@ from Code.Models.GANs.WGanGPSignalModels import Generator
 cuda = True if torch.cuda.is_available() else False
 seed = 20200220  # random seed to make results reproducible
 set_random_seeds(seed=seed, cuda=cuda)
+Tensor = torch.cuda.FloatTensor if cuda else torch.FloatTensor
 
-
-subject_id_list = [8]
+subject_id_list = [1]
+last_epoch = 1000
 
 # mapping to HGD tasks
 tasks = ['feet', 'left_hand', 'right_hand', 'tongue']
@@ -30,8 +31,6 @@ time_sample = 1000
 window_stride_samples = 467
 noise = 100
 
-cuda = True if torch.cuda.is_available() else False
-Tensor = torch.cuda.FloatTensor if cuda else torch.FloatTensor
 
 for subject_id in subject_id_list:
 
@@ -47,21 +46,22 @@ for subject_id in subject_id_list:
 
             # Save path
             save_fake_path = '../../Result/IMG-Fake-WGan-GP-Signal-VERSION7/' + \
-                             str(subject_id) + '/' + tasks_name + '/'
+                             str(subject_id) + '/' + tasks_name + '/' + str(last_epoch) + '/'
 
             if not os.path.exists(save_fake_path):
                 os.makedirs(save_fake_path)
 
             # path to generator weights .pth file
-            saved_models_path = '../../Model_Params/GANs/WGan-GP-Signal-VERSION7/' +\
-                                str(subject_id) + '/' + key + '/'
-            saved_models_path += 'generator_state_dict.pth'
+            load_models_path = '../../Model_Params/GANs/WGan-GP-Signal-VERSION7/' +\
+                               str(subject_id) + '/' + tasks_name + '/' + str(last_epoch) + '/'
+            load_models_path += 'generator_state_dict.pth'
 
             # Create fake samples
             netG = Generator(time_sample=time_sample, noise=noise, channels=22)
 
             # load weights
-            netG.load_state_dict(torch.load(saved_models_path))
+            checkpoint_g = torch.load(load_models_path)
+            netG.load_state_dict(checkpoint_g['model_state_dict'])
 
             if cuda:
                 netG.cuda()
