@@ -7,7 +7,7 @@ from braindecode.models.util import to_dense_prediction_model, get_output_shape
 from Code.base import load_data_object, create_model_deep4,\
     create_model_newDeep4, create_model_newDeep4_3d, detect_device
 
-from Code.Classification import TLClassification
+from Code.CroppedClassifications import TLClassification
 
 
 # Run Info
