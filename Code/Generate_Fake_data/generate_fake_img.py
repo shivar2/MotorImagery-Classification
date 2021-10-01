@@ -23,11 +23,11 @@ mapping = {'left_hand': 0, 'right_hand': 1, 'feet': 2, 'tongue': 3 }
 
 
 # number of images to generate
-batch_size = 24 * 4
+batch_size = 24
 
 # GAN info
 sfreq = 250
-time_sample = 250
+time_sample = 1000
 window_stride_samples = 467
 noise = 100
 
