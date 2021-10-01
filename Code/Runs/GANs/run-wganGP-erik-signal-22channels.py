@@ -68,6 +68,9 @@ cuda = True if torch.cuda.is_available() else False
 seed = 20200220  # random seed to make results reproducible
 set_random_seeds(seed=seed, cuda=cuda)
 
+batchsize = 64
+epochs = 500
+
 for subject_id in range(1, 10):
     #########################
     # Load data            #
@@ -94,12 +97,12 @@ for subject_id in range(1, 10):
             }
 
             save_result_path = '../../../Result/GANs/WGan-GP-Signal-VERSION7/' + str(
-                subject_id) + '/' + tasks_name + '/'
+                subject_id) + '/' + str(epochs) + '/' + tasks_name + '/'
             if not os.path.exists(save_result_path):
                 os.makedirs(save_result_path)
 
             save_model_path = '../../../Model_Params/GANs/WGan-GP-Signal-VERSION7/' + str(
-                subject_id) + '/' + tasks_name + '/'
+                subject_id) + '/' + str(epochs) + '/' + tasks_name + '/'
             if not os.path.exists(save_model_path):
                 os.makedirs(save_model_path)
 
@@ -113,9 +116,6 @@ for subject_id in range(1, 10):
             #########################
             # Running params        #
             #########################
-
-            batchsize = 64
-            epochs = 500
 
             net = WGANGP(subject=subject_id,
                          n_epochs=epochs,
