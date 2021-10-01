@@ -2,7 +2,7 @@ import os
 
 from braindecode.util import set_random_seeds
 
-from Code.base import load_data_object, create_model_deep4,\
+from Code.base import load_data_object, create_model_deep4_auto,\
     create_model_newDeep4, create_model_newDeep4_3d, detect_device
 
 from Code.TrialClassifications import TrialsClassification
@@ -34,12 +34,12 @@ for subject_id in subject_id_list:
 
     dataset = load_data_object(data_load_path)
 
-    input_window_samples = 1000
+    input_window_samples = 1125
     n_classes = 4
     n_chans = dataset[0][0].shape[0]
 
     if model_name == 'deep4':
-        model = create_model_deep4(n_chans, n_classes)
+        model = create_model_deep4_auto(input_window_samples, n_chans, n_classes)
 
     elif model_name == 'deep4New':
         model = create_model_newDeep4(input_window_samples, n_chans, n_classes)
