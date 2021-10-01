@@ -1,6 +1,6 @@
 import os
 
-from Code.Classification.TrialsClassification import run_model
+from Code.TrialClassifications.TrialsClassification import run_model
 
 
 # example of HGD shallow - subject 1

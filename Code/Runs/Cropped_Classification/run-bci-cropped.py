@@ -6,7 +6,7 @@ from braindecode.models.util import to_dense_prediction_model, get_output_shape
 from Code.base import load_data_object, create_model_deep4,\
     create_model_newDeep4, create_model_newDeep4_3d, detect_device
 
-from Code.Classification import CroppedClassification
+from Code.CroppedClassifications import CroppedClassification
 from Code.Models.deepNewUtils import deep4New3dutils
 
 # Run Info

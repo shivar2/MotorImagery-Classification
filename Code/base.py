@@ -104,6 +104,26 @@ def cut_compute_windows(dataset, n_preds_per_input, input_window_samples=1000, t
     return windows_dataset
 
 
+def cut_trial_windows(dataset):
+
+    trial_start_offset_seconds = -0.5
+
+    sfreq = dataset.datasets[0].raw.info['sfreq']
+    assert all([ds.raw.info['sfreq'] == sfreq for ds in dataset.datasets])
+
+    trial_start_offset_samples = int(trial_start_offset_seconds * sfreq)
+    windows_dataset = create_windows_from_events(
+        dataset,
+        trial_start_offset_samples=trial_start_offset_samples,
+        trial_stop_offset_samples=0,
+        drop_last_window=False,
+        preload=True,
+        mapping={'left_hand': 0, 'right_hand': 1, 'feet': 2, 'tongue': 3},
+    )
+
+    return windows_dataset
+
+
 def split_into_train_valid(windows_dataset, use_final_eval):
 
     splitted = windows_dataset.split('session')
@@ -235,10 +255,10 @@ def get_results(clf, test_set, save_path, n_chans, input_window_samples=1000):
         i += 1
 
     score = clf.score(test, y=target)
-    print("Classification Score (Accuracy) is:  " + str(score))
+    print("CroppedClassifications Score (Accuracy) is:  " + str(score))
 
     f = open(save_path + "test-result.txt", "w")
-    f.write("Classification Score (Accuracy) is:  " + str(score))
+    f.write("CroppedClassifications Score (Accuracy) is:  " + str(score))
     f.close()
 
     ########################################
