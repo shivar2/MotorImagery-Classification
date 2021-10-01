@@ -71,7 +71,7 @@ set_random_seeds(seed=seed, cuda=cuda)
 #########################
 # Load data            #
 #########################
-subject_id = 8
+subject_id = 1
 data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels-zmax/' + str(subject_id)) + '/'
 
 mapping = {'left_hand': 0, 'right_hand': 1, 'feet': 2, 'tongue': 3 }
@@ -86,6 +86,10 @@ all_channels = ['Fz',
 time_sample = 1000
 window_stride_samples = 467
 
+batchsize = 64
+epochs = 500
+last_epoch = 500
+
 for key, value in mapping.items():
         tasks_name = key
         task_mapping = {
@@ -93,14 +97,18 @@ for key, value in mapping.items():
         }
 
         save_result_path = '../../../Result/GANs/WGan-GP-Signal-VERSION7/' + str(
-            subject_id) + '/' + tasks_name + '/'
+            subject_id) + '/' + tasks_name + '/' + str(last_epoch + epochs) + '/'
         if not os.path.exists(save_result_path):
             os.makedirs(save_result_path)
 
         save_model_path = '../../../Model_Params/GANs/WGan-GP-Signal-VERSION7/' + str(
-            subject_id) + '/' + tasks_name + '/'
+            subject_id) + '/' + tasks_name + '/' + str(last_epoch + epochs) + '/'
+
         if not os.path.exists(save_model_path):
             os.makedirs(save_model_path)
+
+        load_model_path = '../../../Model_Params/GANs/WGan-GP-Signal-VERSION7/' + str(
+            subject_id) + '/' + tasks_name + '/' + str(last_epoch) + '/'
 
         data, n_chans = get_data(data_load_path=data_load_path,
                                  time_sample=time_sample,
@@ -112,9 +120,6 @@ for key, value in mapping.items():
         #########################
         # Running params        #
         #########################
-
-        batchsize = 64
-        epochs = 350
 
         net = WGANGP(subject=subject_id,
                      n_epochs=epochs,
@@ -129,20 +134,20 @@ for key, value in mapping.items():
         # Load G and D model and optimizer
         ##################################
 
-        load_path = save_model_path
-        checkpoint_g = torch.load(load_path + 'generator_state_dict.pth')
+        checkpoint_g = torch.load(load_model_path + 'generator_state_dict.pth')
         net.generator.load_state_dict(checkpoint_g['model_state_dict'])
         net.optimizer_G.load_state_dict(checkpoint_g['optimizer_state_dict'])
-        epoch_g = checkpoint_g['epoch']
         loss_g = checkpoint_g['loss']
 
-        checkpoint_d = torch.load(load_path + 'discriminator_state_dict.pth')
+        checkpoint_d = torch.load(load_model_path + 'discriminator_state_dict.pth')
         net.discriminator.load_state_dict(checkpoint_d['model_state_dict'])
         net.optimizer_D.load_state_dict(checkpoint_d['optimizer_state_dict'])
-        epoch_d = checkpoint_d['epoch']
         loss_d = checkpoint_d['loss']
 
-        net.train(data, save_model_path=save_model_path)
+        net.train(data, save_model_path=load_model_path,
+                  last_epoch=last_epoch,
+                  g_tot=loss_g,
+                  d_tot=loss_d)
 
 print("end")
 

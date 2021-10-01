@@ -78,11 +78,10 @@ class WGANGP(nn.Module):
         gradient_penalty = ((gradients.norm(2, dim=1) - 1) ** 2).mean()
         return gradient_penalty
 
-    def train(self, dataset, save_model_path):
+    def train(self, dataset, save_model_path, last_epoch=0, d_tot=[], g_tot=[]):
 
         batches_done = 0
         gen_loss, disc_loss = [], []
-        g_tot, d_tot = [], []
 
         Tensor = torch.cuda.FloatTensor if self.cuda else torch.FloatTensor
 
@@ -91,7 +90,7 @@ class WGANGP(nn.Module):
         # ----------
         data_batches = torch.utils.data.DataLoader(dataset, batch_size=self.batch_size, shuffle=True)
 
-        for epoch in range(self.n_epochs):
+        for epoch in range(last_epoch, last_epoch+self.n_epochs):
             for i, signal_batch in enumerate(data_batches):
 
                 # Configure input
