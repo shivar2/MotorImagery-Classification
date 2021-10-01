@@ -59,8 +59,8 @@ def get_data(data_load_path,
     return data, n_chans
 
 
-subject_id_list = [8]
-normalizer_name = 'MaxNormalized/'       # 'tanhNormalized/'
+subject_id_list = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+normalizer_name = 'zmaxNormalized/'       # 'tanhNormalized/'
 
 # mapping to HGD tasks
 tasks = ['feet', 'left_hand', 'right_hand', 'tongue']
