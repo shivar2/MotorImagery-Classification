@@ -8,8 +8,8 @@ from Code.base import load_data_object, create_model_deep4,\
 from Code.TrialClassifications import TrialsClassification
 
 # Run Info
-subject_id_list = [8]
-phase_number = '2'
+subject_id_list = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+phase_number = '1'
 model_name = "deep4"
 normalize = True
 
@@ -39,7 +39,7 @@ for subject_id in subject_id_list:
     n_chans = dataset[0][0].shape[0]
 
     if model_name == 'deep4':
-        model = create_model_deep4(input_window_samples, n_chans, n_classes)
+        model = create_model_deep4(n_chans, n_classes)
 
     elif model_name == 'deep4New':
         model = create_model_newDeep4(input_window_samples, n_chans, n_classes)

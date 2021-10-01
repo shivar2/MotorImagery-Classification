@@ -70,7 +70,6 @@ def train_2phase(train_set_all, model, save_path, device='cpu'):
         criterion=torch.nn.NLLLoss,
         optimizer=torch.optim.AdamW,
         train_split=predefined_split(valid_set),
-        iterator_train__shuffle=True,
         batch_size=batch_size,
         callbacks=callbacks,
         device=device,

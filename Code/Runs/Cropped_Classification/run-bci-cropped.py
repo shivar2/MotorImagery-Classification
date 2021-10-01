@@ -41,7 +41,7 @@ for subject_id in subject_id_list:
     n_chans = dataset[0][0].shape[0]
 
     if model_name == 'deep4':
-        model = create_model_deep4(input_window_samples, n_chans, n_classes)
+        model = create_model_deep4(n_chans, n_classes)
 
     elif model_name == 'deep4New':
         model = create_model_newDeep4(input_window_samples, n_chans, n_classes)
