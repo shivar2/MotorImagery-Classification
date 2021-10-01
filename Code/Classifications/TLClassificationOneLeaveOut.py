@@ -1,7 +1,7 @@
 from braindecode.datautil.serialization import load_concat_dataset
 
 from Code.Classifier.EEGTLClassifier import EEGTLClassifier
-from Code.CroppedClassifications.CroppedClassification import *
+from Code.Classifications.CroppedClassification import *
 from Code.Models.PretrainedDeep4Model import PretrainedDeep4Model
 
 
