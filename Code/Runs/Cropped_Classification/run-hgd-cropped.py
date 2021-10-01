@@ -11,14 +11,14 @@ from Code.Classifications import HGDCroppedClassification
 from Code.Models.deepNewUtils import deep4New3dutils
 
 # Run Info
-subject_id_list = [12]
+subject_id_list = [1]
 phase_number = '2'
-model_name = "deep43D"
-channels = 42
+model_name = "deep4"
+channels = 22
 
 normalize = True
 if normalize:
-    normalize_str = 'normalize/'
+    normalize_str = 'zmaxNormalize/'
 else:
     normalize_str = 'notNormalize/'
 
@@ -28,7 +28,7 @@ set_random_seeds(seed=seed, cuda=cuda)
 
 for subject_id in subject_id_list:
     # data
-    data_load_path = os.path.join('../../../Data/Real_Data/HGD/22channels/0-f/' + str(subject_id)) + '/'
+    data_load_path = os.path.join('../../../Data/Real_Data/HGD/22channels-zmax/0-f/' + str(subject_id)) + '/'
     dataset = load_data_object(data_load_path)
     if channels == 42:
         dataset = add_channel_to_raw(dataset)

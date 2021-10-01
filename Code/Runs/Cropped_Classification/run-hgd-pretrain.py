@@ -18,7 +18,7 @@ channels = 22
 
 normalize = True
 if normalize:
-    normalize_str = 'normalize/'
+    normalize_str = 'zmaxNormalize/'
 else:
     normalize_str = 'notNormalize/'
 
@@ -28,7 +28,7 @@ seed = 20200220
 set_random_seeds(seed=seed, cuda=cuda)
 for subject_id in subject_id_list:
     # data
-    data_load_path = os.path.join('../../../Data/Real_Data/HGD/22channels/0-f/')
+    data_load_path = os.path.join('../../../Data/Real_Data/HGD/22channels-zmax/0-f/')
     dataset = load_all_data_object(data_load_path)
     if channels == 42:
         dataset = add_channel_to_raw(dataset)
@@ -38,7 +38,7 @@ for subject_id in subject_id_list:
     n_chans = dataset[0][0].shape[0]
 
     if model_name == 'deep4':
-        model = create_model_deep4(input_window_samples, n_chans, n_classes)
+        model = create_model_deep4(n_chans, n_classes)
 
     elif model_name == 'deep4New':
         model = create_model_newDeep4(input_window_samples, n_chans, n_classes)
