@@ -1,21 +1,7 @@
 """ Callbacks related to training progress. """
-
-import os
-import pickle
-import warnings
-from contextlib import suppress
-from fnmatch import fnmatch
-from functools import partial
-from itertools import product
-
 import numpy as np
 from skorch.callbacks import Callback
-from skorch.exceptions import SkorchException
-from skorch.utils import _check_f_arguments
-from skorch.utils import noop
-from skorch.utils import open_file_like
-from skorch.utils import freeze_parameter
-from skorch.utils import unfreeze_parameter
+
 
 class EarlyStopping(Callback):
     """Callback for stopping training when scores don't improve.
