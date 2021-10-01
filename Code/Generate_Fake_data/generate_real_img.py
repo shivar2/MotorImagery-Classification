@@ -56,12 +56,6 @@ def get_data(data_load_path,
     for x, y, window_ind in train_set:
         data[i] = x
         i += 1
-    data = data.reshape(-1, n_chans, 250)
-
-    # max normalize
-    # max = np.max(data, keepdims=True, axis=-1)
-    # normal_data = data / max
-
     return data, n_chans
 
 
@@ -74,11 +68,11 @@ mapping = {'left_hand': 0, 'right_hand': 1, 'feet': 2, 'tongue': 3 }
 
 
 # number of images to generate
-batch_size = 24 * 4
+batch_size = 24
 
 # GAN info
 sfreq = 250
-time_sample = 250
+time_sample = 1000
 window_stride_samples = 467
 noise = 100
 
@@ -105,7 +99,7 @@ for subject_id in subject_id_list:
 
             # Load real data
             data_load_path = os.path.join(
-                '../../Data/Real_Data/BCI/bnci-raw/0-38/22channels/' + str(subject_id)) + '/'
+                '../../Data/Real_Data/BCI/bnci-raw/0-38/22channels-zmax/' + str(subject_id)) + '/'
 
             data, n_chans = get_data(data_load_path=data_load_path,
                                      time_sample=time_sample,
