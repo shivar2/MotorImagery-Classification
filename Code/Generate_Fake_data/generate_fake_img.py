@@ -75,13 +75,13 @@ for subject_id in subject_id_list:
             # ---------------------
             #  PLOT FAKE
             # ---------------------
-            j = 0
-            for fake_img in gen_sig:
-                fig, axs = plt.subplots(1, 1)
-                fig.tight_layout()
+            fake_imgs = Variable(gen_sig, requires_grad=True)
+            fake_imgs = fake_imgs.detach().cpu().numpy()
 
-                fake_img = Variable(fake_img, requires_grad=True)
-                fake_img = fake_img.detach().cpu().numpy()
+            j = 0
+            for fake_img in fake_imgs:
+                fig, axs = plt.subplots()
+                fig.tight_layout()
 
                 axs.imshow(fake_img, aspect='auto')
                 plt.savefig("%s/%d.png" % (save_fake_path, j))
