@@ -200,7 +200,22 @@ class WGANGP(nn.Module):
         # ---------------------
         #  Save Generator
         # ---------------------
-        torch.save(self.generator.state_dict(), save_model_path + 'generator_state_dict.pth')
+        torch.save({
+            'epoch': self.n_epochs,
+            'model_state_dict': self.generator.state_dict(),
+            'optimizer_state_dict': self.optimizer_G.state_dict(),
+            'loss': g_tot,
+            }, save_model_path + 'generator_state_dict.pth')
+
+        # ---------------------
+        #  Save Generator
+        # ---------------------
+        torch.save({
+            'epoch': self.n_epochs,
+            'model_state_dict': self.discriminator.state_dict(),
+            'optimizer_state_dict': self.optimizer_D.state_dict(),
+            'loss': d_tot,
+            }, save_model_path + 'discriminator_state_dict.pth')
 
         # ---------------------
         #  PLOT
