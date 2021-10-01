@@ -15,7 +15,6 @@ set_random_seeds(seed=seed, cuda=cuda)
 
 
 subject_id_list = [8]
-normalizer_name = 'MaxNormalized/'       # 'tanhNormalized/'
 
 # mapping to HGD tasks
 tasks = ['feet', 'left_hand', 'right_hand', 'tongue']
@@ -23,11 +22,11 @@ mapping = {'left_hand': 0, 'right_hand': 1, 'feet': 2, 'tongue': 3 }
 
 
 # number of images to generate
-batch_size = 24 * 4
+batch_size = 24
 
 # GAN info
 sfreq = 250
-time_sample = 250
+time_sample = 1000
 window_stride_samples = 467
 noise = 100
 
@@ -47,7 +46,7 @@ for subject_id in subject_id_list:
             # ---------------------
 
             # Save path
-            save_fake_path = '../../Result/IMG-Fake-WGan-GP-Signal-VERSION7/' + normalizer_name +\
+            save_fake_path = '../../Result/IMG-Fake-WGan-GP-Signal-VERSION7/' + \
                              str(subject_id) + '/' + tasks_name + '/'
 
             if not os.path.exists(save_fake_path):
@@ -55,7 +54,7 @@ for subject_id in subject_id_list:
 
             # path to generator weights .pth file
             saved_models_path = '../../Model_Params/GANs/WGan-GP-Signal-VERSION7/' +\
-                                    normalizer_name + str(subject_id) + '/' + key + '/'
+                                str(subject_id) + '/' + key + '/'
             saved_models_path += 'generator_state_dict.pth'
 
             # Create fake samples
