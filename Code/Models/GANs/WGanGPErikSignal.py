@@ -234,8 +234,4 @@ class WGANGP(nn.Module):
         # plt.show()
         plt.close()
 
-        # Save subject and task data such that it can be used to generate
-        # Fake samples later
-        # fp = os.path.join(os.getcwd(), self.dir)
-        # sp = os.path.join(fp, 'Subject{}WGAN_Model_Data_For_Task{}.h5'.format(self.subject, self.task))
-        # self.generator.save(sp)
+        return d_tot, g_tot
