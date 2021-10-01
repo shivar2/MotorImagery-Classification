@@ -141,5 +141,5 @@ def run_model(dataset, model, phase, save_path):
     torch.save(model, save_path + "model.pth")
 
     # Get results
-    get_results(clf, test_set, save_path=save_path, n_chans=n_chans,input_window_samples=1000)
+    get_results(clf, test_set, save_path=save_path, n_chans=n_chans,input_window_samples=1125)
 
