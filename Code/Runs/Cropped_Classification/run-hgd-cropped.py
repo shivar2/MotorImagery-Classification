@@ -7,7 +7,7 @@ from Code.base import load_data_object, create_model_deep4,\
     create_model_newDeep4, create_model_newDeep4_3d, detect_device
 
 from Code.Preprocess.MIpreprocess import add_channel_to_raw
-from Code.CroppedClassifications import HGDCroppedClassification
+from Code.Classifications import HGDCroppedClassification
 from Code.Models.deepNewUtils import deep4New3dutils
 
 # Run Info

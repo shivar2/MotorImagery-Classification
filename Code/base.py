@@ -265,10 +265,10 @@ def get_results(clf, test_set, save_path, n_chans, input_window_samples=1000):
         i += 1
 
     score = clf.score(test, y=target)
-    print("CroppedClassifications Score (Accuracy) is:  " + str(score))
+    print("Classifications Score (Accuracy) is:  " + str(score))
 
     f = open(save_path + "test-result.txt", "w")
-    f.write("CroppedClassifications Score (Accuracy) is:  " + str(score))
+    f.write("Classifications Score (Accuracy) is:  " + str(score))
     f.close()
 
     ########################################

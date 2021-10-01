@@ -5,7 +5,7 @@ from braindecode.util import set_random_seeds
 from Code.base import load_data_object, create_model_deep4_auto,\
     create_model_newDeep4, create_model_newDeep4_3d, detect_device
 
-from Code.TrialClassifications import TrialsClassification
+from Code.Classifications.TrialClassifications import TrialsClassification
 
 # Run Info
 subject_id_list = [1, 2, 3, 4, 5, 6, 7, 8, 9]

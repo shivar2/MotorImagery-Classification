@@ -6,7 +6,7 @@ from Code.Preprocess import add_channel_to_raw
 from Code.base import load_data_object, create_model_deep4_auto,\
     create_model_newDeep4, create_model_newDeep4_3d, detect_device
 
-from Code.TrialClassifications import HGDTrialsClassification
+from Code.Classifications.TrialClassifications import HGDTrialsClassification
 
 # Run Info
 subject_id_list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]

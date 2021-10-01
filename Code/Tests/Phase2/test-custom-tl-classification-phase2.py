@@ -79,7 +79,7 @@ def test_clf(double_channel, data_load_path, clf_load_path, save_path):
     clf.load_params(f_params=clf_load_path + 'params2.pt', f_optimizer=clf_load_path + 'optimizers2.pt')
 
     score = clf.score(test_set, y=target)
-    print("EEG CroppedClassifications Score (Accuracy) is:  " + str(score))
+    print("EEG Classifications Score (Accuracy) is:  " + str(score))
 
     ########################################
     #   Generate confusion matrices
@@ -104,7 +104,7 @@ def test_clf(double_channel, data_load_path, clf_load_path, save_path):
 
 
 ########################################
-#   Test TL And Final CroppedClassifications
+#   Test TL And Final Classifications
 ########################################
 
 subject_id_list = [2]

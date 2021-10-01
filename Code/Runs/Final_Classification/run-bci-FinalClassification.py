@@ -3,7 +3,7 @@ import os
 from Code.base import load_data_object, create_model_deep4,\
     create_model_newDeep4, create_model_newDeep4_3d, load_fake_data
 
-from Code.CroppedClassifications import FinalClassification
+from Code.Classifications import FinalClassification
 
 # Run Info
 subject_id_list = [1]
