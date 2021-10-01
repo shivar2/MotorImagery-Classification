@@ -175,11 +175,11 @@ def create_model_shallow(input_window_samples=1000, n_chans=4, n_classes=4):
     return model
 
 
-def create_model_deep4(input_window_samples=None, n_chans=4, n_classes=4):
+def create_model_deep4(n_chans=4, n_classes=4):
     model = Deep4Net(
         in_chans=n_chans,
         n_classes=n_classes,
-        input_window_samples=input_window_samples,
+        input_window_samples=None,
         final_conv_length=2,
     )
     return model
