@@ -18,6 +18,7 @@ def get_data(data_load_path,
              window_stride_samples=1,
              mapping=None,
              pick_channels=None):
+
     # Dataset
     dataset = load_concat_dataset(
         path=data_load_path,
@@ -55,13 +56,8 @@ def get_data(data_load_path,
     for x, y, window_ind in train_set:
         data[i] = x
         i += 1
-    data = data.reshape(-1, n_chans, 250)
 
-    # max normalize
-    max = np.max(data, keepdims=True, axis=-1)
-    normal_data = data / max
-
-    return normal_data, n_chans
+    return data, n_chans
 
 
 #########################
@@ -76,7 +72,7 @@ set_random_seeds(seed=seed, cuda=cuda)
 # Load data            #
 #########################
 subject_id = 8
-data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels/' + str(subject_id)) + '/'
+data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels-zmax/' + str(subject_id)) + '/'
 
 mapping = {'left_hand': 0, 'right_hand': 1, 'feet': 2, 'tongue': 3 }
 
@@ -87,8 +83,6 @@ all_channels = ['Fz',
                  'C5', 'C1', 'C2', 'C6', 'CP3', 'CPz', 'CP4',
                  'P1', 'P2']
 
-
-normalizer_name = 'MaxNormalized/'
 time_sample = 1000
 window_stride_samples = 467
 
@@ -98,12 +92,12 @@ for key, value in mapping.items():
             key: value
         }
 
-        save_result_path = '../../../Result/GANs/WGan-GP-Signal-VERSION7/' + normalizer_name + str(
+        save_result_path = '../../../Result/GANs/WGan-GP-Signal-VERSION7/' + str(
             subject_id) + '/' + tasks_name + '/'
         if not os.path.exists(save_result_path):
             os.makedirs(save_result_path)
 
-        save_model_path = '../../../Model_Params/GANs/WGan-GP-Signal-VERSION7/' + normalizer_name + str(
+        save_model_path = '../../../Model_Params/GANs/WGan-GP-Signal-VERSION7/' + str(
             subject_id) + '/' + tasks_name + '/'
         if not os.path.exists(save_model_path):
             os.makedirs(save_model_path)
@@ -125,7 +119,7 @@ for key, value in mapping.items():
         net = WGANGP(subject=subject_id,
                      n_epochs=epochs,
                      batch_size=batchsize,
-                     time_sample=250,
+                     time_sample=time_sample,
                      channels=n_chans,
                      sample_interval=400,
                      result_path=save_result_path,
