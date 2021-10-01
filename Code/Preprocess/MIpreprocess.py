@@ -53,6 +53,35 @@ def basic_raw_preprocess(dataset, low_cut_hz=4., high_cut_hz=38.):
     return dataset
 
 
+def basic_normalize_preprocess(dataset, low_cut_hz=4., high_cut_hz=38.):
+    C_22_sensors = [
+        'FC1', 'FC2',
+        'C3', 'Cz', 'C4',
+        'CP1', 'CP2',
+        'FC3', 'FCz', 'FC4', 'C5', 'C1', 'C2', 'C6',
+        'CP3', 'CPz', 'CP4',
+        'Fz', 'P1', 'Pz', 'P2', 'POz']
+
+    normal_fn_name = 'zscore'
+    normal_fn = {'zscore': zscore}[normal_fn_name]
+
+    max_fn_name = 'maxNormalize'
+    max_fn = {'maxNormalize': MaxNormalize}[max_fn_name]
+
+    preprocessors = [
+        MNEPreproc(fn='pick_channels', ch_names=C_22_sensors, ordered=True),
+        NumpyPreproc(fn=lambda x: x * 1e6),
+        NumpyPreproc(fn=lambda x: np.clip(x, -800, 800)),
+        MNEPreproc(fn='filter', l_freq=low_cut_hz, h_freq=high_cut_hz),
+        NumpyPreproc(fn=normal_fn),
+        NumpyPreproc(fn=max_fn),
+    ]
+
+    # Transform the data
+    preprocess(dataset, preprocessors)
+    return dataset
+
+
 def basic_preprocess(dataset, low_cut_hz=4., high_cut_hz=38., factor_new=1e-3, init_block_size=1000):
     low_cut_hz = low_cut_hz  # low cut frequency for filtering
     high_cut_hz = high_cut_hz  # high cut frequency for filtering
