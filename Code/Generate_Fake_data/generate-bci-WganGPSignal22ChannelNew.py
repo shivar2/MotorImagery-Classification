@@ -1,20 +1,38 @@
-
 import os
 import random
 import numpy as np
 import pandas as pd
 import mne
-
 import torch.utils.data
 from torch.autograd import Variable
 
 from braindecode.datasets.base import WindowsDataset, BaseConcatDataset
+from braindecode.util import set_random_seeds
 
 from Code.Models.GANs.WGanGPSignalModels import Generator
 
 
+cuda = True if torch.cuda.is_available() else False
+Tensor = torch.cuda.FloatTensor if cuda else torch.FloatTensor
+
+seed = 20200220  # random seed to make results reproducible
+set_random_seeds(seed=seed, cuda=cuda)
+
+
 subject_id_list = [8]
 normalizer_name = 'MaxNormalized/'       # 'tanhNormalized/'
+
+# mapping to HGD tasks
+task_dict = {'left_hand': 0, 'right_hand': 1, 'feet': 2, 'tongue': 3}
+tasks = ['feet', 'left_hand', 'right_hand', 'tongue']
+all_channels = [
+        'FC1', 'FC2',
+        'C3', 'Cz', 'C4',
+        'CP1', 'CP2',
+        'FC3', 'FCz', 'FC4', 'C5', 'C1', 'C2', 'C6',
+        'CP3', 'CPz', 'CP4',
+        'Fz', 'P1', 'Pz', 'P2', 'POz']
+
 
 # number of images to generate
 batch_size = 24 * 4
@@ -23,21 +41,6 @@ batch_size = 24 * 4
 sfreq = 250
 time_sample = 250
 noise = 100
-
-cuda = True if torch.cuda.is_available() else False
-Tensor = torch.cuda.FloatTensor if cuda else torch.FloatTensor
-
-# mapping to HGD tasks
-task_dict = {'left_hand': 0, 'right_hand': 1, 'feet': 2, 'tongue': 3}
-tasks = ['feet', 'left_hand', 'right_hand', 'tongue']
-
-all_channels = [
-        'FC1', 'FC2',
-        'C3', 'Cz', 'C4',
-        'CP1', 'CP2',
-        'FC3', 'FCz', 'FC4', 'C5', 'C1', 'C2', 'C6',
-        'CP3', 'CPz', 'CP4',
-        'Fz', 'P1', 'Pz', 'P2', 'POz']
 
 for subject_id in subject_id_list:
 
