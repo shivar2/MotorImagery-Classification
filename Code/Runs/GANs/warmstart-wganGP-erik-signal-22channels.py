@@ -144,7 +144,7 @@ for key, value in mapping.items():
         net.optimizer_D.load_state_dict(checkpoint_d['optimizer_state_dict'])
         loss_d = checkpoint_d['loss']
 
-        net.train(data, save_model_path=load_model_path,
+        net.train(data, save_model_path=save_model_path,
                   last_epoch=last_epoch,
                   g_tot=loss_g,
                   d_tot=loss_d)
