@@ -5,7 +5,7 @@ import numpy as np
 
 from braindecode.datasets.moabb import MOABBDataset
 from braindecode.datautil.preprocess import MNEPreproc, NumpyPreproc, preprocess
-from braindecode.datautil.preprocess import exponential_moving_standardize, exponential_moving_demean, zscore, scale
+from braindecode.datautil.preprocess import exponential_moving_standardize, exponential_moving_demean
 
 from braindecode.datautil.serialization import load_concat_dataset
 
@@ -218,6 +218,13 @@ def MaxNormalize_1sec(data, n_chans=22, window_time=250):
 
     normal_data = normal_data.reshape(orginal_shape)
     return normal_data
+
+
+def zscore(data):
+    step1 = data - np.mean(data, keepdims=True, axis=-1)
+    zscored = step1 / np.std(data, keepdims=True, axis=-1)
+
+    return zscored
 
 
 def add_channel_to_raw(dataset):
