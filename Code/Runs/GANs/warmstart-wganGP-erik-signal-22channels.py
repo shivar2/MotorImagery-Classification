@@ -97,18 +97,18 @@ for key, value in mapping.items():
         }
 
         save_result_path = '../../../Result/GANs/WGan-GP-Signal-VERSION7/' + str(
-            subject_id) + '/' + tasks_name + '/' + str(last_epoch + epochs) + '/'
+            subject_id) + '/' + str(last_epoch + epochs) + '/' + tasks_name + '/'
         if not os.path.exists(save_result_path):
             os.makedirs(save_result_path)
 
         save_model_path = '../../../Model_Params/GANs/WGan-GP-Signal-VERSION7/' + str(
-            subject_id) + '/' + tasks_name + '/' + str(last_epoch + epochs) + '/'
+            subject_id) + '/' + str(last_epoch + epochs) + '/' + tasks_name + '/'
 
         if not os.path.exists(save_model_path):
             os.makedirs(save_model_path)
 
         load_model_path = '../../../Model_Params/GANs/WGan-GP-Signal-VERSION7/' + str(
-            subject_id) + '/' + tasks_name + '/' + str(last_epoch) + '/'
+            subject_id) + '/' + str(last_epoch) + '/' + tasks_name + '/'
 
         data, n_chans = get_data(data_load_path=data_load_path,
                                  time_sample=time_sample,

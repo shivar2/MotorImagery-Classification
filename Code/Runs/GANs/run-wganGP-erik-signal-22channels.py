@@ -75,7 +75,7 @@ for subject_id in range(1, 10):
 
     data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels-zmax/' + str(subject_id)) + '/'
 
-    mapping = {'left_hand': 0, 'right_hand': 1, 'feet': 2, 'tongue': 3 }
+    mapping = {'left_hand': 0, 'right_hand': 1, 'feet': 2, 'tongue': 3}
 
     all_channels = ['Fz',
                      'FC1', 'FC2',
@@ -127,6 +127,9 @@ for subject_id in range(1, 10):
                          )
 
             net.train(data, save_model_path=save_model_path)
+
+            del net
+            del data
 
 print("end")
 
