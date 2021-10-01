@@ -31,7 +31,10 @@ set_random_seeds(seed=seed, cuda=cuda)
 for subject_id in subject_id_list:
     # data
     if model_name == 'deep4':
-        data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels/' + str(subject_id)) + '/'
+        if normalize:
+            data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels-zmax/' + str(subject_id)) + '/'
+        else:
+            data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels/' + str(subject_id)) + '/'
     else:
         data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/42channels/' + str(subject_id)) + '/'
 
@@ -75,6 +78,6 @@ for subject_id in subject_id_list:
     if not os.path.exists(save_path):
         os.makedirs(save_path)
 
-    GanClassification.run_model(dataset=dataset, fake_set=fake_set, model=model, normalize=normalize,
+    GanClassification.run_model(dataset=dataset, fake_set=fake_set, model=model,
                                 phase=phase_number, n_preds_per_input=n_preds_per_input, device=device,
                                 save_path=save_path)

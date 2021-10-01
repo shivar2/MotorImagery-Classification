@@ -178,7 +178,7 @@ def train_2phase(train_set_all,
     return clf2
 
 
-def run_model(dataset, fake_set, model_load_path, normalize, double_channel, phase, save_path):
+def run_model(dataset, fake_set, model_load_path, double_channel, phase, save_path):
     input_window_samples = 1000
     if double_channel:
         n_chans = dataset[0][0].shape[0] * 2
@@ -205,7 +205,6 @@ def run_model(dataset, fake_set, model_load_path, normalize, double_channel, pha
 
     windows_dataset = cut_compute_windows(dataset,
                                           n_preds_per_input,
-                                          normalize=normalize,
                                           input_window_samples=input_window_samples,
                                           trial_start_offset_seconds=trial_start_offset_seconds)
 

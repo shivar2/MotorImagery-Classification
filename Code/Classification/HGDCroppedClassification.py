@@ -138,7 +138,7 @@ def train_2phase(train_set_all, model, save_path, device='cpu'):
     return clf2
 
 
-def run_model(dataset, model, normalize, phase, n_preds_per_input, device, save_path):
+def run_model(dataset, model, phase, n_preds_per_input, save_path):
     cuda, device = detect_device()
     seed = 20200220
     set_random_seeds(seed=seed, cuda=cuda)
@@ -150,7 +150,6 @@ def run_model(dataset, model, normalize, phase, n_preds_per_input, device, save_
 
     windows_dataset = cut_compute_windows(dataset,
                                           n_preds_per_input,
-                                          normalize=normalize,
                                           input_window_samples=input_window_samples,
                                           trial_start_offset_seconds=trial_start_offset_seconds)
 

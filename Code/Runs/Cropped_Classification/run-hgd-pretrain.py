@@ -67,8 +67,8 @@ for subject_id in subject_id_list:
     if not os.path.exists(save_path):
         os.makedirs(save_path)
 
-    HGDCroppedClassification.run_model(dataset=dataset, model=model, normalize=normalize,
+    HGDCroppedClassification.run_model(dataset=dataset, model=model,
                                        phase=phase_number, save_path=save_path,
-                                       n_preds_per_input=n_preds_per_input, device=device)
+                                       n_preds_per_input=n_preds_per_input)
 
 

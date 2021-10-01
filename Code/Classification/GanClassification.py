@@ -133,7 +133,7 @@ def train_2phase(train_set_all, model, save_path, device='cpu'):
     return clf2
 
 
-def run_model(dataset, fake_set, model, normalize, phase, n_preds_per_input, device, save_path):
+def run_model(dataset, fake_set, model,phase, n_preds_per_input, device, save_path):
     input_window_samples = 1000
     n_chans = 22
 
@@ -141,7 +141,6 @@ def run_model(dataset, fake_set, model, normalize, phase, n_preds_per_input, dev
 
     windows_dataset = cut_compute_windows(dataset,
                                           n_preds_per_input,
-                                          normalize=normalize,
                                           input_window_samples=input_window_samples,
                                           trial_start_offset_seconds=trial_start_offset_seconds)
 

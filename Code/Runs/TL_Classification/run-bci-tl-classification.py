@@ -31,7 +31,12 @@ set_random_seeds(seed=seed, cuda=cuda)
 
 for subject_id in subject_id_list:
     # data
-    data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels/' + str(subject_id)) + '/'
+    if normalize:
+        data_load_path = os.path.join(
+            '../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels-zmax/' + str(subject_id)) + '/'
+    else:
+        data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels/' + str(subject_id)) + '/'
+
     dataset = load_data_object(data_load_path)
 
     input_window_samples = 1000
@@ -72,8 +77,6 @@ for subject_id in subject_id_list:
     TLClassification.run_model(dataset=dataset, model=model,
                                n_preds_per_input=n_preds_per_input,
                                device=device,
-                               normalize=normalize,
-                               double_channel=double_channel,
-                               phase=phase_number, save_path=save_path)
+                               double_channel=double_channel, save_path=save_path)
 
 

@@ -22,7 +22,6 @@ else:
 # Fake data info
 
 gan_version = 'WGan-GP-Signal-VERSION7/'
-normalizer_name = 'maxNormalized/'
 
 cuda, device = detect_device()
 seed = 20200220
@@ -32,8 +31,12 @@ for subject_id in subject_id_list:
     for fake_ind in range(0, 10):
         # data
         if model_name == 'deep4':
-            data_load_path = os.path.join(
-                '../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels/' + str(subject_id)) + '/'
+            if normalize:
+                data_load_path = os.path.join(
+                    '../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels-zmax/' + str(subject_id)) + '/'
+            else:
+                data_load_path = os.path.join(
+                    '../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels/' + str(subject_id)) + '/'
         else:
             data_load_path = os.path.join(
                 '../../../Data/Real_Data/BCI/bnci-raw/0-38/42channels/' + str(subject_id)) + '/'
@@ -72,13 +75,13 @@ for subject_id in subject_id_list:
         # Path to saving Models
         # mkdir path to save
         save_path = os.path.join('../../../Model_Params/FakeClassification-each/0-38/' + gan_version +
-                                 model_name + '/' + phase_number + ' - ' + normalizer_name +
+                                 model_name + '/' + phase_number + ' - ' + normalize_str +
                                  str(subject_id)) + '/' + 'fake number ' + str(fake_ind) + '/'
 
         if not os.path.exists(save_path):
             os.makedirs(save_path)
 
-        GanClassification.run_model(dataset=dataset, fake_set=fake_set, model=model, normalize=normalize,
+        GanClassification.run_model(dataset=dataset, fake_set=fake_set, model=model,
                                     phase=phase_number, n_preds_per_input=n_preds_per_input, device=device,
                                     save_path=save_path)
 

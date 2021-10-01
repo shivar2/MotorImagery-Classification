@@ -273,7 +273,7 @@ def train_2phase(train_set_all, save_path, model, double_channel=False, device='
     return clf2
 
 
-def run_model(dataset, model, normalize, double_channel, phase, n_preds_per_input, device, save_path):
+def run_model(dataset, model, double_channel, n_preds_per_input, device, save_path):
     input_window_samples = 1000
     n_classes = 4
     # Extract number of chans and time steps from dataset
@@ -286,14 +286,12 @@ def run_model(dataset, model, normalize, double_channel, phase, n_preds_per_inpu
 
     windows_dataset = cut_compute_windows(dataset,
                                           n_preds_per_input,
-                                          normalize=normalize,
                                           input_window_samples=input_window_samples,
                                           trial_start_offset_seconds=trial_start_offset_seconds)
 
     train_set, test_set = split_into_train_valid(windows_dataset, use_final_eval=True)
 
-    clf = train_StepByStep(train_set, model=model, save_path=save_path,
-                       double_channel=double_channel, device=device)
+    clf = train_StepByStep(train_set, model=model, save_path=save_path, double_channel=double_channel, device=device)
 
     plot(clf, save_path)
     torch.save(model, save_path + "model.pth")

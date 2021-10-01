@@ -26,7 +26,13 @@ gan_version = 'WGan-GP-Signal-VERSION5/'
 
 for subject_id in subject_id_list:
     # data
-    data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels/' + str(subject_id)) + '/'
+
+    if normalize:
+        data_load_path = os.path.join(
+            '../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels-zmax/' + str(subject_id)) + '/'
+    else:
+        data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels/' + str(subject_id)) + '/'
+
     dataset = load_data_object(data_load_path)
 
     fake_data_load_path = os.path.join('../../../Data/Fake_Data/' + gan_version + str(subject_id)) + '/Runs/'
@@ -59,7 +65,6 @@ for subject_id in subject_id_list:
 
     FinalClassification.run_model(dataset=dataset, fake_set=fake_set,
                                   model_load_path=model_load_path + param_name,
-                                  normalize=normalize,
                                   double_channel=double_channel, phase=phase_number, save_path=save_path)
 
 

@@ -27,7 +27,10 @@ set_random_seeds(seed=seed, cuda=cuda)
 for subject_id in subject_id_list:
     # data
     if model_name == 'deep4':
-        data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels/' + str(subject_id)) + '/'
+        if normalize:
+            data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels-zmax/' + str(subject_id)) + '/'
+        else:
+            data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels/' + str(subject_id)) + '/'
     else:
         data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/42channels/' + str(subject_id)) + '/'
 
@@ -62,12 +65,12 @@ for subject_id in subject_id_list:
     # Path to saving Models
     # mkdir path to save
     save_path = os.path.join('../../../Model_Params/BCI_Models/0-38/' +
-                             model_name + '/' + phase_number + ' - ' + 'tanhNormalize' + str(subject_id)) + '/'
+                             model_name + '/' + phase_number + ' - ' + normalize_str + str(subject_id)) + '/'
 
     if not os.path.exists(save_path):
         os.makedirs(save_path)
 
-    CroppedClassification.run_model(dataset=dataset, model=model, normalize=normalize,
-                                    phase=phase_number, n_preds_per_input=n_preds_per_input, device=device,
+    CroppedClassification.run_model(dataset=dataset, model=model, phase=phase_number,
+                                    n_preds_per_input=n_preds_per_input,
                                     save_path=save_path)
 
