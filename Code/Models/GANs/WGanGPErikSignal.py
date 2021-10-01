@@ -30,7 +30,7 @@ class WGANGP(nn.Module):
         self.time_sample = time_sample                      # size of each image dimension
         self.channels = channels                            # number of image channels
 
-        self.n_critic = 1                                   # number of training steps for discriminator per iter
+        self.n_critic = 5                                   # number of training steps for discriminator per iter
         self.clip_value = 0.01                              # lower and upper clip value for disc. weights
         self.lambda_gp = 10                                 # Loss weight for gradient penalty
 
@@ -185,8 +185,8 @@ class WGANGP(nn.Module):
                     #     # in a folder called 'EEG Samples', every 100 epochs.
                     #
                     #     plt.savefig("%s/%d.png" % (self.dir, epoch))
-                    #     # plt.show()
-                    #     plt.close()
+                    #     plt.show()
+                    #     # plt.close()
 
                     batches_done += self.n_critic
 
