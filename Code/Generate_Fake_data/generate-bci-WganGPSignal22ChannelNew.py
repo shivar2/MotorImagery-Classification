@@ -20,7 +20,6 @@ set_random_seeds(seed=seed, cuda=cuda)
 
 
 subject_id_list = [8]
-normalizer_name = 'MaxNormalized/'       # 'tanhNormalized/'
 
 # mapping to HGD tasks
 task_dict = {'left_hand': 0, 'right_hand': 1, 'feet': 2, 'tongue': 3}
@@ -35,11 +34,11 @@ all_channels = [
 
 
 # number of images to generate
-batch_size = 24 * 4
+batch_size = 24
 
 # GAN info
 sfreq = 250
-time_sample = 250
+time_sample = 1000
 noise = 100
 
 for subject_id in subject_id_list:
@@ -51,8 +50,7 @@ for subject_id in subject_id_list:
         for task in tasks:
 
             # path to generator weights .pth file
-            saved_models_path = '../../Model_Params/GANs/WGan-GP-Signal-VERSION7/' +\
-                                    normalizer_name + str(subject_id) + '/' + task + '/'
+            saved_models_path = '../../Model_Params/GANs/WGan-GP-Signal-VERSION7/' + str(subject_id) + '/' + task + '/'
             saved_models_path += 'generator_state_dict.pth'
 
             netG = Generator(time_sample=time_sample, noise=noise, channels=22)
@@ -83,9 +81,6 @@ for subject_id in subject_id_list:
 
             target = task_dict[task]
             event_dict = {task: target}
-
-            # merge 4s together to create 1 epoch
-            task_channels_trial = task_channels_trial.reshape(-1, 22, 1000)
             # Creating Epoch objects
 
             for tct in task_channels_trial:
@@ -101,7 +96,7 @@ for subject_id in subject_id_list:
                     })
 
                     epoch_data = np.array(tct)
-                    epoch_data = np.reshape(epoch_data, newshape=(-1, len(all_channels), time_sample*4))
+                    epoch_data = np.reshape(epoch_data, newshape=(-1, len(all_channels), time_sample))
 
                     simulated_epoch = mne.EpochsArray(epoch_data, info, tmin=-0.5, events=events, event_id=event_dict, metadata=metadata)
                     # simulated_epoch.plot(show_scrollbars=False, events=events, event_id=event_dict)
