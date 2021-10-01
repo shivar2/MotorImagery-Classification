@@ -64,18 +64,10 @@ def get_data(data_load_path,
 # MAIN                  #
 #########################
 cuda = True if torch.cuda.is_available() else False
-
 seed = 20200220  # random seed to make results reproducible
 set_random_seeds(seed=seed, cuda=cuda)
 
-#########################
-# Load data            #
-#########################
-subject_id = 1
-data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels-zmax/' + str(subject_id)) + '/'
-
 mapping = {'left_hand': 0, 'right_hand': 1, 'feet': 2, 'tongue': 3 }
-
 all_channels = ['Fz',
                  'FC1', 'FC2',
                  'C3', 'Cz', 'C4', 'CP1', 'CP2',
@@ -90,7 +82,14 @@ batchsize = 64
 epochs = 500
 last_epoch = 500
 
-for key, value in mapping.items():
+for subject_id in range(1, 10):
+    #########################
+    # Load data            #
+    #########################
+
+    data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels-zmax/' + str(subject_id)) + '/'
+
+    for key, value in mapping.items():
         tasks_name = key
         task_mapping = {
             key: value
@@ -137,17 +136,13 @@ for key, value in mapping.items():
         checkpoint_g = torch.load(load_model_path + 'generator_state_dict.pth')
         net.generator.load_state_dict(checkpoint_g['model_state_dict'])
         net.optimizer_G.load_state_dict(checkpoint_g['optimizer_state_dict'])
-        loss_g = checkpoint_g['loss']
 
         checkpoint_d = torch.load(load_model_path + 'discriminator_state_dict.pth')
         net.discriminator.load_state_dict(checkpoint_d['model_state_dict'])
         net.optimizer_D.load_state_dict(checkpoint_d['optimizer_state_dict'])
-        loss_d = checkpoint_d['loss']
 
         net.train(data, save_model_path=save_model_path,
-                  last_epoch=last_epoch,
-                  g_tot=loss_g,
-                  d_tot=loss_d)
+                  last_epoch=last_epoch)
 
 print("end")
 

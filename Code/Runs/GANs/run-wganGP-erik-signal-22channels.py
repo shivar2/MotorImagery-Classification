@@ -64,9 +64,20 @@ def get_data(data_load_path,
 # MAIN                  #
 #########################
 cuda = True if torch.cuda.is_available() else False
-
 seed = 20200220  # random seed to make results reproducible
 set_random_seeds(seed=seed, cuda=cuda)
+
+mapping = {'left_hand': 0, 'right_hand': 1, 'feet': 2, 'tongue': 3}
+
+all_channels = ['Fz',
+                'FC1', 'FC2',
+                'C3', 'Cz', 'C4', 'CP1', 'CP2',
+                'Pz', 'POz', 'FC3', 'FCz', 'FC4',
+                'C5', 'C1', 'C2', 'C6', 'CP3', 'CPz', 'CP4',
+                'P1', 'P2']
+
+time_sample = 1000
+window_stride_samples = 467
 
 batchsize = 64
 epochs = 500
@@ -77,18 +88,6 @@ for subject_id in range(1, 10):
     #########################
 
     data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels-zmax/' + str(subject_id)) + '/'
-
-    mapping = {'left_hand': 0, 'right_hand': 1, 'feet': 2, 'tongue': 3}
-
-    all_channels = ['Fz',
-                     'FC1', 'FC2',
-                     'C3', 'Cz', 'C4', 'CP1', 'CP2',
-                     'Pz', 'POz', 'FC3', 'FCz', 'FC4',
-                     'C5', 'C1', 'C2', 'C6', 'CP3', 'CPz', 'CP4',
-                     'P1', 'P2']
-
-    time_sample = 1000
-    window_stride_samples = 467
 
     for key, value in mapping.items():
             tasks_name = key
