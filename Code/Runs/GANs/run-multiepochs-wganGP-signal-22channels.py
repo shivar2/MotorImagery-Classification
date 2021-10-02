@@ -116,7 +116,7 @@ for key, value in mapping.items():
             if not os.path.exists(save_result_path):
                 os.makedirs(save_result_path)
 
-            save_model_path = '../../../Model_Params/GANs/WGan-GP-Signal-VERSION7/' + normalize_type + str(
+            save_model_path = '../../../Model_Params/GANs/WGan-GP-Signal-VERSION7' + normalize_type + str(
                 subject_id) + '/' + str(last_epoch + epochs) + '/' + tasks_name + '/'
 
             if not os.path.exists(save_model_path):
