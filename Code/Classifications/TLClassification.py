@@ -42,29 +42,42 @@ def freezing_model(model, layer):
     return model
 
 
-def train_StepByStep(train_set_all, save_path, model, double_channel=False, device='cpu'):
-
-    train_set, valid_set = split_into_train_valid(train_set_all, use_final_eval=False)
+def create_classifier(model, valid_set, n_epochs, device, double_channel=False, warm_start=True,
+                      lr=0.0001, cp=False, save_path=''):
 
     batch_size = 64
 
-    # PHASE 1
-    n_epochs = 800
+    if cp:
+        cp = Checkpoint(monitor='valid_accuracy_best',
+                        f_params="params1.pt",
+                        f_optimizer="optimizers1.pt",
+                        f_history="history1.json",
+                        dirname=save_path, f_criterion=None)
 
-    callbacks = [
-        "accuracy",
-    ]
+        # Early_stopping
+        early_stopping = EarlyStopping(monitor='valid_accuracy', lower_is_better=False, patience=80)
 
-    clf1 = EEGTLClassifier(
+        callbacks = [
+            "accuracy",
+            ('cp', cp),
+            ('patience', early_stopping),
+        ]
+    else:
+        callbacks = [
+            "accuracy",
+        ]
+
+    clf = EEGTLClassifier(
         model,
-        max_epochs=20,
+        warm_start=warm_start,
+        max_epochs=n_epochs,
         double_channel=double_channel,
         is_freezing=True,
         cropped=True,
         criterion=CroppedLoss,
         criterion__loss_function=torch.nn.functional.nll_loss,
         optimizer=torch.optim.AdamW,
-        # optimizer__lr=lr,
+        optimizer__lr=lr,
         # optimizer__weight_decay=weight_decay,
         train_split=predefined_split(valid_set),
         iterator_train__shuffle=True,
@@ -72,50 +85,41 @@ def train_StepByStep(train_set_all, save_path, model, double_channel=False, devi
         callbacks=callbacks,
         device=device,
     )
+    return clf
+
+
+def train_StepByStep(train_set_all, save_path, model, double_channel=False, device='cpu'):
+
+    train_set, valid_set = split_into_train_valid(train_set_all, use_final_eval=False)
+
+    # PHASE 1
+
     # Layer1
     # model.apply(set_bn_eval)
     model = freezing_model(model, layer=1)
-    clf1.module = model
+    clf1 = create_classifier(model, valid_set, 20, device, double_channel, warm_start=False)
     clf1.fit(train_set, y=None)
 
     # Layer2
-    clf1.warm_start = True
-    model = freezing_model(model, layer=1)
-    clf1.module = model
-    clf1.partial_fit(train_set, y=None)
+    model = freezing_model(model, layer=2)
+    clf2 = create_classifier(model, valid_set, 20, device, double_channel, warm_start=True)
+    clf2.fit(train_set, y=None)
 
     # Layer3
     model = freezing_model(model, layer=3)
-    clf1.module = model
-    clf1.partial_fit(train_set, y=None)
+    clf3 = create_classifier(model, valid_set, 20, device, double_channel, warm_start=True)
+    clf3.fit(train_set, y=None)
 
     # Layer4
     model = freezing_model(model, layer=4)
-    clf1.module = model
-    clf1.partial_fit(train_set, y=None)
+    clf4 = create_classifier(model, valid_set, 20, device, double_channel, warm_start=True)
+    clf4.fit(train_set, y=None)
 
     # Layer5  -  PHASE1
-    cp = Checkpoint(monitor='valid_accuracy_best',
-                    f_params="params1.pt",
-                    f_optimizer="optimizers1.pt",
-                    f_history="history1.json",
-                    dirname=save_path, f_criterion=None)
-
-    # Early_stopping
-    early_stopping = EarlyStopping(monitor='valid_accuracy', lower_is_better=False, patience=80)
-
-    callbacks1 = [
-        "accuracy",
-        ('cp', cp),
-        ('patience', early_stopping),
-    ]
-
     model = freezing_model(model, layer=5)
-    clf1.module = model
-
-    clf1.max_epochs = 800
-    clf1.callbacks = callbacks1
-    clf1.partial_fit(train_set, y=None)
+    clf5 = create_classifier(model, valid_set, 800, device, double_channel,
+                             warm_start=True, cp=True, save_path=save_path)
+    clf5.fit(train_set, y=None)
 
     # PHASE 2
     # Best clf1 valid accuracy
@@ -140,13 +144,13 @@ def train_StepByStep(train_set_all, save_path, model, double_channel=False, devi
         ('patience', early_stopping2)
     ]
 
-    clf2 = EEGTLClassifier(
+    clf6 = EEGTLClassifier(
         model,
         double_channel=double_channel,
         is_freezing=True,
         cropped=True,
         warm_start=True,
-        max_epochs=n_epochs,
+        max_epochs=800,
         criterion=CroppedLoss,
         criterion__loss_function=torch.nn.functional.nll_loss,
         optimizer=torch.optim.AdamW,
@@ -154,18 +158,18 @@ def train_StepByStep(train_set_all, save_path, model, double_channel=False, devi
         # optimizer__weight_decay=weight_decay,
         train_split=predefined_split(valid_set),
         iterator_train__shuffle=True,
-        batch_size=batch_size,
+        batch_size=64,
         callbacks=callbacks2,
         device=device,
     )
 
-    clf2.initialize()  # This is important!
-    clf2.load_params(f_params=save_path + "params1.pt",
+    clf6.initialize()  # This is important!
+    clf6.load_params(f_params=save_path + "params1.pt",
                      f_optimizer=save_path + "optimizers1.pt",
                      f_history=save_path + "history1.json")
 
-    clf2.fit(train_set_all, y=None)
-    return clf2
+    clf6.fit(train_set_all, y=None)
+    return clf6
 
 
 def train_2phase(train_set_all, save_path, model, double_channel=False, device='cpu'):
