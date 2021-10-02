@@ -10,19 +10,16 @@ from Code.Classifications import GanClassification
 from Code.Models.deepNewUtils import deep4New3dutils
 
 # Run Info
-subject_id_list = [2]
+subject_id_list = [1]
 phase_number = '2'
 model_name = "deep4"
 
-normalize = True
-if normalize:
-    normalize_str = 'normalize/'
-else:
-    normalize_str = 'notNormalize/'
+normalize_type = '-stdmax/'   # '-zmax'
+gan_epoch_dir = '/7500/'
 
 # Fake data info
 fake_k = 3
-gan_version = 'WGan-GP-Signal-VERSION7/'
+gan_version = 'WGan-GP-Signal-VERSION7' + normalize_type
 
 cuda, device = detect_device()
 seed = 20200220
@@ -31,16 +28,16 @@ set_random_seeds(seed=seed, cuda=cuda)
 for subject_id in subject_id_list:
     # data
     if model_name == 'deep4':
-        if normalize:
-            data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels-zmax/' + str(subject_id)) + '/'
-        else:
-            data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels/' + str(subject_id)) + '/'
+        data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels' +
+                                      normalize_type + str(subject_id)) + '/'
     else:
         data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/42channels/' + str(subject_id)) + '/'
 
     dataset = load_data_object(data_load_path)
 
-    fake_data_load_path = os.path.join('../../../Data/Fake_Data/' + gan_version + str(subject_id)) + '/7500/Runs/'
+    fake_data_load_path = os.path.join('../../../Data/Fake_Data/' + gan_version + str(subject_id)) +\
+                          gan_epoch_dir +'Runs/'
+
     fake_set = load_fake_data(fake_data_load_path, fake_k)
 
     input_window_samples = 1000
@@ -71,9 +68,9 @@ for subject_id in subject_id_list:
 
     # Path to saving Models
     # mkdir path to save
-    save_path = os.path.join('../../../Model_Params/FakeClassification/0-38/' +
-                             model_name + '/' + phase_number + ' - ' + normalize_str +
-                             str(fake_k) + '/' + str(subject_id)) + '/7500/'
+    save_path = os.path.join('../../../Model_Params/FakeClassification-stdmax/0-38/' +
+                             model_name + '/' + phase_number + normalize_type +
+                             str(fake_k) + '/' + str(subject_id)) + gan_epoch_dir
 
     if not os.path.exists(save_path):
         os.makedirs(save_path)

@@ -13,15 +13,13 @@ from Code.Models.deepNewUtils import deep4New3dutils
 subject_id_list = [1]
 phase_number = '2'
 model_name = "deep4"
-normalize = True
-if normalize:
-    normalize_str = 'normalize/'
-else:
-    normalize_str = 'notNormalize/'
+
+normalize_type = '-stdmax/'   # '-zmax'
+gan_epoch_dir = '/7500/'
 
 # Fake data info
 
-gan_version = 'WGan-GP-Signal-VERSION7/'
+gan_version = 'WGan-GP-Signal-VERSION7' + normalize_type
 
 cuda, device = detect_device()
 seed = 20200220
@@ -31,19 +29,17 @@ for subject_id in subject_id_list:
     for fake_ind in range(0, 3):
         # data
         if model_name == 'deep4':
-            if normalize:
-                data_load_path = os.path.join(
-                    '../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels-zmax/' + str(subject_id)) + '/'
-            else:
-                data_load_path = os.path.join(
-                    '../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels/' + str(subject_id)) + '/'
+            data_load_path = os.path.join(
+                    '../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels' + normalize_type + str(subject_id)) + '/'
         else:
             data_load_path = os.path.join(
                 '../../../Data/Real_Data/BCI/bnci-raw/0-38/42channels/' + str(subject_id)) + '/'
 
         dataset = load_data_object(data_load_path)
 
-        fake_data_load_path = os.path.join('../../../Data/Fake_Data/' + gan_version + str(subject_id)) + '/7500/Runs/'
+        fake_data_load_path = os.path.join('../../../Data/Fake_Data/' + gan_version + str(subject_id)) +\
+                              gan_epoch_dir + 'Runs/'
+
         fake_set = load_fake_data_oneByOne(fake_data_load_path, fake_ind)
 
         input_window_samples = 1000
@@ -74,8 +70,8 @@ for subject_id in subject_id_list:
 
         # Path to saving Models
         # mkdir path to save
-        save_path = os.path.join('../../../Model_Params/FakeClassification-each/0-38/' + gan_version +
-                                 model_name + '/' + phase_number + ' - ' + normalize_str +
+        save_path = os.path.join('../../../Model_Params/FakeClassification-each-MAX/0-38/' + gan_version +
+                                 model_name + '/' + phase_number + normalize_type +
                                  str(subject_id)) + '/7500/' + 'fake number ' + str(fake_ind) + '/'
 
         if not os.path.exists(save_path):

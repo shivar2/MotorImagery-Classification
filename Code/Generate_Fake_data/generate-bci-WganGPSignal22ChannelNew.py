@@ -21,6 +21,10 @@ set_random_seeds(seed=seed, cuda=cuda)
 
 subject_id_list = [1]
 
+normalize_type = '-stdmax/'   # '-zmax'
+
+gan_epoch_dir = '/7500/'
+
 # mapping to HGD tasks
 task_dict = {'left_hand': 0, 'right_hand': 1, 'feet': 2, 'tongue': 3}
 tasks = ['feet', 'left_hand', 'right_hand', 'tongue']
@@ -50,8 +54,8 @@ for subject_id in subject_id_list:
         for task in tasks:
 
             # path to generator weights .pth file
-            saved_models_path = '../../Model_Params/GANs/WGan-GP-Signal-VERSION7/' + str(subject_id) +\
-                                '/7500/' + task + '/'
+            saved_models_path = '../../Model_Params/GANs/WGan-GP-Signal-VERSION7' + normalize_type + str(subject_id) +\
+                                gan_epoch_dir + task + '/'
             saved_models_path += 'generator_state_dict.pth'
 
             netG = Generator(time_sample=time_sample, noise=noise, channels=22)
@@ -119,7 +123,9 @@ for subject_id in subject_id_list:
         fake_dataset = BaseConcatDataset([wdataset])
 
         # path to to fake eeg directory
-        fake_data_path = '../../Data/Fake_Data/WGan-GP-Signal-VERSION7/' + str(subject_id) + '/7500/' + 'Runs' + '/' + str(run) +'/'
+        fake_data_path = '../../Data/Fake_Data/WGan-GP-Signal-VERSION7' +\
+                         normalize_type + str(subject_id) + gan_epoch_dir + 'Runs' + '/' + str(run) + '/'
+
         if not os.path.exists(fake_data_path):
             os.makedirs(fake_data_path)
 
