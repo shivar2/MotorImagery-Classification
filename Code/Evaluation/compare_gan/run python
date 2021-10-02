@@ -1,0 +1,3 @@
+python prd_from_image_folders.py --inception_path /tmp/prd_cache/inception.pb --reference_dir ~/real_images/ --eval_dirs ~/generated_images_1/ ~/generated_images_2/ --eval_labels model_1 model_2
+
+python /Code/Evaluation/compare_gan/metrics/prd_from_image_folders.py --inception_path /Code/Evaluation/compare_gan/inception.pb --reference_dir ~/Result/IMG-REAL/MaxNormalized/8/feet/ --eval_dirs ~/generated_images_1/  --eval_labels model_1 model_2
