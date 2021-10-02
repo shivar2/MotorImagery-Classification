@@ -77,8 +77,8 @@ time_sample = 1000
 window_stride_samples = 467
 
 batchsize = 64
-epochs = 30
-epak_limit = 2
+epochs = 500
+epak_limit = 5
 
 for subject_id in range(1, 10):
 
