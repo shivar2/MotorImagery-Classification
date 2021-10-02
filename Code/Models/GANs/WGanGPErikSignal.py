@@ -78,10 +78,9 @@ class WGANGP(nn.Module):
         gradient_penalty = ((gradients.norm(2, dim=1) - 1) ** 2).mean()
         return gradient_penalty
 
-    def train(self, dataset, save_model_path, last_epoch=0):
+    def train(self, dataset, save_model_path, gen_loss, disc_loss, last_epoch=0):
 
         batches_done = 0
-        gen_loss, disc_loss = [], []
         d_tot, g_tot = [], []
         Tensor = torch.cuda.FloatTensor if self.cuda else torch.FloatTensor
 
@@ -203,7 +202,7 @@ class WGANGP(nn.Module):
             'epoch': self.n_epochs,
             'model_state_dict': self.generator.state_dict(),
             'optimizer_state_dict': self.optimizer_G.state_dict(),
-            'loss': g_tot,
+            'loss': gen_loss,
             }, save_model_path + 'generator_state_dict.pth')
 
         # ---------------------
@@ -213,7 +212,7 @@ class WGANGP(nn.Module):
             'epoch': self.n_epochs,
             'model_state_dict': self.discriminator.state_dict(),
             'optimizer_state_dict': self.optimizer_D.state_dict(),
-            'loss': d_tot,
+            'loss': disc_loss,
             }, save_model_path + 'discriminator_state_dict.pth')
 
         # ---------------------

@@ -63,7 +63,9 @@ cuda = True if torch.cuda.is_available() else False
 seed = 20200220  # random seed to make results reproducible
 set_random_seeds(seed=seed, cuda=cuda)
 
-mapping = {'left_hand': 0, 'right_hand': 1, 'feet': 2, 'tongue': 3}
+mapping = {'left_hand': 0,
+           # 'right_hand': 1, 'feet': 2, 'tongue': 3
+           }
 all_channels = ['Fz',
                 'FC1', 'FC2',
                 'C3', 'Cz', 'C4', 'CP1', 'CP2',
@@ -75,10 +77,10 @@ time_sample = 1000
 window_stride_samples = 467
 
 batchsize = 64
-epochs = 2
+epochs = 30
 epak_limit = 2
 
-for subject_id in range(3, 4):
+for subject_id in range(1, 10):
 
     data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels-zmax/' + str(subject_id)) + '/'
     d_tot, g_tot = [], []
@@ -135,12 +137,19 @@ for subject_id in range(3, 4):
                 checkpoint_g = torch.load(load_model_path + 'generator_state_dict.pth')
                 net.generator.load_state_dict(checkpoint_g['model_state_dict'])
                 net.optimizer_G.load_state_dict(checkpoint_g['optimizer_state_dict'])
+                gloss = checkpoint_g['loss']
 
                 checkpoint_d = torch.load(load_model_path + 'discriminator_state_dict.pth')
                 net.discriminator.load_state_dict(checkpoint_d['model_state_dict'])
                 net.optimizer_D.load_state_dict(checkpoint_d['optimizer_state_dict'])
+                dloss = checkpoint_d['loss']
 
-            d_tot_epak, g_tot_epak = net.train(data, save_model_path=save_model_path, last_epoch=last_epoch)
+            else:
+                gloss, dloss = [], []
+
+            d_tot_epak, g_tot_epak = net.train(data, save_model_path=save_model_path,
+                                               disc_loss=dloss, gen_loss=gloss,
+                                               last_epoch=last_epoch)
             d_tot.extend(d_tot_epak)
             g_tot.extend(g_tot_epak)
 
