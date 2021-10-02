@@ -63,8 +63,7 @@ cuda = True if torch.cuda.is_available() else False
 seed = 20200220  # random seed to make results reproducible
 set_random_seeds(seed=seed, cuda=cuda)
 
-mapping = {'left_hand': 0,
-           # 'right_hand': 1, 'feet': 2, 'tongue': 3
+mapping = {'left_hand': 0, 'right_hand': 1, 'feet': 2, 'tongue': 3
            }
 all_channels = ['Fz',
                 'FC1', 'FC2',
@@ -80,7 +79,7 @@ batchsize = 64
 epochs = 500
 epak_limit = 5
 
-for subject_id in range(1, 10):
+for subject_id in range(2, 3):
 
     data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels-zmax/' + str(subject_id)) + '/'
     d_tot, g_tot = [], []
