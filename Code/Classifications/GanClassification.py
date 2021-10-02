@@ -19,7 +19,7 @@ def train_1phase(train_set, valid_set, model, device='cpu'):
     weight_decay = 0.5 * 0.001
 
     batch_size = 64
-    n_epochs = 20
+    n_epochs = 40
 
     callbacks = [
         "accuracy",
@@ -149,8 +149,8 @@ def run_model(dataset, fake_set, model,phase, n_preds_per_input, device, save_pa
     fake_set.append(train_set)
     X = BaseConcatDataset(fake_set)
 
-    if phase == 1:
-        clf = train_1phase(X, valid_set=train_set, model=model, device=device)
+    if phase == '1':
+        clf = train_1phase(X, valid_set=test_set, model=model, device=device)
     else:
         clf = train_2phase(X, model=model, save_path=save_path, device=device)
 
