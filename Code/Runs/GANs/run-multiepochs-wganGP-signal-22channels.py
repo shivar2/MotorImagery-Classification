@@ -63,7 +63,11 @@ cuda = True if torch.cuda.is_available() else False
 seed = 20200220  # random seed to make results reproducible
 set_random_seeds(seed=seed, cuda=cuda)
 
-mapping = {'left_hand': 0, 'right_hand': 1, 'feet': 2, 'tongue': 3
+mapping = {
+    'left_hand': 0,
+    'right_hand': 1,
+    'feet': 2,
+    'tongue': 3
            }
 all_channels = ['Fz',
                 'FC1', 'FC2',
@@ -77,14 +81,15 @@ window_stride_samples = 467
 
 batchsize = 64
 epochs = 500
-epak_limit = 5
+epak_limit = 15
 
-for subject_id in range(2, 3):
+subject_id = 2
+data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels-zmax/' + str(subject_id)) + '/'
 
-    data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels-zmax/' + str(subject_id)) + '/'
-    d_tot, g_tot = [], []
+for key, value in mapping.items():
+        gloss, dloss = [], []
+        d_tot, g_tot = [], []
 
-    for key, value in mapping.items():
         tasks_name = key
         task_mapping = {
             key: value
@@ -100,6 +105,7 @@ for subject_id in range(2, 3):
                                  )
 
         for epak in range(0, epak_limit):
+            d_tot_epak, g_tot_epak = [], []
             last_epoch = epochs * epak
 
             save_result_path = '../../../Result/GANs/WGan-GP-Signal-VERSION7/' + str(
@@ -143,14 +149,13 @@ for subject_id in range(2, 3):
                 net.optimizer_D.load_state_dict(checkpoint_d['optimizer_state_dict'])
                 dloss = checkpoint_d['loss']
 
-            else:
-                gloss, dloss = [], []
-
             d_tot_epak, g_tot_epak = net.train(data, save_model_path=save_model_path,
                                                disc_loss=dloss, gen_loss=gloss,
                                                last_epoch=last_epoch)
             d_tot.extend(d_tot_epak)
             g_tot.extend(g_tot_epak)
+
+            del net, d_tot_epak, g_tot_epak, dloss, gloss
 
         # ---------------------
         #  PLOT for each subject & each task - Final Result
@@ -174,4 +179,7 @@ for subject_id in range(2, 3):
         plt.savefig("%s/%s-.png" % (save_final_result_path, 'results-plot'))
         # plt.show()
         plt.close()
+
+        del g_tot, d_tot, gloss, dloss, data
+
 print("end")
