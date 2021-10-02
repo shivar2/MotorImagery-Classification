@@ -11,7 +11,7 @@ from Code.Models.deepNewUtils import deep4New3dutils
 
 # Run Info
 subject_id_list = [2]
-phase_number = '1'
+phase_number = '2'
 model_name = "deep4"
 
 normalize = True
