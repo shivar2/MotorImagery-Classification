@@ -14,6 +14,8 @@ from Code.EarlyStopClass.EarlyStopClass import EarlyStopping
 from Code.base import detect_device, cut_compute_windows, split_into_train_valid, plot, get_results
 
 
+from braindecode.models.modules import Expression
+from braindecode.models.functions import squeeze_final_output
 def set_bn_eval(module):
     if isinstance(module, torch.nn.modules.batchnorm._BatchNorm):
         module.eval()
@@ -38,11 +40,13 @@ def freezing_model(model, layer):
 
     elif layer == 5:
         model.conv_classifier = nn.Conv2d(200, 4, kernel_size=(2, 1), stride=(1, 1))
+        model.softmax = nn.LogSoftmax(dim=1)
+        model.squeeze = Expression(squeeze_final_output)
 
     return model
 
 
-def create_classifier(model, valid_set, n_epochs, device, double_channel=False, warm_start=True,
+def create_classifier(model, valid_set, n_epochs, device, double_channel=False,
                       lr=0.0001, cp=False, save_path=''):
 
     batch_size = 64
@@ -69,7 +73,7 @@ def create_classifier(model, valid_set, n_epochs, device, double_channel=False, 
 
     clf = EEGTLClassifier(
         model,
-        warm_start=warm_start,
+        warm_start=True,
         max_epochs=n_epochs,
         double_channel=double_channel,
         is_freezing=True,
@@ -97,34 +101,34 @@ def train_StepByStep(train_set_all, save_path, model, double_channel=False, devi
     # Layer1
     # model.apply(set_bn_eval)
     model = freezing_model(model, layer=1)
-    clf1 = create_classifier(model, valid_set, 20, device, double_channel, warm_start=False)
+    clf1 = create_classifier(model, valid_set, 20, device, double_channel)
     clf1.fit(train_set, y=None)
 
     # Layer2
     model = freezing_model(model, layer=2)
-    clf2 = create_classifier(model, valid_set, 20, device, double_channel, warm_start=True)
+    clf2 = create_classifier(model, valid_set, 20, device, double_channel)
     clf2.fit(train_set, y=None)
 
     # Layer3
     model = freezing_model(model, layer=3)
-    clf3 = create_classifier(model, valid_set, 20, device, double_channel, warm_start=True)
+    clf3 = create_classifier(model, valid_set, 20, device, double_channel)
     clf3.fit(train_set, y=None)
 
     # Layer4
     model = freezing_model(model, layer=4)
-    clf4 = create_classifier(model, valid_set, 20, device, double_channel, warm_start=True)
+    clf4 = create_classifier(model, valid_set, 20, device, double_channel)
     clf4.fit(train_set, y=None)
 
     # Layer5  -  PHASE1
     model = freezing_model(model, layer=5)
     clf5 = create_classifier(model, valid_set, 800, device, double_channel,
-                             warm_start=True, cp=True, save_path=save_path)
+                             cp=True, save_path=save_path)
     clf5.fit(train_set, y=None)
 
     # PHASE 2
     # Best clf1 valid accuracy
-    best_valid_acc_epoch = np.argmax(clf1.history[:, 'valid_accuracy'])
-    target_train_loss = clf1.history[best_valid_acc_epoch, 'train_loss']
+    best_valid_acc_epoch = np.argmax(clf5.history[:, 'valid_accuracy'])
+    target_train_loss = clf5.history[best_valid_acc_epoch, 'train_loss']
 
     # Early_stopping
     early_stopping2 = EarlyStopping(monitor='valid_loss',
