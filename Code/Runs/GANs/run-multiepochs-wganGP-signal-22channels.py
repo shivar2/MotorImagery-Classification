@@ -64,10 +64,10 @@ seed = 20200220  # random seed to make results reproducible
 set_random_seeds(seed=seed, cuda=cuda)
 
 mapping = {
-    'left_hand': 0,
-    'right_hand': 1,
+    # 'left_hand': 0,
+    # 'right_hand': 1,
     'feet': 2,
-    'tongue': 3
+    # 'tongue': 3
            }
 all_channels = ['Fz',
                 'FC1', 'FC2',
@@ -83,7 +83,7 @@ batchsize = 64
 epochs = 500
 epak_limit = 15
 
-subject_id = 2
+subject_id = 1
 data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels-zmax/' + str(subject_id)) + '/'
 
 for key, value in mapping.items():
@@ -155,7 +155,6 @@ for key, value in mapping.items():
             d_tot.extend(d_tot_epak)
             g_tot.extend(g_tot_epak)
 
-            del net, d_tot_epak, g_tot_epak, dloss, gloss
 
         # ---------------------
         #  PLOT for each subject & each task - Final Result
@@ -180,6 +179,5 @@ for key, value in mapping.items():
         # plt.show()
         plt.close()
 
-        del g_tot, d_tot, gloss, dloss, data
 
 print("end")

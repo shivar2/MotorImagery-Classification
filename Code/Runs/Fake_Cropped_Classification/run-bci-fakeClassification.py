@@ -10,8 +10,8 @@ from Code.Classifications import GanClassification
 from Code.Models.deepNewUtils import deep4New3dutils
 
 # Run Info
-subject_id_list = [9]
-phase_number = '2'
+subject_id_list = [2]
+phase_number = '1'
 model_name = "deep4"
 
 normalize = True
@@ -40,7 +40,7 @@ for subject_id in subject_id_list:
 
     dataset = load_data_object(data_load_path)
 
-    fake_data_load_path = os.path.join('../../../Data/Fake_Data/' + gan_version + str(subject_id)) + '/Runs/'
+    fake_data_load_path = os.path.join('../../../Data/Fake_Data/' + gan_version + str(subject_id)) + '/7500/Runs/'
     fake_set = load_fake_data(fake_data_load_path, fake_k)
 
     input_window_samples = 1000
@@ -48,7 +48,7 @@ for subject_id in subject_id_list:
     n_chans = dataset[0][0].shape[0]
 
     if model_name == 'deep4':
-        model = create_model_deep4(input_window_samples, n_chans, n_classes)
+        model = create_model_deep4(n_chans, n_classes)
 
     elif model_name == 'deep4New':
         model = create_model_newDeep4(input_window_samples, n_chans, n_classes)
@@ -73,7 +73,7 @@ for subject_id in subject_id_list:
     # mkdir path to save
     save_path = os.path.join('../../../Model_Params/FakeClassification/0-38/' +
                              model_name + '/' + phase_number + ' - ' + normalize_str +
-                             str(fake_k) + '/' + str(subject_id)) + '/'
+                             str(fake_k) + '/' + str(subject_id)) + '/7500/'
 
     if not os.path.exists(save_path):
         os.makedirs(save_path)

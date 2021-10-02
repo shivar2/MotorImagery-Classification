@@ -19,7 +19,7 @@ seed = 20200220  # random seed to make results reproducible
 set_random_seeds(seed=seed, cuda=cuda)
 
 
-subject_id_list = [8]
+subject_id_list = [1]
 
 # mapping to HGD tasks
 task_dict = {'left_hand': 0, 'right_hand': 1, 'feet': 2, 'tongue': 3}
@@ -43,20 +43,22 @@ noise = 100
 
 for subject_id in subject_id_list:
 
-    for run in range(0, 10):
+    for run in range(0, 6):
         start = 0
         task_trials_epoch = []
 
         for task in tasks:
 
             # path to generator weights .pth file
-            saved_models_path = '../../Model_Params/GANs/WGan-GP-Signal-VERSION7/' + str(subject_id) + '/' + task + '/'
+            saved_models_path = '../../Model_Params/GANs/WGan-GP-Signal-VERSION7/' + str(subject_id) +\
+                                '/7500/' + task + '/'
             saved_models_path += 'generator_state_dict.pth'
 
             netG = Generator(time_sample=time_sample, noise=noise, channels=22)
 
             # load weights
-            netG.load_state_dict(torch.load(saved_models_path))
+            checkpoint_g = torch.load(saved_models_path)
+            netG.load_state_dict(checkpoint_g['model_state_dict'])
 
             if cuda:
                 netG.cuda()
@@ -117,7 +119,7 @@ for subject_id in subject_id_list:
         fake_dataset = BaseConcatDataset([wdataset])
 
         # path to to fake eeg directory
-        fake_data_path = '../../Data/Fake_Data/WGan-GP-Signal-VERSION7/' + str(subject_id) + '/' + 'Runs' + '/' + str(run) +'/'
+        fake_data_path = '../../Data/Fake_Data/WGan-GP-Signal-VERSION7/' + str(subject_id) + '/7500/' + 'Runs' + '/' + str(run) +'/'
         if not os.path.exists(fake_data_path):
             os.makedirs(fake_data_path)
 
