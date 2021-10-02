@@ -22,7 +22,7 @@ else:
     normalize_str = 'notNormalize/'
 
 # TL
-param_name = "params_30.pt"
+param_name = "params_51.pt"
 double_channel = False
 
 cuda, device = detect_device()
@@ -44,7 +44,7 @@ for subject_id in subject_id_list:
     n_chans = dataset[0][0].shape[0]
 
     # Load model path
-    model_load_path = '../../../Model_Params/Pretrained_Models/22channels/0-f/deep4/1 - normalize/'
+    model_load_path = '../../../Model_Params/Pretrained_Models/22channels/0-f/deep4/1 - zmaxNormalize/'
 
     if model_name == 'deep4':
         model = create_model_deep4(n_chans, n_classes)
@@ -69,7 +69,7 @@ for subject_id in subject_id_list:
     # Path to saving Models
     # mkdir path to save
     save_path = os.path.join('../../../Model_Params/TL_Classification/0-38/22channel/' +
-                             model_name + '/' + phase_number + ' - ' + normalize_str + str(subject_id)) + '/step_by_step/'
+                             model_name + '/' + phase_number + ' - ' + 'zmaxNormalize' + str(subject_id)) + '/step_by_step/'
 
     if not os.path.exists(save_path):
         os.makedirs(save_path)
