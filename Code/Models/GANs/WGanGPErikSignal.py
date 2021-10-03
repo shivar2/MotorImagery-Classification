@@ -52,9 +52,6 @@ class WGANGP(nn.Module):
         self.optimizer_G = torch.optim.Adam(self.generator.parameters(), lr=self.lr, betas=(self.b1, self.b2))
         self.optimizer_D = torch.optim.Adam(self.discriminator.parameters(), lr=self.lr, betas=(self.b1, self.b2))
 
-        self.disc_loss = []
-        self.gen_loss = []
-
     def compute_gradient_penalty(self, D, real_samples, fake_samples):
         """Calculates the gradient penalty loss for WGAN GP"""
 
@@ -81,14 +78,10 @@ class WGANGP(nn.Module):
         gradient_penalty = ((gradients.norm(2, dim=1) - 1) ** 2).mean()
         return gradient_penalty
 
-    def train(self, dataset, save_model_path, last_epoch=0):
+    def train(self, dataset, save_model_path, gen_loss, disc_loss, last_epoch=0):
 
         batches_done = 0
         d_tot, g_tot = [], []
-
-        gen_loss = self.gen_loss
-        disc_loss = self.disc_loss
-
         Tensor = torch.cuda.FloatTensor if self.cuda else torch.FloatTensor
 
         # ----------
@@ -153,6 +146,46 @@ class WGANGP(nn.Module):
                         % (epoch, self.n_epochs, i, len(data_batches), d_loss_batch.item(), g_loss_batch.item())
                     )
 
+                    # if batches_done % self.sample_interval == 0:
+                    #
+                    #     # ---------------------
+                    #     #  PLOT
+                    #     # ---------------------
+                    #
+                    #     # from https://github.com/basel-shehabi/EEG-Synthetic-Data-Using-GANs/blob/master/WasserGAN_Final.py
+                    #
+                    #     # Plots the generated samples for the selected channels.
+                    #     # Recall the channels are chosen during the Load_and_Preprocess Script
+                    #
+                    #     # Here they just correspond to C3 only (channel 7 was selected).
+                    #
+                    #     fig, axs = plt.subplots(1, 2)
+                    #     fig.suptitle('Comparison of Generated vs. Real Signal (Spectrogram) for one trial, one channel')
+                    #     fig.tight_layout()
+                    #
+                    #     fake_imgs = Variable(fake_imgs, requires_grad=True)
+                    #     fake_imgs = fake_imgs.detach().cpu().numpy()
+                    #
+                    #     axs[0].imshow(fake_imgs[0], aspect='auto')
+                    #     axs[0].set_title('Generated Signal', size=10)
+                    #     axs[0].set_xlabel('Time Sample')
+                    #     axs[0].set_ylabel('Frequency Sample')
+                    #
+                    #     real_imgs = Variable(real_imgs, requires_grad=True)
+                    #     real_imgs = real_imgs.detach().cpu().numpy()
+                    #
+                    #     axs[1].imshow(real_imgs[0], aspect='auto')
+                    #     axs[1].set_title('Real Signal', size=10)
+                    #     axs[1].set_xlabel('Time Sample')
+                    #     axs[1].set_ylabel('Frequency Sample')
+                    #
+                    #     # Save the generated samples within the current working dir
+                    #     # in a folder called 'EEG Samples', every 100 epochs.
+                    #
+                    #     plt.savefig("%s/%d.png" % (self.dir, epoch))
+                    #     plt.show()
+                    #     # plt.close()
+
                     batches_done += self.n_critic
 
             # from https://github.com/basel-shehabi/EEG-Synthetic-Data-Using-GANs/blob/master/WasserGAN_Final.py
@@ -181,5 +214,23 @@ class WGANGP(nn.Module):
             'optimizer_state_dict': self.optimizer_D.state_dict(),
             'loss': disc_loss,
             }, save_model_path + 'discriminator_state_dict.pth')
+
+        # ---------------------
+        #  PLOT
+        # ---------------------
+        # Plot the generator and discriminator losses for all the epochs
+        g_tot = torch.FloatTensor(g_tot)
+        d_tot = torch.FloatTensor(d_tot)
+        plt.figure()
+        plt.plot(g_tot, 'r')
+        plt.plot(d_tot, 'b')
+        plt.title('Loss history')
+        plt.xlabel('Epochs')
+        plt.ylabel('Loss')
+        plt.legend(['Generator', 'Discriminator'])
+        plt.grid()
+        plt.savefig("%s/%s-.png" % (self.dir, 'results-plot'))
+        # plt.show()
+        plt.close()
 
         return d_tot, g_tot
