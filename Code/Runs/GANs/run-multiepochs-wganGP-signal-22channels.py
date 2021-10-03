@@ -81,11 +81,11 @@ window_stride_samples = 467
 
 batchsize = 64
 epochs = 500
-epak_limit = 4
+epak_limit = 15
 
 normalize_type = '-stdmax/'   # '-zmax'
 
-subject_id = 9
+subject_id = 1
 data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels' +
                               normalize_type + str(subject_id)) + '/'
 
@@ -152,9 +152,9 @@ for key, value in mapping.items():
                 net.optimizer_D.load_state_dict(checkpoint_d['optimizer_state_dict'])
                 dloss = checkpoint_d['loss']
 
-            d_tot_epak, g_tot_epak = net.train(data, gen_loss=gloss, disc_loss=dloss,
-                                               save_model_path=save_model_path, last_epoch=last_epoch)
-
+            d_tot_epak, g_tot_epak = net.train(data, save_model_path=save_model_path,
+                                               disc_loss=dloss, gen_loss=gloss,
+                                               last_epoch=last_epoch)
             d_tot.extend(d_tot_epak)
             g_tot.extend(g_tot_epak)
 

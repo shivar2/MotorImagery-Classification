@@ -8,6 +8,8 @@ import torch.nn as nn
 import torch.autograd as autograd
 import torch
 
+import matplotlib.pyplot as plt
+
 from Code.Models.GANs.WGanGPSignalModels import Generator, Discriminator
 
 
@@ -50,6 +52,9 @@ class WGANGP(nn.Module):
         self.optimizer_G = torch.optim.Adam(self.generator.parameters(), lr=self.lr, betas=(self.b1, self.b2))
         self.optimizer_D = torch.optim.Adam(self.discriminator.parameters(), lr=self.lr, betas=(self.b1, self.b2))
 
+        self.disc_loss = []
+        self.gen_loss = []
+
     def compute_gradient_penalty(self, D, real_samples, fake_samples):
         """Calculates the gradient penalty loss for WGAN GP"""
 
@@ -76,10 +81,14 @@ class WGANGP(nn.Module):
         gradient_penalty = ((gradients.norm(2, dim=1) - 1) ** 2).mean()
         return gradient_penalty
 
-    def train(self, dataset, save_model_path, gen_loss, disc_loss, last_epoch=0):
+    def train(self, dataset, save_model_path, last_epoch=0):
 
         batches_done = 0
         d_tot, g_tot = [], []
+
+        gen_loss = self.gen_loss
+        disc_loss = self.disc_loss
+
         Tensor = torch.cuda.FloatTensor if self.cuda else torch.FloatTensor
 
         # ----------
