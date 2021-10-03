@@ -14,8 +14,7 @@ from Code.Models.GANs.WGanGPSignalModels import Generator, Discriminator
 
 
 class WGANGP(nn.Module):
-    def __init__(self, subject=1, n_epochs=10, batch_size=64, time_sample=32, channels=3, sample_interval=400,
-                 result_path=''):
+    def __init__(self, subject=1, n_epochs=10, batch_size=64, time_sample=32, channels=3, sample_interval=400):
 
         super(WGANGP, self).__init__()
 
@@ -30,15 +29,13 @@ class WGANGP(nn.Module):
         self.time_sample = time_sample                      # size of each image dimension
         self.channels = channels                            # number of image channels
 
-        self.n_critic = 5                                   # number of training steps for discriminator per iter
+        self.n_critic = 1                                   # number of training steps for discriminator per iter
         self.clip_value = 0.01                              # lower and upper clip value for disc. weights
         self.lambda_gp = 10                                 # Loss weight for gradient penalty
 
         self.sample_interval = sample_interval              # Stride between windows, in samples
 
         self.cuda = True if torch.cuda.is_available() else False
-
-        self.dir = result_path
 
         # Initialize generator and discriminator
         self.generator = Generator(time_sample=self.time_sample, channels=self.channels)

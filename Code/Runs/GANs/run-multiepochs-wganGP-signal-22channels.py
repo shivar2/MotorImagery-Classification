@@ -81,7 +81,7 @@ window_stride_samples = 467
 
 batchsize = 64
 epochs = 300
-epak_limit = 25
+epak_limit = 27
 
 normalize_type = '-stdmax/'   # '-zmax'
 
@@ -111,11 +111,6 @@ for key, value in mapping.items():
             d_tot_epak, g_tot_epak = [], []
             last_epoch = epochs * epak
 
-            save_result_path = '../../../Result/GANs/WGan-GP-Signal-VERSION7' + normalize_type + str(
-                subject_id) + '/' + str(last_epoch + epochs) + '/' + tasks_name + '/'
-            if not os.path.exists(save_result_path):
-                os.makedirs(save_result_path)
-
             save_model_path = '../../../Model_Params/GANs/WGan-GP-Signal-VERSION7' + normalize_type + str(
                 subject_id) + '/' + str(last_epoch + epochs) + '/' + tasks_name + '/'
 
@@ -132,7 +127,6 @@ for key, value in mapping.items():
                          time_sample=time_sample,
                          channels=n_chans,
                          sample_interval=400,
-                         result_path=save_result_path,
                          )
 
             if epak > 0:
