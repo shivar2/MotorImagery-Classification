@@ -80,8 +80,8 @@ time_sample = 1000
 window_stride_samples = 467
 
 batchsize = 64
-epochs = 500
-epak_limit = 15
+epochs = 300
+epak_limit = 25
 
 normalize_type = '-stdmax/'   # '-zmax'
 
@@ -167,8 +167,6 @@ for key, value in mapping.items():
             os.makedirs(save_final_result_path)
 
         # Plot the generator and discriminator losses for all the epochs
-        g_tot = torch.FloatTensor(g_tot)
-        d_tot = torch.FloatTensor(d_tot)
         plt.figure()
         plt.plot(g_tot, 'r')
         plt.plot(d_tot, 'b')
