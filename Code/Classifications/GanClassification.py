@@ -130,7 +130,7 @@ def train_2phase(train_valid, fake_train_valid, model, save_path, device='cpu'):
     clf2.load_params(f_params=save_path + "params1.pt",
                      f_optimizer=save_path + "optimizers1.pt",
                      f_history=save_path + "history1.json")
-    clf2.fit(train_set_all, y=None)
+    clf2.fit(fake_train_valid, y=None)
     return clf2
 
 
