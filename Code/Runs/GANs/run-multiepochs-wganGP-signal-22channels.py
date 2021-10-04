@@ -64,7 +64,7 @@ seed = 20200220  # random seed to make results reproducible
 set_random_seeds(seed=seed, cuda=cuda)
 
 mapping = {
-    'left_hand': 0,
+    # 'left_hand': 0,
     'right_hand': 1,
     'feet': 2,
     'tongue': 3
@@ -80,10 +80,10 @@ time_sample = 1000
 window_stride_samples = 467
 
 batchsize = 64
-epochs = 300
-epak_limit = 27
+epochs = 500
+epak_limit = 15
 
-normalize_type = '-stdmax/'   # '-zmax'
+normalize_type = '-zmax/'   # '-zmax'
 
 subject_id = 1
 data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels' +
@@ -111,7 +111,7 @@ for key, value in mapping.items():
             d_tot_epak, g_tot_epak = [], []
             last_epoch = epochs * epak
 
-            save_model_path = '../../../Model_Params/GANs/WGan-GP-Signal-VERSION7' + normalize_type + str(
+            save_model_path = '../../../Model_Params/GANs/WGan-GP-Signal-VERSION7-zmax-b1/' + str(
                 subject_id) + '/' + str(last_epoch + epochs) + '/' + tasks_name + '/'
 
             if not os.path.exists(save_model_path):
@@ -133,7 +133,7 @@ for key, value in mapping.items():
                 ##################################
                 # Load G and D model and optimizer
                 ##################################
-                load_model_path = '../../../Model_Params/GANs/WGan-GP-Signal-VERSION7' + normalize_type + str(
+                load_model_path = '../../../Model_Params/GANs/WGan-GP-Signal-VERSION7-zmax-b1/'+ str(
                     subject_id) + '/' + str(last_epoch) + '/' + tasks_name + '/'
 
                 checkpoint_g = torch.load(load_model_path + 'generator_state_dict.pth')
