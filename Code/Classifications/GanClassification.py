@@ -10,7 +10,7 @@ from braindecode.training.losses import CroppedLoss
 
 from Code.EarlyStopClass.EarlyStopClass import EarlyStopping
 from Code.Classifications.CroppedClassification import plot
-from Code.base import cut_compute_windows, split_into_train_valid, get_results
+from Code.base import cut_compute_windows, split_into_train_valid, get_results, split_into_train_valid_with_fake
 
 
 def train_1phase(train_set, valid_set, model, device='cpu'):
@@ -45,8 +45,9 @@ def train_1phase(train_set, valid_set, model, device='cpu'):
     return clf
 
 
-def train_2phase(train_set_all, model, save_path, device='cpu'):
-    train_set, valid_set = split_into_train_valid(train_set_all, use_final_eval=False)
+def train_2phase(train_valid, fake_train_valid, model, save_path, device='cpu'):
+    train_set, valid_set = split_into_train_valid(train_valid, use_final_eval=False)
+    fake_train, valid_set_with_fake = split_into_train_valid_with_fake(fake_train_valid, use_final_eval=False)
 
     batch_size = 64
     n_epochs = 800
@@ -152,7 +153,7 @@ def run_model(dataset, fake_set, model,phase, n_preds_per_input, device, save_pa
     if phase == '1':
         clf = train_1phase(X, valid_set=test_set, model=model, device=device)
     else:
-        clf = train_2phase(X, model=model, save_path=save_path, device=device)
+        clf = train_2phase(train_set, X, model=model, save_path=save_path, device=device)
 
     plot(clf, save_path)
     torch.save(model, save_path + "model.pth")
