@@ -65,8 +65,8 @@ seed = 20200220  # random seed to make results reproducible
 set_random_seeds(seed=seed, cuda=cuda)
 
 mapping = {
-    # 'left_hand': 0,
-    'right_hand': 1,
+    'left_hand': 0,
+    # 'right_hand': 1,
     # 'feet': 2,
     # 'tongue': 3
            }
