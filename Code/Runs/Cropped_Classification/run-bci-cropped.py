@@ -10,16 +10,12 @@ from Code.Classifications import CroppedClassification
 from Code.Models.deepNewUtils import deep4New3dutils
 
 # Run Info
-subject_id_list = [8]
+subject_id_list = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 phase_number = '2'
 model_name = "deep4"
-normalize = True
+freq = '0-f'
 
-if normalize:
-    normalize_str = 'normalize/'
-else:
-    normalize_str = 'notNormalize/'
-
+normalize_type = '-zmax/'     # '/' for not normalize
 cuda, device = detect_device()
 seed = 20200220
 set_random_seeds(seed=seed, cuda=cuda)
@@ -27,12 +23,11 @@ set_random_seeds(seed=seed, cuda=cuda)
 for subject_id in subject_id_list:
     # data
     if model_name == 'deep4':
-        if normalize:
-            data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels-zmax/' + str(subject_id)) + '/'
-        else:
-            data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels/' + str(subject_id)) + '/'
+        data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/' + freq +'/22channels' +
+                                      normalize_type + str(subject_id)) + '/'
     else:
-        data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/42channels/' + str(subject_id)) + '/'
+        data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw' + '0-f' + '42channels/' +
+                                      str(subject_id)) + '/'
 
     dataset = load_data_object(data_load_path)
 
@@ -64,8 +59,8 @@ for subject_id in subject_id_list:
 
     # Path to saving Models
     # mkdir path to save
-    save_path = os.path.join('../../../Model_Params/BCI_Models/0-38/' +
-                             model_name + '/' + phase_number + ' - ' + normalize_str + str(subject_id)) + '/'
+    save_path = os.path.join('../../../Model_Params/BCI_Models' + normalize_type + freq + '/' +
+                             model_name + '/' + phase_number + '/' + str(subject_id)) + '/'
 
     if not os.path.exists(save_path):
         os.makedirs(save_path)
