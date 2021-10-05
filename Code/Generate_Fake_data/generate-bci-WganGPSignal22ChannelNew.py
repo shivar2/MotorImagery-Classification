@@ -15,13 +15,11 @@ from Code.Models.GANs.WGanGPSignalModels import Generator
 cuda = True if torch.cuda.is_available() else False
 Tensor = torch.cuda.FloatTensor if cuda else torch.FloatTensor
 
-seed = 20200220  # random seed to make results reproducible
-set_random_seeds(seed=seed, cuda=cuda)
-
 
 subject_id_list = [1]
 
-normalize_type = '-stdmax/'   # '-zmax'
+normalize_type = '-zmax/'   # '-zmax'
+freq = '0-f/'
 
 gan_epoch_dir = '/7500/'
 
@@ -38,7 +36,7 @@ all_channels = [
 
 
 # number of images to generate
-batch_size = 24
+batch_size = 12
 
 # GAN info
 sfreq = 250
@@ -52,9 +50,12 @@ for subject_id in subject_id_list:
         task_trials_epoch = []
 
         for task in tasks:
+            seed = 20200220 + run  # random seed to make results reproducible
+            set_random_seeds(seed=seed, cuda=cuda)
 
             # path to generator weights .pth file
-            saved_models_path = '../../Model_Params/GANs/WGan-GP-Signal-VERSION7' + normalize_type + str(subject_id) +\
+            saved_models_path = '../../Model_Params/GANs/WGan-GP-Signal-VERSION7' + normalize_type + freq +\
+                                str(subject_id) +\
                                 gan_epoch_dir + task + '/'
             saved_models_path += 'generator_state_dict.pth'
 
@@ -114,6 +115,8 @@ for subject_id in subject_id_list:
         #  Shuffle Tasks
         #  Create Fake Dataset - WindowsDataset
         # ---------------------
+        seed = 20200220  # random seed to make results reproducible
+        set_random_seeds(seed=seed, cuda=cuda)
 
         random.shuffle(task_trials_epoch)
         session = mne.concatenate_epochs(task_trials_epoch)
@@ -124,7 +127,7 @@ for subject_id in subject_id_list:
 
         # path to to fake eeg directory
         fake_data_path = '../../Data/Fake_Data/WGan-GP-Signal-VERSION7' +\
-                         normalize_type + str(subject_id) + gan_epoch_dir + 'Runs' + '/' + str(run) + '/'
+                         normalize_type + freq + str(subject_id) + gan_epoch_dir + 'Runs' + '/' + str(run) + '/'
 
         if not os.path.exists(fake_data_path):
             os.makedirs(fake_data_path)
