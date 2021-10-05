@@ -14,7 +14,8 @@ subject_id_list = [1]
 phase_number = '2'
 model_name = "deep4"
 
-normalize_type = '-stdmax/'   # '-zmax'
+normalize_type = '-zmax/'   # '-zmax'
+freq = '0-f/'
 gan_epoch_dir = '/7500/'
 
 # Fake data info
@@ -30,14 +31,15 @@ for subject_id in subject_id_list:
         # data
         if model_name == 'deep4':
             data_load_path = os.path.join(
-                    '../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels' + normalize_type + str(subject_id)) + '/'
+                    '../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels' + normalize_type + freq +
+                    str(subject_id)) + '/'
         else:
             data_load_path = os.path.join(
                 '../../../Data/Real_Data/BCI/bnci-raw/0-38/42channels/' + str(subject_id)) + '/'
 
         dataset = load_data_object(data_load_path)
 
-        fake_data_load_path = os.path.join('../../../Data/Fake_Data/' + gan_version + str(subject_id)) +\
+        fake_data_load_path = os.path.join('../../../Data/Fake_Data/' + gan_version + freq + str(subject_id)) +\
                               gan_epoch_dir + 'Runs/'
 
         fake_set = load_fake_data_oneByOne(fake_data_load_path, fake_ind)
@@ -70,7 +72,7 @@ for subject_id in subject_id_list:
 
         # Path to saving Models
         # mkdir path to save
-        save_path = os.path.join('../../../Model_Params/FakeClassification-each-MAX/0-38/' + gan_version +
+        save_path = os.path.join('../../../Model_Params/FakeClassification-each/' + freq + gan_version +
                                  model_name + '/' + phase_number + normalize_type +
                                  str(subject_id)) + '/7500/' + 'fake number ' + str(fake_ind) + '/'
 
