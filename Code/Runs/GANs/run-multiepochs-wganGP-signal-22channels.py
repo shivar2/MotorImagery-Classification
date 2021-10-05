@@ -11,6 +11,7 @@ from Code.Models.GANs.WGanGPErikSignal import WGANGP
 
 
 def get_data(data_load_path,
+             normalize_type='-zmax/',
              time_sample=32,
              window_stride_samples=1,
              mapping=None,
@@ -29,7 +30,7 @@ def get_data(data_load_path,
 
     windows_dataset = create_windows_from_events(
         dataset,
-        trial_start_offset_samples=trial_start_offset_samples,
+        trial_start_offset_samples=0,
         trial_stop_offset_samples=0,
         preload=True,
         window_size_samples=time_sample,
@@ -66,8 +67,8 @@ set_random_seeds(seed=seed, cuda=cuda)
 mapping = {
     # 'left_hand': 0,
     'right_hand': 1,
-    'feet': 2,
-    'tongue': 3
+    # 'feet': 2,
+    # 'tongue': 3
            }
 all_channels = ['Fz',
                 'FC1', 'FC2',
@@ -77,17 +78,19 @@ all_channels = ['Fz',
                 'P1', 'P2']
 
 time_sample = 1000
-window_stride_samples = 467
+window_stride_samples = 1000
 
 batchsize = 64
 epochs = 500
 epak_limit = 15
 
 normalize_type = '-zmax/'   # '-zmax'
+freq = '0-f/'
 
 subject_id = 1
-data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels' +
-                              normalize_type + str(subject_id)) + '/'
+data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-f/22channels' +
+                              normalize_type +
+                              str(subject_id)) + '/'
 
 for key, value in mapping.items():
         gloss, dloss = [], []
@@ -95,7 +98,7 @@ for key, value in mapping.items():
 
         tasks_name = key
         task_mapping = {
-            key: value
+                key: value
         }
         #########################
         # Load data            #
@@ -111,8 +114,8 @@ for key, value in mapping.items():
             d_tot_epak, g_tot_epak = [], []
             last_epoch = epochs * epak
 
-            save_model_path = '../../../Model_Params/GANs/WGan-GP-Signal-VERSION7-zmax-b1/' + str(
-                subject_id) + '/' + str(last_epoch + epochs) + '/' + tasks_name + '/'
+            save_model_path = '../../../Model_Params/GANs/WGan-GP-Signal-VERSION7' + normalize_type +freq + str(
+                    subject_id) + '/' + str(last_epoch + epochs) + '/' + tasks_name + '/'
 
             if not os.path.exists(save_model_path):
                 os.makedirs(save_model_path)
@@ -133,8 +136,8 @@ for key, value in mapping.items():
                 ##################################
                 # Load G and D model and optimizer
                 ##################################
-                load_model_path = '../../../Model_Params/GANs/WGan-GP-Signal-VERSION7-zmax-b1/'+ str(
-                    subject_id) + '/' + str(last_epoch) + '/' + tasks_name + '/'
+                load_model_path = '../../../Model_Params/GANs/WGan-GP-Signal-VERSION7' + normalize_type + freq + str(
+                        subject_id) + '/' + str(last_epoch) + '/' + tasks_name + '/'
 
                 checkpoint_g = torch.load(load_model_path + 'generator_state_dict.pth')
                 net.generator.load_state_dict(checkpoint_g['model_state_dict'])
@@ -155,8 +158,8 @@ for key, value in mapping.items():
         # ---------------------
         #  PLOT for each subject & each task - Final Result
         # ---------------------
-        save_final_result_path = '../../../Result/GANs/WGan-GP-Signal-VERSION7' + normalize_type + str(
-            subject_id) + '/FinalResult/' + tasks_name + '/'
+        save_final_result_path = '../../../Result/GANs/WGan-GP-Signal-VERSION7' + normalize_type + freq + str(
+                subject_id) + '/FinalResult/' + tasks_name + '/'
         if not os.path.exists(save_final_result_path):
             os.makedirs(save_final_result_path)
 
@@ -172,6 +175,5 @@ for key, value in mapping.items():
         plt.savefig("%s/%s-.png" % (save_final_result_path, 'results-plot'))
         # plt.show()
         plt.close()
-
 
 print("end")
