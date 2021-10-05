@@ -31,11 +31,11 @@ for subject_id in subject_id_list:
         # data
         if model_name == 'deep4':
             data_load_path = os.path.join(
-                    '../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels' + normalize_type + freq +
+                    '../../../Data/Real_Data/BCI/bnci-raw/' + freq + '22channels' + normalize_type +
                     str(subject_id)) + '/'
         else:
             data_load_path = os.path.join(
-                '../../../Data/Real_Data/BCI/bnci-raw/0-38/42channels/' + str(subject_id)) + '/'
+                '../../../Data/Real_Data/BCI/bnci-raw/' + freq + '42channels/' + str(subject_id)) + '/'
 
         dataset = load_data_object(data_load_path)
 
@@ -72,8 +72,8 @@ for subject_id in subject_id_list:
 
         # Path to saving Models
         # mkdir path to save
-        save_path = os.path.join('../../../Model_Params/FakeClassification-each/' + freq + gan_version +
-                                 model_name + '/' + phase_number + normalize_type +
+        save_path = os.path.join('../../../Model_Params/FakeClassification-each' + normalize_type + freq + gan_version +
+                                 model_name + '/' + phase_number + '/' +
                                  str(subject_id)) + '/7500/' + 'fake number ' + str(fake_ind) + '/'
 
         if not os.path.exists(save_path):
