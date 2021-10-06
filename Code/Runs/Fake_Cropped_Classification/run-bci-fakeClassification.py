@@ -11,11 +11,16 @@ from Code.Models.deepNewUtils import deep4New3dutils
 
 # Run Info
 subject_id_list = [1]
+
+freq = '0-f/'
+normalize_type = '-stdmax/'     # '/' for not normalize
+gan_epoch_dir = '/7500/'
+
+input_window_samples = 1000
+final_conv_length = 2      # for input window=500 / 2 for for input window=1000
+
 phase_number = '2'
 model_name = "deep4"
-
-normalize_type = '-stdmax/'   # '-zmax'
-gan_epoch_dir = '/7500/'
 
 # Fake data info
 fake_k = 3
@@ -28,10 +33,11 @@ set_random_seeds(seed=seed, cuda=cuda)
 for subject_id in subject_id_list:
     # data
     if model_name == 'deep4':
-        data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels' +
+        data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/' + freq + '22channels' +
                                       normalize_type + str(subject_id)) + '/'
     else:
-        data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/42channels/' + str(subject_id)) + '/'
+        data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/' + freq + '42channels/' +
+                                      str(subject_id)) + '/'
 
     dataset = load_data_object(data_load_path)
 
@@ -40,12 +46,11 @@ for subject_id in subject_id_list:
 
     fake_set = load_fake_data(fake_data_load_path, fake_k)
 
-    input_window_samples = 1000
     n_classes = 4
     n_chans = dataset[0][0].shape[0]
 
     if model_name == 'deep4':
-        model = create_model_deep4(n_chans, n_classes)
+        model = create_model_deep4(input_window_samples, n_chans, n_classes, final_conv_length)
 
     elif model_name == 'deep4New':
         model = create_model_newDeep4(input_window_samples, n_chans, n_classes)
@@ -64,12 +69,15 @@ for subject_id in subject_id_list:
     else:
         to_dense_prediction_model(model)
 
-    n_preds_per_input = get_output_shape(model, n_chans, input_window_samples)[2]
+    if final_conv_length == 'auto':
+        n_preds_per_input = 500
+    else:
+        n_preds_per_input = get_output_shape(model, n_chans, input_window_samples)[2]
 
     # Path to saving Models
     # mkdir path to save
-    save_path = os.path.join('../../../Model_Params/FakeClassification-stdmax/0-38/' +
-                             model_name + '/' + phase_number + normalize_type +
+    save_path = os.path.join('../../../Model_Params/FakeClassification' + normalize_type + freq +
+                             model_name + '-' + phase_number + '/' +
                              str(fake_k) + '/' + str(subject_id)) + gan_epoch_dir
 
     if not os.path.exists(save_path):
