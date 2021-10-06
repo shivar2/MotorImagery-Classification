@@ -16,9 +16,11 @@ phase_number = '1'
 model_name = "deep4"
 channels = 22
 
-freq = '0-f'
+freq = '0-f/'
 
-normalize_type = '-stdmax/'     # '/' for not normalize
+normalize_type = '-zmax/'     # '/' for not normalize
+final_conv_length = 'auto'
+input_window_samples = 500
 
 
 cuda, device = detect_device()
@@ -31,12 +33,11 @@ for subject_id in subject_id_list:
     if channels == 42:
         dataset = add_channel_to_raw(dataset)
 
-    input_window_samples = 1000
     n_classes = 4
     n_chans = dataset[0][0].shape[0]
 
     if model_name == 'deep4':
-        model = create_model_deep4(n_chans, n_classes)
+        model = create_model_deep4(input_window_samples, n_chans, n_classes, final_conv_length)
 
     elif model_name == 'deep4New':
         model = create_model_newDeep4(input_window_samples, n_chans, n_classes)
@@ -55,11 +56,14 @@ for subject_id in subject_id_list:
     else:
         to_dense_prediction_model(model)
 
-    n_preds_per_input = get_output_shape(model, n_chans, input_window_samples)[2]
+    if final_conv_length == 'auto':
+        n_preds_per_input = 500
+    else:
+        n_preds_per_input = get_output_shape(model, n_chans, input_window_samples)[2]
 
     # Path to saving Models
     # mkdir path to save
-    save_path = os.path.join('../../../Model_Params/Pretrained_Models' + normalize_type + '/22channels/' + freq +
+    save_path = os.path.join('../../../Model_Params/Pretrained_Models-500' + normalize_type + '/22channels/' + freq +
                              model_name + '/' + phase_number + '/')
 
     if not os.path.exists(save_path):
