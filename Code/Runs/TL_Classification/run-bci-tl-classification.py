@@ -12,14 +12,15 @@ from Code.Classifications import TLClassification
 
 # Run Info
 subject_id_list = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+freq = '0-f/'
+normalize_type = '-stdmax/'     # '/' for not normalize
+
+input_window_samples = 1000
+final_conv_length = 2      # 'auto' for input window=500 / 2 for for input window=1000
+
 phase_number = '2'
 model_name = "deep4"
-
-normalize = True
-if normalize:
-    normalize_str = 'normalize/'
-else:
-    normalize_str = 'notNormalize/'
 
 # TL
 param_name = "params_51.pt"
@@ -31,23 +32,23 @@ set_random_seeds(seed=seed, cuda=cuda)
 
 for subject_id in subject_id_list:
     # data
-    if normalize:
-        data_load_path = os.path.join(
-            '../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels-zmax/' + str(subject_id)) + '/'
+    if model_name == 'deep4':
+        data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/' + freq + '22channels' +
+                                      normalize_type + str(subject_id)) + '/'
     else:
-        data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels/' + str(subject_id)) + '/'
+        data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/' + freq + '42channels/' +
+                                      str(subject_id)) + '/'
 
     dataset = load_data_object(data_load_path)
 
-    input_window_samples = 1000
     n_classes = 4
     n_chans = dataset[0][0].shape[0]
 
     # Load model path
-    model_load_path = '../../../Model_Params/Pretrained_Models/22channels/0-f/deep4/1 - zmaxNormalize/'
+    model_load_path = '../../../Model_Params/Pretrained_Models/22channels/' + freq +'deep4/'
 
     if model_name == 'deep4':
-        model = create_model_deep4(n_chans, n_classes)
+        model = create_model_deep4(input_window_samples, n_chans, n_classes, final_conv_length)
 
     elif model_name == 'deep4New':
         model = create_model_newDeep4(input_window_samples, n_chans, n_classes)
@@ -60,7 +61,10 @@ for subject_id in subject_id_list:
         model.cuda()
 
     to_dense_prediction_model(model)
-    n_preds_per_input = get_output_shape(model, n_chans, input_window_samples)[2]
+    if final_conv_length == 'auto':
+        n_preds_per_input = 500
+    else:
+        n_preds_per_input = get_output_shape(model, n_chans, input_window_samples)[2]
 
     # Load model
     state_dict = torch.load(model_load_path+param_name, map_location=device)
@@ -68,8 +72,8 @@ for subject_id in subject_id_list:
 
     # Path to saving Models
     # mkdir path to save
-    save_path = os.path.join('../../../Model_Params/TL_Classification/0-38/22channel/' +
-                             model_name + '/' + phase_number + ' - ' + 'zmaxNormalize' + str(subject_id)) + '/step_by_step/'
+    save_path = os.path.join('../../../Model_Params/TL_Classification' + normalize_type + freq + '/' +
+                             model_name + '/' + phase_number + '/' + str(subject_id)) + '/' + '/step_by_step/'
 
     if not os.path.exists(save_path):
         os.makedirs(save_path)
