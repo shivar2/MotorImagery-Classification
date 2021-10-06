@@ -96,12 +96,12 @@ for key, value in mapping.items():
             key: value
         }
 
-        save_result_path = '../../../Result/GANs/WGan-GP-Signal-VERSION7/' + normalizer_name + str(
+        save_result_path = '../../../Result/GANs/WGan-GP-Signal-VERSION9/' + normalizer_name + str(
             subject_id) + '/' + tasks_name + '/' + channels_name + '/'
         if not os.path.exists(save_result_path):
             os.makedirs(save_result_path)
 
-        save_model_path = '../../../Model_Params/GANs/WGan-GP-Signal-VERSION7/' + normalizer_name + str(
+        save_model_path = '../../../Model_Params/GANs/WGan-GP-Signal-VERSION9/' + normalizer_name + str(
             subject_id) + '/' + tasks_name + '/' + channels_name + '/'
         if not os.path.exists(save_model_path):
             os.makedirs(save_model_path)

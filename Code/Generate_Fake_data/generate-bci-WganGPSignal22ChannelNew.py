@@ -55,7 +55,7 @@ for subject_id in subject_id_list:
         for task in tasks:
             
             # path to generator weights .pth file
-            saved_models_path = '../../Model_Params/GANs/WGan-GP-Signal-VERSION7' + normalize_type + freq +\
+            saved_models_path = '../../Model_Params/GANs/WGan-GP-Signal-VERSION9' + normalize_type + freq +\
                                 str(subject_id) +\
                                 gan_epoch_dir + task + '/'
             saved_models_path += 'generator_state_dict.pth'
@@ -127,7 +127,7 @@ for subject_id in subject_id_list:
         fake_dataset = BaseConcatDataset([wdataset])
 
         # path to to fake eeg directory
-        fake_data_path = '../../Data/Fake_Data/WGan-GP-Signal-VERSION7' +\
+        fake_data_path = '../../Data/Fake_Data/WGan-GP-Signal-VERSION9' +\
                          normalize_type + freq + str(subject_id) + gan_epoch_dir + 'Runs' + '/' + str(run) + '/'
 
         if not os.path.exists(fake_data_path):

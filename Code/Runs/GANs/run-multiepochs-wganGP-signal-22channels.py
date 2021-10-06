@@ -114,7 +114,7 @@ for key, value in mapping.items():
             d_tot_epak, g_tot_epak = [], []
             last_epoch = epochs * epak
 
-            save_model_path = '../../../Model_Params/GANs/WGan-GP-Signal-VERSION7' + normalize_type +freq + str(
+            save_model_path = '../../../Model_Params/GANs/WGan-GP-Signal-VERSION9' + normalize_type +freq + str(
                     subject_id) + '/' + str(last_epoch + epochs) + '/' + tasks_name + '/'
 
             if not os.path.exists(save_model_path):
@@ -136,7 +136,7 @@ for key, value in mapping.items():
                 ##################################
                 # Load G and D model and optimizer
                 ##################################
-                load_model_path = '../../../Model_Params/GANs/WGan-GP-Signal-VERSION7' + normalize_type + freq + str(
+                load_model_path = '../../../Model_Params/GANs/WGan-GP-Signal-VERSION9' + normalize_type + freq + str(
                         subject_id) + '/' + str(last_epoch) + '/' + tasks_name + '/'
 
                 checkpoint_g = torch.load(load_model_path + 'generator_state_dict.pth')
@@ -158,7 +158,7 @@ for key, value in mapping.items():
         # ---------------------
         #  PLOT for each subject & each task - Final Result
         # ---------------------
-        save_final_result_path = '../../../Result/GANs/WGan-GP-Signal-VERSION7' + normalize_type + freq + str(
+        save_final_result_path = '../../../Result/GANs/WGan-GP-Signal-VERSION9' + normalize_type + freq + str(
                 subject_id) + '/FinalResult/' + tasks_name + '/'
         if not os.path.exists(save_final_result_path):
             os.makedirs(save_final_result_path)

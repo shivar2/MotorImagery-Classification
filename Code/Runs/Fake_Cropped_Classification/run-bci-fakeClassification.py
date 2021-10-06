@@ -24,7 +24,7 @@ model_name = "deep4"
 
 # Fake data info
 fake_k = 3
-gan_version = 'WGan-GP-Signal-VERSION7' + normalize_type
+gan_version = 'WGan-GP-Signal-VERSION9' + normalize_type
 
 cuda, device = detect_device()
 seed = 20200220

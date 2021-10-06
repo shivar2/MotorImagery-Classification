@@ -95,12 +95,12 @@ for subject_id in range(1, 10):
                 key: value
             }
 
-            save_result_path = '../../../Result/GANs/WGan-GP-Signal-VERSION7/' + str(
+            save_result_path = '../../../Result/GANs/WGan-GP-Signal-VERSION9/' + str(
                 subject_id) + '/' + str(epochs) + '/' + tasks_name + '/'
             if not os.path.exists(save_result_path):
                 os.makedirs(save_result_path)
 
-            save_model_path = '../../../Model_Params/GANs/WGan-GP-Signal-VERSION7/' + str(
+            save_model_path = '../../../Model_Params/GANs/WGan-GP-Signal-VERSION9/' + str(
                 subject_id) + '/' + str(epochs) + '/' + tasks_name + '/'
             if not os.path.exists(save_model_path):
                 os.makedirs(save_model_path)
