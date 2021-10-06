@@ -49,10 +49,11 @@ for subject_id in subject_id_list:
         start = 0
         task_trials_epoch = []
 
-        for task in tasks:
-            seed = 20200220 + run  # random seed to make results reproducible
-            set_random_seeds(seed=seed, cuda=cuda)
+        seed = 20200220 + run  # random seed to make results reproducible
+        set_random_seeds(seed=seed, cuda=cuda)
 
+        for task in tasks:
+            
             # path to generator weights .pth file
             saved_models_path = '../../Model_Params/GANs/WGan-GP-Signal-VERSION7' + normalize_type + freq +\
                                 str(subject_id) +\
