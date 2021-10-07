@@ -21,16 +21,13 @@ from Code.Classifications.CroppedClassification import plot
 from Code.base import detect_device, cut_compute_windows, split_into_train_valid, get_results
 
 
-def create_pretrained_model(params_path, device, n_chans=22, n_classes=4,
-                            input_window_samples=1000, final_conv_length=2):
-
+def create_pretrained_model(params_path, device, n_chans=22, n_classes=4, input_window_samples=1000):
     model = Deep4Net(
         in_chans=n_chans,
         n_classes=n_classes,
         input_window_samples=input_window_samples,
-        final_conv_length=final_conv_length,
+        final_conv_length=2,
     )
-
     state_dict = torch.load(params_path, map_location=device)
     model.load_state_dict(state_dict, strict=False)
 
@@ -181,9 +178,8 @@ def train_2phase(train_set_all,
     return clf2
 
 
-def run_model(dataset, fake_set, model_load_path, double_channel, phase, save_path,
-              input_window_samples=1000, final_conv_length=2):
-
+def run_model(dataset, fake_set, model_load_path, double_channel, phase, save_path):
+    input_window_samples = 1000
     if double_channel:
         n_chans = dataset[0][0].shape[0] * 2
     else:
@@ -196,7 +192,6 @@ def run_model(dataset, fake_set, model_load_path, double_channel, phase, save_pa
     model = create_pretrained_model(n_chans=n_chans,
                                     n_classes=4,
                                     input_window_samples=input_window_samples,
-                                    final_conv_length=final_conv_length,
                                     params_path=model_load_path,
                                     device=device)
     # Send model to GPU
@@ -204,11 +199,7 @@ def run_model(dataset, fake_set, model_load_path, double_channel, phase, save_pa
         model.cuda()
 
     to_dense_prediction_model(model)
-
-    if final_conv_length == 'auto':
-        n_preds_per_input = 500
-    else:
-        n_preds_per_input = get_output_shape(model, n_chans, input_window_samples)[2]
+    n_preds_per_input = get_output_shape(model, n_chans, input_window_samples)[2]
 
     trial_start_offset_seconds = -0.5
 
