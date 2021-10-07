@@ -18,7 +18,7 @@ def train_1phase(train_set, valid_set, model, save_path, device='cpu'):
     weight_decay = 0.5 * 0.001
 
     batch_size = 64
-    n_epochs = 80
+    n_epochs = 35
 
     cp = Checkpoint(monitor=None,
                     f_params="params_{last_epoch[epoch]}.pt",
