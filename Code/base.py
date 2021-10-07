@@ -132,7 +132,7 @@ def cut_trial_windows(dataset):
     return windows_dataset
 
 
-def split_into_train_valid(windows_dataset, use_final_eval):
+def split_into_train_valid(windows_dataset, use_final_eval, split_c=0.8):
 
     splitted = windows_dataset.split('session')
     if use_final_eval:
@@ -140,7 +140,7 @@ def split_into_train_valid(windows_dataset, use_final_eval):
         valid_set = splitted['session_E']
     else:
         full_train_set = splitted['session_T']
-        n_split = int(np.round(0.8 * len(full_train_set)))
+        n_split = int(np.round(split_c * len(full_train_set)))
         # ensure this is multiple of 2 (number of windows per trial)
         n_windows_per_trial = 2  # here set by hand
         n_split = n_split - (n_split % n_windows_per_trial)

@@ -45,7 +45,7 @@ def train_1phase(train_set, valid_set, model, device='cpu'):
 
 
 def train_2phase(train_valid, model, save_path, device='cpu'):
-    train_set, valid_set = split_into_train_valid(train_valid, use_final_eval=False)
+    train_set, valid_set = split_into_train_valid(train_valid, split_c=0.8, use_final_eval=False)
 
     batch_size = 64
     n_epochs = 800
