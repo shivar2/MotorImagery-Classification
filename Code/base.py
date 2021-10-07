@@ -86,6 +86,12 @@ def load_fake_data(fake_data_path, fake_k):
     return dataset_obj
 
 
+def merge_datasets(first_dataset, second_dataset):
+    ds = [first_dataset, second_dataset]
+    ds_obj = BaseConcatDataset(ds)
+    return ds_obj
+
+
 def cut_compute_windows(dataset, n_preds_per_input, input_window_samples=1000, trial_start_offset_seconds=-0.5):
 
     sfreq = dataset.datasets[0].raw.info['sfreq']
@@ -135,23 +141,6 @@ def split_into_train_valid(windows_dataset, use_final_eval):
     else:
         full_train_set = splitted['session_T']
         n_split = int(np.round(0.8 * len(full_train_set)))
-        # ensure this is multiple of 2 (number of windows per trial)
-        n_windows_per_trial = 2  # here set by hand
-        n_split = n_split - (n_split % n_windows_per_trial)
-        valid_set = Subset(full_train_set, range(n_split, len(full_train_set)))
-        train_set = Subset(full_train_set, range(0, n_split))
-    return train_set, valid_set
-
-
-def split_into_train_valid_with_fake(windows_dataset, use_final_eval):
-
-    splitted = windows_dataset.split('session')
-    if use_final_eval:
-        train_set = splitted['session_T']
-        valid_set = splitted['session_E']
-    else:
-        full_train_set = windows_dataset
-        n_split = int(np.round(0.87 * len(full_train_set)))
         # ensure this is multiple of 2 (number of windows per trial)
         n_windows_per_trial = 2  # here set by hand
         n_split = n_split - (n_split % n_windows_per_trial)
