@@ -18,7 +18,7 @@ from Code.Classifier.EEGTLClassifier import EEGTLClassifier
 from Code.EarlyStopClass.EarlyStopClass import EarlyStopping
 from Code.Classifications.CroppedClassification import plot
 
-from Code.base import detect_device, cut_compute_windows, split_into_train_valid, get_results
+from Code.base import detect_device, cut_compute_windows, split_into_train_valid, get_results, merge_datasets
 
 
 def create_pretrained_model(params_path, device, n_chans=22, n_classes=4, input_window_samples=1000):
@@ -84,13 +84,9 @@ def train_1phase(train_set, valid_set, model, double_channel=True, device='cpu')
     return clf
 
 
-def train_2phase(train_set_all,
-                  save_path,
-                  model,
-                  double_channel=True,
-                  device='cpu'):
+def train_2phase(train_valid, save_path, model, double_channel=True, device='cpu'):
 
-    train_set, valid_set = split_into_train_valid(train_set_all, use_final_eval=False)
+    train_set, valid_set = split_into_train_valid(train_valid, use_final_eval=False)
 
     batch_size = 64
     n_epochs = 800
@@ -174,7 +170,7 @@ def train_2phase(train_set_all,
                      f_optimizer=save_path + "optimizers1.pt",
                      f_history=save_path + "history1.json")
 
-    clf2.fit(train_set_all, y=None)
+    clf2.fit(train_valid, y=None)
     return clf2
 
 
@@ -203,20 +199,19 @@ def run_model(dataset, fake_set, model_load_path, double_channel, phase, save_pa
 
     trial_start_offset_seconds = -0.5
 
-    windows_dataset = cut_compute_windows(dataset,
+    dataset_total = merge_datasets(fake_set, dataset)
+
+    windows_dataset = cut_compute_windows(dataset_total,
                                           n_preds_per_input,
                                           input_window_samples=input_window_samples,
                                           trial_start_offset_seconds=trial_start_offset_seconds)
 
     train_set, test_set = split_into_train_valid(windows_dataset, use_final_eval=True)
 
-    fake_set.append(train_set)
-    X = BaseConcatDataset(fake_set)
-
     if phase == 1:
-        clf = train_1phase(X, test_set, model=model, double_channel=double_channel, device=device)
+        clf = train_1phase(train_set, test_set, model=model, double_channel=double_channel, device=device)
     else:
-        clf = train_2phase(X, test_set, model=model, double_channel=double_channel, device=device)
+        clf = train_2phase(train_set, model=model, double_channel=double_channel, device=device)
 
     plot(clf, save_path)
     torch.save(model, save_path + "model.pth")
