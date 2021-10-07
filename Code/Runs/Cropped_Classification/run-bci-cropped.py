@@ -13,7 +13,7 @@ from Code.Models.deepNewUtils import deep4New3dutils
 subject_id_list = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 phase_number = '2'
 model_name = "deep4"
-freq = '0-f'
+freq = '0-f/'
 
 normalize_type = '-zmax/'     # '/' for not normalize
 cuda, device = detect_device()
@@ -23,7 +23,7 @@ set_random_seeds(seed=seed, cuda=cuda)
 for subject_id in subject_id_list:
     # data
     if model_name == 'deep4':
-        data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/' + freq +'/22channels' +
+        data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/' + freq +'22channels' +
                                       normalize_type + str(subject_id)) + '/'
     else:
         data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw' + '0-f' + '42channels/' +
@@ -59,7 +59,7 @@ for subject_id in subject_id_list:
 
     # Path to saving Models
     # mkdir path to save
-    save_path = os.path.join('../../../Model_Params/BCI_Models' + normalize_type + freq + '/' +
+    save_path = os.path.join('../../../Model_Params/BCI_Models' + normalize_type + freq +
                              model_name + '/' + phase_number + '/' + str(subject_id)) + '/'
 
     if not os.path.exists(save_path):

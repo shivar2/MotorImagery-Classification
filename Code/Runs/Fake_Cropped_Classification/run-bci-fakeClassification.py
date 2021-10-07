@@ -16,6 +16,7 @@ model_name = "deep4"
 
 normalize_type = '-stdmax/'   # '-zmax'
 gan_epoch_dir = '/7500/'
+freq = '0-f/'
 
 # Fake data info
 fake_k = 3
@@ -28,14 +29,14 @@ set_random_seeds(seed=seed, cuda=cuda)
 for subject_id in subject_id_list:
     # data
     if model_name == 'deep4':
-        data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels' +
+        data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/' + freq + '22channels' +
                                       normalize_type + str(subject_id)) + '/'
     else:
-        data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/42channels/' + str(subject_id)) + '/'
+        data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/' + freq + '42channels/' + str(subject_id)) + '/'
 
     dataset = load_data_object(data_load_path)
 
-    fake_data_load_path = os.path.join('../../../Data/Fake_Data/' + gan_version + str(subject_id)) +\
+    fake_data_load_path = os.path.join('../../../Data/Fake_Data/' + gan_version + freq + str(subject_id)) +\
                           gan_epoch_dir +'Runs/'
 
     fake_set = load_fake_data(fake_data_load_path, fake_k)
@@ -68,7 +69,7 @@ for subject_id in subject_id_list:
 
     # Path to saving Models
     # mkdir path to save
-    save_path = os.path.join('../../../Model_Params/FakeClassification-stdmax/0-38/' +
+    save_path = os.path.join('../../../Model_Params/FakeClassification' + normalize_type + freq +
                              model_name + '/' + phase_number + normalize_type +
                              str(fake_k) + '/' + str(subject_id)) + gan_epoch_dir
 
