@@ -66,7 +66,8 @@ def load_fake_data_oneByOne(fake_data_path, fake_k_ind):
         )
         ds_list.append(ds_loaded)
 
-    return ds_list
+    dataset_obj = BaseConcatDataset(ds_list)
+    return dataset_obj
 
 
 def load_fake_data(fake_data_path, fake_k):
@@ -81,7 +82,8 @@ def load_fake_data(fake_data_path, fake_k):
         )
         ds_list.append(ds_loaded)
 
-    return ds_list
+    dataset_obj = BaseConcatDataset(ds_list)
+    return dataset_obj
 
 
 def cut_compute_windows(dataset, n_preds_per_input, input_window_samples=1000, trial_start_offset_seconds=-0.5):
