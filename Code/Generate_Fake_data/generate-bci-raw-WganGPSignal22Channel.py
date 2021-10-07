@@ -96,6 +96,18 @@ for subject_id in subject_id_list:
         random.shuffle(temp)
         trials, target_list = zip(*temp)
 
+        # Add temp Trial for issue of last trial in creating raw
+        trials = list(trials)
+        target_list = list(target_list)
+
+        temp_trail = [trials[len(trials)-1]]
+        temp_target = [target_list[len(target_list)-1]]
+        trials.extend(temp_trail)
+        target_list.extend(temp_target)
+
+        trials = tuple(trials)
+        target_list = tuple(target_list)
+
         # Merge trials
         trials = np.swapaxes(trials, 0, 1)
         trials = np.reshape(trials, (len(all_channels), -1))
@@ -104,11 +116,11 @@ for subject_id in subject_id_list:
         raw = mne.io.RawArray(trials, info)
 
         #  MNE RAW Annotation
-        n_times = time_sample * batch_size * len(tasks)
-        inds = np.linspace(int(sfreq * 2), int(n_times - sfreq * 2), num=batch_size*4).astype(int)
+        n_times = time_sample * (batch_size * len(tasks) + 1)
+        inds = np.linspace(sfreq*4, int(n_times - 1), num=batch_size*len(tasks)+1).astype(int)
         onset = raw.times[inds]
 
-        duration = [4] * batch_size * len(tasks)
+        duration = [4] * (batch_size * len(tasks) + 1)
         description = target_list
 
         anns = mne.Annotations(onset, duration, description)
