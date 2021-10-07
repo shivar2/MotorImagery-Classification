@@ -51,12 +51,9 @@ noise_z = Variable(Tensor(np.random.normal(0, 1, (fake_num, len(tasks), batch_si
 
 
 for subject_id in subject_id_list:
-    datasets = []
     for run in range(0, fake_num):
-
+        datasets, target_list, trials = [], [], []
         task_i = 0
-        trials = []
-        target_list = []
         for task in tasks:
             
             # path to generator weights .pth file
