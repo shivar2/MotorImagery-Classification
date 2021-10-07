@@ -80,8 +80,8 @@ for subject_id in subject_id_list:
             task_trial = gen_sig.detach().cpu().numpy()
             trials.extend(task_trial)
 
-            target = task_dict[task]
-            target_list.extend([target for i in range(0, batch_size)])
+            # target = task_dict[task]
+            target_list.extend([task for i in range(0, batch_size)])
 
         # ---------------------
         #  Merge Tasks
@@ -111,8 +111,8 @@ for subject_id in subject_id_list:
         inds = np.linspace(int(sfreq * 2), int(n_times - sfreq * 2), num=batch_size*4).astype(int)
         onset = raw.times[inds]
 
-        duration = [1] * batch_size * len(tasks)
-        description = ['test'] * batch_size * len(tasks)
+        duration = [4] * batch_size * len(tasks)
+        description = target_list
 
         anns = mne.Annotations(onset, duration, description)
         raw = raw.set_annotations(anns)
