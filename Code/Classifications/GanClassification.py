@@ -4,13 +4,12 @@ import torch
 from skorch.callbacks import LRScheduler, Checkpoint
 from skorch.helper import predefined_split
 
-from braindecode.datasets.base import BaseConcatDataset
 from braindecode import EEGClassifier
 from braindecode.training.losses import CroppedLoss
 
 from Code.EarlyStopClass.EarlyStopClass import EarlyStopping
 from Code.Classifications.CroppedClassification import plot
-from Code.base import cut_compute_windows, split_into_train_valid, get_results, split_into_train_valid_with_fake
+from Code.base import cut_compute_windows, split_into_train_valid, get_results, merge_datasets
 
 
 def train_1phase(train_set, valid_set, model, device='cpu'):
@@ -45,9 +44,8 @@ def train_1phase(train_set, valid_set, model, device='cpu'):
     return clf
 
 
-def train_2phase(train_valid, fake_train_valid, model, save_path, device='cpu'):
+def train_2phase(train_valid, model, save_path, device='cpu'):
     train_set, valid_set = split_into_train_valid(train_valid, use_final_eval=False)
-    fake_train, valid_set_with_fake = split_into_train_valid_with_fake(fake_train_valid, use_final_eval=False)
 
     batch_size = 64
     n_epochs = 800
@@ -130,30 +128,27 @@ def train_2phase(train_valid, fake_train_valid, model, save_path, device='cpu'):
     clf2.load_params(f_params=save_path + "params1.pt",
                      f_optimizer=save_path + "optimizers1.pt",
                      f_history=save_path + "history1.json")
-    clf2.fit(fake_train_valid, y=None)
+    clf2.fit(train_valid, y=None)
     return clf2
 
 
 def run_model(dataset, fake_set, model,phase, n_preds_per_input, device, save_path):
     input_window_samples = 1000
     n_chans = 22
-
     trial_start_offset_seconds = -0.5
 
-    windows_dataset = cut_compute_windows(dataset,
+    dataset_total = merge_datasets(fake_set, dataset)
+    windows_dataset = cut_compute_windows(dataset_total,
                                           n_preds_per_input,
                                           input_window_samples=input_window_samples,
                                           trial_start_offset_seconds=trial_start_offset_seconds)
 
     train_set, test_set = split_into_train_valid(windows_dataset, use_final_eval=True)
 
-    fake_set.append(train_set)
-    X = BaseConcatDataset(fake_set)
-
     if phase == '1':
-        clf = train_1phase(X, valid_set=test_set, model=model, device=device)
+        clf = train_1phase(train_set, valid_set=test_set, model=model, device=device)
     else:
-        clf = train_2phase(train_set, X, model=model, save_path=save_path, device=device)
+        clf = train_2phase(train_set, model=model, save_path=save_path, device=device)
 
     plot(clf, save_path)
     torch.save(model, save_path + "model.pth")
