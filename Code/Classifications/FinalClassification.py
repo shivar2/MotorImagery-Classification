@@ -3,10 +3,9 @@ import torch
 from torch import nn
 from torch.nn.functional import elu
 
-from skorch.callbacks import LRScheduler, Checkpoint
+from skorch.callbacks import LRScheduler, Checkpoint, TrainEndCheckpoint, LoadInitState
 from skorch.helper import predefined_split
 
-from braindecode.datasets.base import BaseConcatDataset
 from braindecode.util import set_random_seeds
 from braindecode.models.util import to_dense_prediction_model, get_output_shape
 from braindecode.training.losses import CroppedLoss
@@ -21,29 +20,27 @@ from Code.Classifications.CroppedClassification import plot
 from Code.base import detect_device, cut_compute_windows, split_into_train_valid, get_results, merge_datasets
 
 
-def create_pretrained_model(params_path, device, n_chans=22, n_classes=4, input_window_samples=1000):
-    model = Deep4Net(
-        in_chans=n_chans,
-        n_classes=n_classes,
-        input_window_samples=input_window_samples,
-        final_conv_length=2,
-    )
-    state_dict = torch.load(params_path, map_location=device)
-    model.load_state_dict(state_dict, strict=False)
-
+def freezing_model(model, layer):
     # Freezing model
     model.requires_grad_(requires_grad=False)
 
-    # Change conv_classifier layer to fine-tune
-    model.conv_classifier = nn.Conv2d(
-            200,
-            n_classes,
-            (2, 1),
-            stride=(1, 1),
-            bias=True)
+    if layer == 1:
+        model.conv_time = nn.Conv2d(1, 25, kernel_size=(10, 1), stride=(1, 1))
+        model.conv_spat = nn.Conv2d(25, 25, kernel_size=(1, 22), stride=(1, 1), bias=False)
 
-    model.softmax = nn.LogSoftmax(dim=1)
-    model.squeeze = Expression(squeeze_final_output)
+    elif layer == 2:
+        model.conv_2 = nn.Conv2d(25, 50, kernel_size=(10, 1), stride=(1, 1), bias=False)
+
+    elif layer == 3:
+        model.conv_3 = nn.Conv2d(50, 100, kernel_size=(10, 1), stride=(1, 1), bias=False)
+
+    elif layer == 4:
+        model.conv_4 = nn.Conv2d(100, 200, kernel_size=(10, 1), stride=(1, 1), bias=False)
+
+    elif layer == 5:
+        model.conv_classifier = nn.Conv2d(200, 4, kernel_size=(2, 1), stride=(1, 1))
+        model.softmax = nn.LogSoftmax(dim=1)
+        model.squeeze = Expression(squeeze_final_output)
 
     return model
 
@@ -84,29 +81,39 @@ def train_1phase(train_set, valid_set, model, double_channel=True, device='cpu')
     return clf
 
 
-def train_2phase(train_valid, save_path, model, double_channel=True, device='cpu'):
+def train_2phase(real_train_valid, fake_train_set, save_path, model, double_channel=True, device='cpu'):
 
-    train_set, valid_set = split_into_train_valid(train_valid, use_final_eval=False)
+    train_set, valid_set = split_into_train_valid(real_train_valid, use_final_eval=False)
+
+    fr_train_valid = fake_train_set + real_train_valid
+    fr_train_set = fake_train_set + train_set
 
     batch_size = 64
     n_epochs = 800
 
     # PHASE 1
 
+    # Layer1
+    # model.apply(set_bn_eval)
+    model = freezing_model(model, layer=1)
+
     # Checkpoint will save the history
-    cp = Checkpoint(monitor='valid_accuracy_best',
+    cp1 = Checkpoint(monitor='valid_accuracy_best',
                     f_params="params1.pt",
                     f_optimizer="optimizers1.pt",
                     f_history="history1.json",
                     dirname=save_path, f_criterion=None)
 
-    # Early_stopping
-    early_stopping = EarlyStopping(monitor='valid_accuracy', lower_is_better=False, patience=80)
+    train_end_cp1 = TrainEndCheckpoint(dirname=save_path)
 
-    callbacks = [
+    # Early_stopping
+    early_stopping1 = EarlyStopping(monitor='valid_accuracy', lower_is_better=False, patience=80)
+
+    callbacks1 = [
         "accuracy",
-        ('cp', cp),
-        ('patience', early_stopping),
+        ('cp', cp1),
+        ('patience', early_stopping1),
+        ("train_end_cp", train_end_cp1),
     ]
 
     clf1 = EEGTLClassifier(
@@ -121,35 +128,77 @@ def train_2phase(train_valid, save_path, model, double_channel=True, device='cpu
         train_split=predefined_split(valid_set),
         iterator_train__shuffle=True,
         batch_size=batch_size,
-        callbacks=callbacks,
+        callbacks=callbacks1,
         device=device,
     )
     clf1.fit(train_set, y=None)
 
     # PHASE 2
 
-    # Best clf1 valid accuracy
-    best_valid_acc_epoch = np.argmax(clf1.history[:, 'valid_accuracy'])
-    target_train_loss = clf1.history[best_valid_acc_epoch, 'train_loss']
+    # Checkpoint will save the history
+    cp2 = Checkpoint(monitor='valid_accuracy_best',
+                    f_params="params2.pt",
+                    f_optimizer="optimizers2.pt",
+                    f_history="history2.json",
+                    dirname=save_path, f_criterion=None)
 
+    train_end_cp2 = TrainEndCheckpoint(dirname=save_path)
+    load_state2 = LoadInitState(train_end_cp1)
     # Early_stopping
-    early_stopping2 = EarlyStopping(monitor='valid_loss',
-                                    divergence_threshold=target_train_loss,
-                                    patience=80)
-
-    # Checkpoint will save the model with the lowest valid_loss
-    cp2 = Checkpoint(
-                     f_params="params2.pt",
-                     f_optimizer="optimizers2.pt",
-                     dirname=save_path,
-                     f_criterion=None)
+    early_stopping2 = EarlyStopping(monitor='valid_accuracy', lower_is_better=False, patience=80)
 
     callbacks2 = [
         "accuracy",
         ('cp', cp2),
         ('patience', early_stopping2),
+        ("load_state", load_state2),
+        ("train_end_cp", train_end_cp2),
     ]
+
     clf2 = EEGTLClassifier(
+        model,
+        double_channel=double_channel,
+        is_freezing=True,
+        cropped=True,
+        max_epochs=n_epochs,
+        criterion=CroppedLoss,
+        criterion__loss_function=torch.nn.functional.nll_loss,
+        optimizer=torch.optim.AdamW,
+        train_split=predefined_split(valid_set),
+        iterator_train__shuffle=True,
+        batch_size=batch_size,
+        callbacks=callbacks2,
+        device=device,
+    )
+    clf2.fit(fr_train_set, y=None)
+
+    # PHASE 3
+
+    # Best clf1 valid accuracy
+    best_valid_acc_epoch = np.argmax(clf2.history[:, 'valid_accuracy'])
+    target_train_loss = clf2.history[best_valid_acc_epoch, 'train_loss']
+
+    # Early_stopping
+    early_stopping3 = EarlyStopping(monitor='valid_loss',
+                                    divergence_threshold=target_train_loss,
+                                    patience=80)
+
+    # Checkpoint will save the model with the lowest valid_loss
+    cp3 = Checkpoint(
+                     f_params="params3.pt",
+                     f_optimizer="optimizers3.pt",
+                     dirname=save_path,
+                     f_criterion=None)
+
+    load_state3 = LoadInitState(train_end_cp2)
+    callbacks3 = [
+        "accuracy",
+        ('cp', cp3),
+        ('patience', early_stopping3),
+        ("load_state", load_state3),
+    ]
+
+    clf3 = EEGTLClassifier(
         model,
         double_channel=double_channel,
         is_freezing=True,
@@ -162,19 +211,15 @@ def train_2phase(train_valid, save_path, model, double_channel=True, device='cpu
         train_split=predefined_split(valid_set),
         iterator_train__shuffle=True,
         batch_size=batch_size,
-        callbacks=callbacks2,
+        callbacks=callbacks3,
         device=device,
     )
-    clf2.initialize()  # This is important!
-    clf2.load_params(f_params=save_path + "params1.pt",
-                     f_optimizer=save_path + "optimizers1.pt",
-                     f_history=save_path + "history1.json")
 
-    clf2.fit(train_valid, y=None)
-    return clf2
+    clf3.fit(fr_train_valid, y=None)
+    return clf3
 
 
-def run_model(dataset, fake_set, model_load_path, double_channel, phase, save_path):
+def run_model(dataset, fake_set, model, n_preds_per_input, double_channel, phase, save_path):
     input_window_samples = 1000
     if double_channel:
         n_chans = dataset[0][0].shape[0] * 2
@@ -185,37 +230,34 @@ def run_model(dataset, fake_set, model_load_path, double_channel, phase, save_pa
     seed = 20200220
     set_random_seeds(seed=seed, cuda=cuda)
 
-    model = create_pretrained_model(n_chans=n_chans,
-                                    n_classes=4,
-                                    input_window_samples=input_window_samples,
-                                    params_path=model_load_path,
-                                    device=device)
-    # Send model to GPU
-    if cuda:
-        model.cuda()
-
-    to_dense_prediction_model(model)
-    n_preds_per_input = get_output_shape(model, n_chans, input_window_samples)[2]
-
     trial_start_offset_seconds = -0.5
 
-    dataset_total = merge_datasets(fake_set, dataset)
-
-    windows_dataset = cut_compute_windows(dataset_total,
+    # Real Data
+    windows_dataset = cut_compute_windows(dataset,
                                           n_preds_per_input,
                                           input_window_samples=input_window_samples,
                                           trial_start_offset_seconds=trial_start_offset_seconds)
 
-    train_set, test_set = split_into_train_valid(windows_dataset, use_final_eval=True)
+    real_train_set, real_test_set = split_into_train_valid(windows_dataset, use_final_eval=True)
+
+    # Real and Fake samples
+
+    windows_fake_set = cut_compute_windows(fake_set,
+                                          n_preds_per_input,
+                                          input_window_samples=input_window_samples,
+                                          trial_start_offset_seconds=trial_start_offset_seconds)
+
+    fake_train_set, fake_test_set = split_into_train_valid(windows_fake_set, use_final_eval=False, split_c=1)
 
     if phase == 1:
-        clf = train_1phase(train_set, test_set, model=model, double_channel=double_channel, device=device)
+        clf = train_1phase(real_train_set, real_test_set, model=model, double_channel=double_channel, device=device)
     else:
-        clf = train_2phase(train_set, model=model, double_channel=double_channel, device=device)
+        clf = train_2phase(real_train_set, fake_train_set, model=model, double_channel=double_channel, device=device,
+                           save_path=save_path)
 
     plot(clf, save_path)
     torch.save(model, save_path + "model.pth")
 
     # Get results
-    get_results(clf, test_set, save_path=save_path, n_chans=n_chans,input_window_samples=1000)
+    get_results(clf, real_test_set, save_path=save_path, n_chans=n_chans, input_window_samples=1000)
 

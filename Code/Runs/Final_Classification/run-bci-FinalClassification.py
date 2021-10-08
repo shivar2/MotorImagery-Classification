@@ -1,8 +1,10 @@
 import os
 
+import torch
+from braindecode.models.util import to_dense_prediction_model, get_output_shape
 from braindecode.util import set_random_seeds
 
-from Code.base import load_data_object, load_fake_data, detect_device
+from Code.base import load_data_object, load_fake_data, detect_device, create_model_deep4
 
 from Code.Classifications import FinalClassification
 
@@ -47,6 +49,19 @@ for subject_id in subject_id_list:
     # Load model path
     model_load_path = '../../../Model_Params/Pretrained_Models/1' +normalize_type + freq + model_name + '/'
 
+    model = create_model_deep4(input_window_samples, n_chans, n_classes)
+
+    # Send model to GPU
+    if cuda:
+        model.cuda()
+
+    to_dense_prediction_model(model)
+    n_preds_per_input = get_output_shape(model, n_chans, input_window_samples)[2]
+
+    # Load model
+    state_dict = torch.load(model_load_path+param_name, map_location=device)
+    model.load_state_dict(state_dict, strict=False)
+
     # Path to saving Models
     # mkdir path to save
     save_path = os.path.join('../../../Model_Params/Final_Classification' + normalize_type + freq +
@@ -56,7 +71,7 @@ for subject_id in subject_id_list:
         os.makedirs(save_path)
 
     FinalClassification.run_model(dataset=dataset, fake_set=fake_set,
-                                  model_load_path=model_load_path + param_name,
+                                  model=model, n_preds_per_input=n_preds_per_input,
                                   double_channel=double_channel, phase=phase_number, save_path=save_path)
 
 

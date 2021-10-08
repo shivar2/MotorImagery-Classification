@@ -47,7 +47,7 @@ for subject_id in subject_id_list:
     model_load_path = '../../../Model_Params/Pretrained_Models/22channels/0-f/deep4/1 - zmaxNormalize/'
 
     if model_name == 'deep4':
-        model = create_model_deep4(n_chans, n_classes)
+        model = create_model_deep4(input_window_samples, n_chans, n_classes)
 
     elif model_name == 'deep4New':
         model = create_model_newDeep4(input_window_samples, n_chans, n_classes)
