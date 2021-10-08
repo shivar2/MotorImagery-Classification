@@ -22,7 +22,7 @@ from Code.base import detect_device, cut_compute_windows, split_into_train_valid
 
 def freezing_model(model, layer):
     # Freezing model
-    model.requires_grad_(requires_grad=False)
+    # model.requires_grad_(requires_grad=False)
 
     if layer == 1:
         model.conv_time = nn.Conv2d(1, 25, kernel_size=(10, 1), stride=(1, 1))

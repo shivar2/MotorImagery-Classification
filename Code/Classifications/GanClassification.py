@@ -44,7 +44,7 @@ def train_1phase(train_set, valid_set, model, device='cpu'):
     return clf
 
 
-def train_2phase(real_train_valid, fake_train_set, save_path, model, double_channel=True, device='cpu'):
+def train_2phase(real_train_valid, fake_train_set, save_path, model, device='cpu'):
 
     train_set, valid_set = split_into_train_valid(real_train_valid, use_final_eval=False)
 
@@ -77,8 +77,6 @@ def train_2phase(real_train_valid, fake_train_set, save_path, model, double_chan
 
     clf1 = EEGClassifier(
         model,
-        double_channel=double_channel,
-        is_freezing=True,
         cropped=True,
         max_epochs=n_epochs,
         criterion=CroppedLoss,
@@ -116,8 +114,6 @@ def train_2phase(real_train_valid, fake_train_set, save_path, model, double_chan
 
     clf2 = EEGClassifier(
         model,
-        double_channel=double_channel,
-        is_freezing=True,
         cropped=True,
         max_epochs=n_epochs,
         criterion=CroppedLoss,
@@ -159,8 +155,6 @@ def train_2phase(real_train_valid, fake_train_set, save_path, model, double_chan
 
     clf3 = EEGClassifier(
         model,
-        double_channel=double_channel,
-        is_freezing=True,
         cropped=True,
         warm_start=True,
         max_epochs=n_epochs,
@@ -184,22 +178,32 @@ def run_model(dataset, fake_set, model,phase, n_preds_per_input, device, save_pa
     n_chans = 22
     trial_start_offset_seconds = -0.5
 
-    dataset_total = merge_datasets(fake_set, dataset)
-    windows_dataset = cut_compute_windows(dataset_total,
+    # Real Data
+    windows_dataset = cut_compute_windows(dataset,
                                           n_preds_per_input,
                                           input_window_samples=input_window_samples,
                                           trial_start_offset_seconds=trial_start_offset_seconds)
 
-    train_set, test_set = split_into_train_valid(windows_dataset, use_final_eval=True)
+    real_train_set, real_test_set = split_into_train_valid(windows_dataset, use_final_eval=True)
 
-    if phase == '1':
-        clf = train_1phase(train_set, valid_set=test_set, model=model, device=device)
+    # Real and Fake samples
+
+    windows_fake_set = cut_compute_windows(fake_set,
+                                           n_preds_per_input,
+                                           input_window_samples=input_window_samples,
+                                           trial_start_offset_seconds=trial_start_offset_seconds)
+
+    fake_train_set, fake_test_set = split_into_train_valid(windows_fake_set, use_final_eval=False, split_c=1)
+
+    if phase == 1:
+        clf = train_1phase(real_train_set, real_test_set, model=model, device=device)
     else:
-        clf = train_2phase(train_set, model=model, save_path=save_path, device=device)
+        clf = train_2phase(real_train_set, fake_train_set, model=model, device=device,
+                           save_path=save_path)
 
     plot(clf, save_path)
     torch.save(model, save_path + "model.pth")
 
     # Get results
-    get_results(clf, test_set, save_path=save_path, n_chans=n_chans, input_window_samples=1000)
+    get_results(clf, real_test_set, save_path=save_path, n_chans=n_chans, input_window_samples=1000)
 

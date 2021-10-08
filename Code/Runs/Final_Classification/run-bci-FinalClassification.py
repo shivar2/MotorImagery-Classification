@@ -49,7 +49,7 @@ for subject_id in subject_id_list:
     # Load model path
     model_load_path = '../../../Model_Params/Pretrained_Models/1' +normalize_type + freq + model_name + '/'
 
-    model = create_model_deep4(input_window_samples, n_chans, n_classes)
+    model = create_model_deep4(n_chans, n_classes)
 
     # Send model to GPU
     if cuda:
