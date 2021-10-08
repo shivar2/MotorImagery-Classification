@@ -1,7 +1,8 @@
 import os
 
-from Code.base import load_data_object, create_model_deep4,\
-    create_model_newDeep4, create_model_newDeep4_3d, load_fake_data
+from braindecode.util import set_random_seeds
+
+from Code.base import load_data_object, load_fake_data, detect_device
 
 from Code.Classifications import FinalClassification
 
@@ -9,33 +10,34 @@ from Code.Classifications import FinalClassification
 subject_id_list = [1]
 phase_number = '2'
 model_name = "deep4"
+freq = '0-f/'
 
-normalize = True
-if normalize:
-    normalize_str = 'normalize/'
-else:
-    normalize_str = 'notNormalize/'
+normalize_type = '-zmax/'     # '/' for not normalize
 
 # TL
-param_name = "params2.pt"
+param_name = "params_51.pt"
 double_channel = False
 
 # Fake data info
-fake_k = 2
-gan_version = 'WGan-GP-Signal-VERSION5/'
+fake_k = 3
+gan_version = 'WGan-GP-Signal-VERSION9' + normalize_type
+gan_epoch_dir = '/7500/'
+
+cuda, device = detect_device()
+seed = 20200220
+set_random_seeds(seed=seed, cuda=cuda)
 
 for subject_id in subject_id_list:
     # data
 
-    if normalize:
-        data_load_path = os.path.join(
-            '../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels-zmax/' + str(subject_id)) + '/'
-    else:
-        data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-38/22channels/' + str(subject_id)) + '/'
+    data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/' + freq + '22channels' +
+                                  normalize_type + str(subject_id)) + '/'
 
     dataset = load_data_object(data_load_path)
 
-    fake_data_load_path = os.path.join('../../../Data/Fake_Data/' + gan_version + str(subject_id)) + '/Runs/'
+    fake_data_load_path = os.path.join('../../../Data/Fake_Data/' + gan_version + freq + str(subject_id)) + \
+                          gan_epoch_dir + 'Runs/'
+
     fake_set = load_fake_data(fake_data_load_path, fake_k)
 
     input_window_samples = 1000
@@ -43,22 +45,12 @@ for subject_id in subject_id_list:
     n_chans = dataset[0][0].shape[0]
 
     # Load model path
-    model_load_path = '../../../Model_Params/Pretrained_Models/22channels/0-f/'
-
-    # if model_name == 'deep4':
-    #     model = create_model_deep4(input_window_samples, n_chans, n_classes)
-    #
-    # elif model_name == 'deep4New':
-    #     model = create_model_newDeep4(input_window_samples, n_chans, n_classes)
-    #
-    # else:
-    #     model = create_model_newDeep4_3d(input_window_samples, n_chans, n_classes)
+    model_load_path = '../../../Model_Params/Pretrained_Models/1' +normalize_type + freq + model_name + '/'
 
     # Path to saving Models
     # mkdir path to save
-    save_path = os.path.join('../../../Model_Params/Final_Classification/0-38/' +
-                             model_name + '/' + phase_number + ' - ' + normalize_str +
-                             str(fake_k) + '/' + str(subject_id)) + '/'
+    save_path = os.path.join('../../../Model_Params/Final_Classification' + normalize_type + freq +
+                             model_name + '/' + phase_number + '/' + str(subject_id)) + '/'
 
     if not os.path.exists(save_path):
         os.makedirs(save_path)

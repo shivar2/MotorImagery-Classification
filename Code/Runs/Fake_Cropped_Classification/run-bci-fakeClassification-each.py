@@ -10,7 +10,7 @@ from Code.Classifications import GanClassification
 from Code.Models.deepNewUtils import deep4New3dutils
 
 # Run Info
-subject_id_list = [1]
+subject_id_list = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 phase_number = '2'
 model_name = "deep4"
 
@@ -27,7 +27,7 @@ seed = 20200220
 set_random_seeds(seed=seed, cuda=cuda)
 
 for subject_id in subject_id_list:
-    for fake_ind in range(0, 3):
+    for fake_ind in range(0, 10):
         # data
         if model_name == 'deep4':
             data_load_path = os.path.join(

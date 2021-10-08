@@ -264,6 +264,8 @@ def plot(clf, save_path):
 
 def get_results(clf, test_set, save_path, n_chans, input_window_samples=1000):
     # Calculate Mean Accuracy For Test set
+    clf.module.eval()
+
     i = 0
     test = np.empty(shape=(len(test_set), n_chans, input_window_samples))
     target = np.empty(shape=(len(test_set)))
