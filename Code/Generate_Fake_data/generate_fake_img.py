@@ -47,7 +47,7 @@ for subject_id in subject_id_list:
             # ---------------------
 
             # Save path
-            save_fake_path = '../../Result/IMG-Fake-WGan-GP-Signal-VERSION9/' + normalize_type + \
+            save_fake_path = '../../Result/IMG-Fake-WGan-GP-Signal-VERSION9' + normalize_type + \
                              str(subject_id) + '/' + str(last_epoch) + '/' + tasks_name + '/'
 
             if not os.path.exists(save_fake_path):
