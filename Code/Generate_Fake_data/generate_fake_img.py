@@ -15,9 +15,9 @@ set_random_seeds(seed=seed, cuda=cuda)
 Tensor = torch.cuda.FloatTensor if cuda else torch.FloatTensor
 
 subject_id_list = [1]
-normalize_type = '-tanh/'
+normalize_type = '-zmax/'
 freq = '0-38/'
-last_epoch = 1000
+last_epoch = 4000
 
 # mapping to HGD tasks
 tasks = ['feet', 'left_hand', 'right_hand', 'tongue']
@@ -29,8 +29,8 @@ batch_size = 24
 
 # GAN info
 sfreq = 250
-time_sample = 1000
-window_stride_samples = 467
+time_sample = 500
+window_stride_samples = 500
 noise = 100
 
 
@@ -47,14 +47,14 @@ for subject_id in subject_id_list:
             # ---------------------
 
             # Save path
-            save_fake_path = '../../Result/IMG-Fake-WGan-GP-Signal-VERSION9' + normalize_type + \
+            save_fake_path = '../../Result/IMG-Fake-WGan-GP-Signal-VERSION9-500' + normalize_type + \
                              str(subject_id) + '/' + str(last_epoch) + '/' + tasks_name + '/'
 
             if not os.path.exists(save_fake_path):
                 os.makedirs(save_fake_path)
 
             # path to generator weights .pth file
-            load_models_path = '../../Model_Params/GANs/WGan-GP-Signal-VERSION9' + normalize_type + freq +\
+            load_models_path = '../../Model_Params/GANs/WGan-GP-Signal-VERSION9-500' + normalize_type + freq +\
                                str(subject_id) + '/' + str(last_epoch) + '/' + tasks_name + '/'
             load_models_path += 'generator_state_dict.pth'
 
