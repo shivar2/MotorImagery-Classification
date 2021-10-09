@@ -19,13 +19,28 @@ Tensor = torch.cuda.FloatTensor if cuda else torch.FloatTensor
 subject_id_list = [1]
 
 normalize_type = '-zmax/'   # '-zmax'
-freq = '0-f/'
+freq = '0-38/'
+gan_epoch_dir = '/4000/'
 
-gan_epoch_dir = '/7500/'
+
+# GAN info
+fake_num = 10
+time_sample = 500
+window_size = '-500'
+
+noise = 100
+sfreq = 250
+
+# number of trials to generate
+batch_size = 12
+# number of signals to generate
+signal_batch_size = batch_size * int(1000/time_sample)
+
 
 # mapping to HGD tasks
 task_dict = {'left_hand': 0, 'right_hand': 1, 'feet': 2, 'tongue': 3}
 tasks = ['feet', 'left_hand', 'right_hand', 'tongue']
+
 all_channels = [
         'FC1', 'FC2',
         'C3', 'Cz', 'C4',
@@ -35,19 +50,10 @@ all_channels = [
         'Fz', 'P1', 'Pz', 'P2', 'POz']
 
 
-# number of images to generate
-batch_size = 12
-
-# GAN info
-sfreq = 250
-time_sample = 1000
-noise = 100
-fake_num = 6
-
 seed = 20200220
 set_random_seeds(seed=seed, cuda=cuda)
 # initialize noise
-noise_z = Variable(Tensor(np.random.normal(0, 1, (fake_num, len(tasks), batch_size, noise))))
+noise_z = Variable(Tensor(np.random.normal(0, 1, (fake_num, len(tasks), signal_batch_size, noise))))
 
 
 for subject_id in subject_id_list:
@@ -57,9 +63,8 @@ for subject_id in subject_id_list:
         for task in tasks:
             
             # path to generator weights .pth file
-            saved_models_path = '../../Model_Params/GANs/WGan-GP-Signal-VERSION9' + normalize_type + freq +\
-                                str(subject_id) +\
-                                gan_epoch_dir + task + '/'
+            saved_models_path = '../../Model_Params/GANs/WGan-GP-Signal-VERSION9' + window_size + normalize_type +\
+                                freq + str(subject_id) + gan_epoch_dir + task + '/'
             saved_models_path += 'generator_state_dict.pth'
 
             netG = Generator(time_sample=time_sample, noise=noise, channels=22)
@@ -92,6 +97,11 @@ for subject_id in subject_id_list:
         info['description'] = 'My custom dataset'
 
         #  Shuffle Tasks Trials and Target same order
+        # for window=500
+        trials = tuple(trials)
+        trials = np.reshape(trials, (-1, len(all_channels), 1000))
+        trials = list(trials)
+
         temp = list(zip(trials, target_list))
         random.shuffle(temp)
         trials, target_list = zip(*temp)
@@ -138,7 +148,7 @@ for subject_id in subject_id_list:
 
         # Save fake dataset as BaseDataset obj
         # path to to fake eeg directory
-        fake_data_path = '../../Data/Fake_Data/WGan-GP-Signal-VERSION9' +\
+        fake_data_path = '../../Data/Fake_Data/WGan-GP-Signal-VERSION9' + window_size + \
                          normalize_type + freq + str(subject_id) + gan_epoch_dir + 'Runs' + '/' + str(run) + '/'
 
         if not os.path.exists(fake_data_path):
