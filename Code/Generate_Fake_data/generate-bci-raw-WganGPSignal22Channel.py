@@ -6,21 +6,21 @@ import mne
 import torch.utils.data
 from torch.autograd import Variable
 
-from braindecode.datasets.base import WindowsDataset, BaseConcatDataset, BaseDataset
+from braindecode.datasets.base import BaseConcatDataset, BaseDataset
 from braindecode.util import set_random_seeds
 
-from Code.Models.GANs.WGanGPSignalModels import Generator
+from Code.Models.GANs import WGanGPSignalModels, WGanGPSignalModelsHalfSize
 
 
 cuda = True if torch.cuda.is_available() else False
 Tensor = torch.cuda.FloatTensor if cuda else torch.FloatTensor
 
 
-subject_id_list = [1]
+subject_id_list = [3]
 
 normalize_type = '-zmax/'   # '-zmax'
 freq = '0-38/'
-gan_epoch_dir = '/4000/'
+gan_epoch_dir = '/7500/'
 
 
 # GAN info
@@ -67,7 +67,10 @@ for subject_id in subject_id_list:
                                 freq + str(subject_id) + gan_epoch_dir + task + '/'
             saved_models_path += 'generator_state_dict.pth'
 
-            netG = Generator(time_sample=time_sample, noise=noise, channels=22)
+            if time_sample == 1000:
+                netG = WGanGPSignalModels.Generator(time_sample=time_sample, noise=noise, channels=22)
+            else:
+                netG = WGanGPSignalModelsHalfSize.Generator(time_sample=time_sample, noise=noise, channels=22)
 
             # load weights
             checkpoint_g = torch.load(saved_models_path)
