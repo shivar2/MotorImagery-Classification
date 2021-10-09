@@ -8,13 +8,11 @@ import torch.nn as nn
 import torch.autograd as autograd
 import torch
 
-import matplotlib.pyplot as plt
-
-from Code.Models.GANs.WGanGPSignalModels import Generator, Discriminator
+from Code.Models.GANs import WGanGPSignalModels, WGanGPSignalModelsHalfSize
 
 
 class WGANGP(nn.Module):
-    def __init__(self, subject=1, n_epochs=10, batch_size=64, time_sample=32, channels=3, sample_interval=400):
+    def __init__(self, subject=1, n_epochs=10, batch_size=64, time_sample=32, channels=3, window_size=1000, sample_interval=400):
 
         super(WGANGP, self).__init__()
 
@@ -37,9 +35,15 @@ class WGANGP(nn.Module):
 
         self.cuda = True if torch.cuda.is_available() else False
 
+        self.window_size = window_size
+
         # Initialize generator and discriminator
-        self.generator = Generator(time_sample=self.time_sample, channels=self.channels)
-        self.discriminator = Discriminator(time_sample=self.time_sample, channels=self.channels)
+        if self.window_size == 1000:
+            self.generator = WGanGPSignalModels.Generator(time_sample=self.time_sample, channels=self.channels)
+            self.discriminator = WGanGPSignalModels.Discriminator(time_sample=self.time_sample, channels=self.channels)
+        else:
+            self.generator = WGanGPSignalModelsHalfSize.Generator(time_sample=self.time_sample, channels=self.channels)
+            self.discriminator = WGanGPSignalModelsHalfSize.Discriminator(time_sample=self.time_sample, channels=self.channels)
 
         if self.cuda:
             self.generator.cuda()

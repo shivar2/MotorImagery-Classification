@@ -11,7 +11,6 @@ from Code.Models.GANs.WGanGPErikSignal import WGANGP
 
 
 def get_data(data_load_path,
-             normalize_type='-zmax/',
              time_sample=32,
              window_stride_samples=1,
              mapping=None,
@@ -25,8 +24,6 @@ def get_data(data_load_path,
 
     sfreq = dataset.datasets[0].raw.info['sfreq']
     assert all([ds.raw.info['sfreq'] == sfreq for ds in dataset.datasets])
-
-    trial_start_offset_samples = int(-0.5 * sfreq)
 
     windows_dataset = create_windows_from_events(
         dataset,
@@ -63,34 +60,35 @@ def get_data(data_load_path,
 cuda = True if torch.cuda.is_available() else False
 seed = 20200220  # random seed to make results reproducible
 set_random_seeds(seed=seed, cuda=cuda)
-
-mapping = {
-    'left_hand': 0,
-    # 'right_hand': 1,
-    # 'feet': 2,
-    # 'tongue': 3
-           }
 all_channels = ['Fz',
                 'FC1', 'FC2',
                 'C3', 'Cz', 'C4', 'CP1', 'CP2',
                 'Pz', 'POz', 'FC3', 'FCz', 'FC4',
                 'C5', 'C1', 'C2', 'C6', 'CP3', 'CPz', 'CP4',
                 'P1', 'P2']
+mapping = {
+    'left_hand': 0,
+    # 'right_hand': 1,
+    # 'feet': 2,
+    # 'tongue': 3
+           }
 
-time_sample = 1000
-window_stride_samples = 1000
+
+time_sample = 500                   # 1000
+window_stride_samples = 500         # 1000
+
+window_size = '-500'
+normalize_type = '-zmax/'   # '-zmax/'   '-stdmax/'
+freq = '0-38/'
+
+subject_id = 2
+data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/' + freq + '22channels' +
+                              normalize_type +
+                              str(subject_id)) + '/'
 
 batchsize = 64
 epochs = 500
 epak_limit = 15
-
-normalize_type = '-zmax/'   # '-zmax'
-freq = '0-f/'
-
-subject_id = 1
-data_load_path = os.path.join('../../../Data/Real_Data/BCI/bnci-raw/0-f/22channels' +
-                              normalize_type +
-                              str(subject_id)) + '/'
 
 for key, value in mapping.items():
         gloss, dloss = [], []
@@ -114,7 +112,7 @@ for key, value in mapping.items():
             d_tot_epak, g_tot_epak = [], []
             last_epoch = epochs * epak
 
-            save_model_path = '../../../Model_Params/GANs/WGan-GP-Signal-VERSION9' + normalize_type +freq + str(
+            save_model_path = '../../../Model_Params/GANs/WGan-GP-Signal-VERSION9' + window_size + normalize_type +freq + str(
                     subject_id) + '/' + str(last_epoch + epochs) + '/' + tasks_name + '/'
 
             if not os.path.exists(save_model_path):
@@ -129,6 +127,7 @@ for key, value in mapping.items():
                          batch_size=batchsize,
                          time_sample=time_sample,
                          channels=n_chans,
+                         window_size=time_sample,
                          sample_interval=400,
                          )
 
@@ -136,7 +135,7 @@ for key, value in mapping.items():
                 ##################################
                 # Load G and D model and optimizer
                 ##################################
-                load_model_path = '../../../Model_Params/GANs/WGan-GP-Signal-VERSION9' + normalize_type + freq + str(
+                load_model_path = '../../../Model_Params/GANs/WGan-GP-Signal-VERSION9'+ window_size + normalize_type + freq + str(
                         subject_id) + '/' + str(last_epoch) + '/' + tasks_name + '/'
 
                 checkpoint_g = torch.load(load_model_path + 'generator_state_dict.pth')
@@ -158,7 +157,7 @@ for key, value in mapping.items():
         # ---------------------
         #  PLOT for each subject & each task - Final Result
         # ---------------------
-        save_final_result_path = '../../../Result/GANs/WGan-GP-Signal-VERSION9' + normalize_type + freq + str(
+        save_final_result_path = '../../../Result/GANs/WGan-GP-Signal-VERSION9' + window_size + normalize_type + freq + str(
                 subject_id) + '/FinalResult/' + tasks_name + '/'
         if not os.path.exists(save_final_result_path):
             os.makedirs(save_final_result_path)
