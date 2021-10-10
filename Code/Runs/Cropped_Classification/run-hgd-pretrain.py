@@ -16,9 +16,9 @@ phase_number = '1'
 model_name = "deep4"
 channels = 22
 
-freq = '0-f'
+freq = '0-38/'
 
-normalize_type = '-stdmax/'     # '/' for not normalize
+normalize_type = '-zmax/'     # '/' for not normalize
 
 
 cuda, device = detect_device()
@@ -26,7 +26,7 @@ seed = 20200220
 set_random_seeds(seed=seed, cuda=cuda)
 for subject_id in subject_id_list:
     # data
-    data_load_path = os.path.join('../../../Data/Real_Data/HGD/22channels' + normalize_type + freq)
+    data_load_path = os.path.join('../../../Data/Real_Data/HGD/' + freq+'22channels' + normalize_type)
     dataset = load_all_data_object(data_load_path)
     if channels == 42:
         dataset = add_channel_to_raw(dataset)
@@ -60,7 +60,7 @@ for subject_id in subject_id_list:
     # Path to saving Models
     # mkdir path to save
     save_path = os.path.join('../../../Model_Params/Pretrained_Models' + normalize_type + '/22channels/' + freq +
-                             model_name + '/' + phase_number + '/')
+                             model_name + '-' + phase_number + '/')
 
     if not os.path.exists(save_path):
         os.makedirs(save_path)
