@@ -18,7 +18,7 @@ channels = 22
 
 freq = '0-38/'
 
-normalize_type = '-zmax/'     # '/' for not normalize
+normalize_type = '-stdmax/'     # '/' for not normalize
 
 
 cuda, device = detect_device()
