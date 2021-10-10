@@ -10,17 +10,18 @@ from Code.Classifications import GanClassification
 from Code.Models.deepNewUtils import deep4New3dutils
 
 # Run Info
-subject_id_list = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+subject_id_list = [1]
 phase_number = '2'
 model_name = "deep4"
 
 normalize_type = '-zmax/'   # '-zmax'
-freq = '0-f/'
+freq = '0-38/'
+window_size = '-500'
 gan_epoch_dir = '/7500/'
 
 # Fake data info
 
-gan_version = 'WGan-GP-Signal-VERSION9' + normalize_type
+gan_version = 'WGan-GP-Signal-VERSION9' + window_size + normalize_type
 
 cuda, device = detect_device()
 seed = 20200220
@@ -72,9 +73,9 @@ for subject_id in subject_id_list:
 
         # Path to saving Models
         # mkdir path to save
-        save_path = os.path.join('../../../Model_Params/FakeClassification-each' + normalize_type + freq + gan_version +
-                                 model_name + '/' + phase_number + '/' +
-                                 str(subject_id)) + '/7500/' + 'fake number ' + str(fake_ind) + '/'
+        save_path = os.path.join('../../../Model_Params/FakeClassification-each' + window_size + normalize_type +
+                                 freq + gan_version + model_name + '-' + phase_number + '/' +
+                                 str(subject_id)) + gan_epoch_dir + 'fake number ' + str(fake_ind) + '/'
 
         if not os.path.exists(save_path):
             os.makedirs(save_path)

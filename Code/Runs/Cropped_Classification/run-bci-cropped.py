@@ -13,7 +13,7 @@ from Code.Models.deepNewUtils import deep4New3dutils
 subject_id_list = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 phase_number = '2'
 model_name = "deep4"
-freq = '0-f/'
+freq = '0-38/'
 
 normalize_type = '-zmax/'     # '/' for not normalize
 cuda, device = detect_device()
@@ -60,7 +60,7 @@ for subject_id in subject_id_list:
     # Path to saving Models
     # mkdir path to save
     save_path = os.path.join('../../../Model_Params/BCI_Models' + normalize_type + freq +
-                             model_name + '/' + phase_number + '/' + str(subject_id)) + '/'
+                             model_name + '-' + phase_number + '/' + str(subject_id)) + '/'
 
     if not os.path.exists(save_path):
         os.makedirs(save_path)
