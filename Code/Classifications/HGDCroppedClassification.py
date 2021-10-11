@@ -183,5 +183,69 @@ def run_model(dataset, model, phase, n_preds_per_input, save_path):
     get_results(clf_best, test_set, save_path=save_path, n_chans=n_chans, input_window_samples=1000)
 
 
+def continue_trainning(dataset, model, n_preds_per_input, load_path, save_path):
+    cuda, device = detect_device()
+    seed = 20200220
+    set_random_seeds(seed=seed, cuda=cuda)
+
+    input_window_samples = 1000
+    n_chans = dataset[0][0].shape[0]
+
+    trial_start_offset_seconds = -0.5
+
+    windows_dataset = cut_compute_windows(dataset,
+                                          n_preds_per_input,
+                                          input_window_samples=input_window_samples,
+                                          trial_start_offset_seconds=trial_start_offset_seconds)
+
+    train_set_all, test_set = split_hgd_into_train_valid(windows_dataset, use_final_eval=True)
+
+    # only for phase 1 clf
+    # For deep4 they should be:
+    lr = 1 * 0.01
+    weight_decay = 0.5 * 0.001
+
+    batch_size = 64
+    n_epochs = 40
+
+    cp = Checkpoint(monitor="valid_accuracy_best",
+                    f_params="params_{last_epoch[epoch]}.pt",
+                    f_optimizer="optimizer_{last_epoch[epoch]}.pt",
+                    f_history="history.json",
+                    dirname=save_path, f_criterion=None)
+
+    callbacks = [
+        "accuracy",
+        ('cp', cp),
+        ("lr_scheduler", LRScheduler('CosineAnnealingLR', T_max=n_epochs - 1)),
+    ]
+
+    clf = EEGClassifier(
+        model,
+        cropped=True,
+        max_epochs=n_epochs,
+        criterion=CroppedLoss,
+        criterion__loss_function=torch.nn.functional.nll_loss,
+        optimizer=torch.optim.AdamW,
+        train_split=predefined_split(test_set),
+        optimizer__lr=lr,
+        optimizer__weight_decay=weight_decay,
+        iterator_train__shuffle=True,
+        batch_size=batch_size,
+        callbacks=callbacks,
+        device=device,
+    )
+
+    clf.initialize()  # This is important!
+    clf.load_params(f_params=load_path+"params_40.pt",
+                     f_optimizer=load_path+"optimizer_40.pt",
+                     f_history=load_path+"history.json")
+
+    clf.fit(train_set_all, y=None)
+
+    plot(clf, save_path)
+
+    # Get results
+    get_results(clf, test_set, save_path=save_path, n_chans=n_chans, input_window_samples=1000)
 
 

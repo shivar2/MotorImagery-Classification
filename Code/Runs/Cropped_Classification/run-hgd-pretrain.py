@@ -59,7 +59,7 @@ for subject_id in subject_id_list:
 
     # Path to saving Models
     # mkdir path to save
-    save_path = os.path.join('../../../Model_Params/Pretrained_Models' + normalize_type + '/22channels/' + freq +
+    save_path = os.path.join('../../../Model_Params/Pretrained_Models' + normalize_type + '22channels/' + freq +
                              model_name + '-' + phase_number + '/')
 
     if not os.path.exists(save_path):
@@ -68,5 +68,9 @@ for subject_id in subject_id_list:
     HGDCroppedClassification.run_model(dataset=dataset, model=model,
                                        phase=phase_number, save_path=save_path,
                                        n_preds_per_input=n_preds_per_input)
+
+    # HGDCroppedClassification.continue_trainning(dataset=dataset, model=model,
+    #                                             load_path=save_path, save_path=save_path+'continue/',
+    #                                             n_preds_per_input=n_preds_per_input)
 
 
