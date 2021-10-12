@@ -56,18 +56,14 @@ def load_all_data_object(data_path):
 
 
 def load_fake_data_oneByOne(fake_data_path, fake_k_ind):
-    ds_list = []
-    for folder in range(fake_k_ind, fake_k_ind + 1):
-        folder_path = fake_data_path + str(folder) + '/'
-        ds_loaded = load_concat_dataset(
+    folder_path = fake_data_path + str(fake_k_ind) + '/'
+    ds_loaded = load_concat_dataset(
             path=folder_path,
             preload=True,
             target_name=None,
         )
-        ds_list.append(ds_loaded)
 
-    dataset_obj = BaseConcatDataset(ds_list)
-    return dataset_obj
+    return ds_loaded
 
 
 def load_fake_data(fake_data_path, fake_k):
