@@ -18,7 +18,7 @@ def train_1phase(train_set, valid_set, model, device='cpu'):
     weight_decay = 0.5 * 0.001
 
     batch_size = 64
-    n_epochs = 40
+    n_epochs = 100
 
     callbacks = [
         "accuracy",
@@ -46,7 +46,7 @@ def train_1phase(train_set, valid_set, model, device='cpu'):
 
 def train_2phase(real_train_valid, fake_train_set, save_path, model, device='cpu'):
 
-    train_set, valid_set = split_into_train_valid(real_train_valid, use_final_eval=False)
+    train_set, valid_set = split_into_train_valid(real_train_valid, use_final_eval=False, split_c=0.8)
 
     fr_train_valid = fake_train_set + real_train_valid
     fr_train_set = fake_train_set + train_set
@@ -172,7 +172,6 @@ def train_2phase(real_train_valid, fake_train_set, save_path, model, device='cpu
     return clf3
 
 
-
 def run_model(dataset, fake_set, model,phase, n_preds_per_input, device, save_path):
     input_window_samples = 1000
     n_chans = 22
@@ -195,8 +194,9 @@ def run_model(dataset, fake_set, model,phase, n_preds_per_input, device, save_pa
 
     fake_train_set, fake_test_set = split_into_train_valid(windows_fake_set, use_final_eval=False, split_c=1)
 
-    if phase == 1:
-        clf = train_1phase(real_train_set, real_test_set, model=model, device=device)
+    if phase == '1':
+        fr_train_set = fake_train_set + real_train_set
+        clf = train_1phase(fr_train_set, real_test_set, model=model, device=device)
     else:
         clf = train_2phase(real_train_set, fake_train_set, model=model, device=device,
                            save_path=save_path)
