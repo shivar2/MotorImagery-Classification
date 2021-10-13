@@ -18,7 +18,7 @@ def train_1phase(train_set, valid_set, model, device='cpu'):
     weight_decay = 0.5 * 0.001
 
     batch_size = 64
-    n_epochs = 100
+    n_epochs = 40
 
     callbacks = [
         "accuracy",
@@ -44,9 +44,9 @@ def train_1phase(train_set, valid_set, model, device='cpu'):
     return clf
 
 
-def train_2phase(real_train_valid, fake_train_set, save_path, model, device='cpu'):
+def train_2phase(real_train_valid, fake_train_set, save_path, model, phase1_clf_path, device='cpu'):
 
-    train_set, valid_set = split_into_train_valid(real_train_valid, use_final_eval=False, split_c=0.8)
+    train_set, valid_set = split_into_train_valid(real_train_valid, use_final_eval=False)
 
     fr_train_valid = fake_train_set + real_train_valid
     fr_train_set = fake_train_set + train_set
@@ -55,40 +55,6 @@ def train_2phase(real_train_valid, fake_train_set, save_path, model, device='cpu
     n_epochs = 800
 
     # PHASE 1
-
-    # Checkpoint will save the history
-    cp1 = Checkpoint(monitor='valid_accuracy_best',
-                    f_params="params1.pt",
-                    f_optimizer="optimizers1.pt",
-                    f_history="history1.json",
-                    dirname=save_path, f_criterion=None)
-
-    train_end_cp1 = TrainEndCheckpoint(dirname=save_path)
-
-    # Early_stopping
-    early_stopping1 = EarlyStopping(monitor='valid_accuracy', lower_is_better=False, patience=80)
-
-    callbacks1 = [
-        "accuracy",
-        ('cp', cp1),
-        ('patience', early_stopping1),
-        ("train_end_cp", train_end_cp1),
-    ]
-
-    clf1 = EEGClassifier(
-        model,
-        cropped=True,
-        max_epochs=n_epochs,
-        criterion=CroppedLoss,
-        criterion__loss_function=torch.nn.functional.nll_loss,
-        optimizer=torch.optim.AdamW,
-        train_split=predefined_split(valid_set),
-        iterator_train__shuffle=True,
-        batch_size=batch_size,
-        callbacks=callbacks1,
-        device=device,
-    )
-    clf1.fit(train_set, y=None)
 
     # PHASE 2
 
@@ -100,7 +66,6 @@ def train_2phase(real_train_valid, fake_train_set, save_path, model, device='cpu
                     dirname=save_path, f_criterion=None)
 
     train_end_cp2 = TrainEndCheckpoint(dirname=save_path)
-    load_state2 = LoadInitState(train_end_cp1)
     # Early_stopping
     early_stopping2 = EarlyStopping(monitor='valid_accuracy', lower_is_better=False, patience=80)
 
@@ -108,7 +73,6 @@ def train_2phase(real_train_valid, fake_train_set, save_path, model, device='cpu
         "accuracy",
         ('cp', cp2),
         ('patience', early_stopping2),
-        ("load_state", load_state2),
         ("train_end_cp", train_end_cp2),
     ]
 
@@ -125,6 +89,10 @@ def train_2phase(real_train_valid, fake_train_set, save_path, model, device='cpu
         callbacks=callbacks2,
         device=device,
     )
+    clf2.initialize()  # This is important!
+    clf2.load_params(f_params=phase1_clf_path + "params1.pt",
+                     f_optimizer=phase1_clf_path + "optimizers1.pt",
+                     f_history=phase1_clf_path + "history1.json")
     clf2.fit(fr_train_set, y=None)
 
     # PHASE 3
@@ -172,7 +140,7 @@ def train_2phase(real_train_valid, fake_train_set, save_path, model, device='cpu
     return clf3
 
 
-def run_model(dataset, fake_set, model,phase, n_preds_per_input, device, save_path):
+def run_model(dataset, fake_set, model,phase, n_preds_per_input, device, save_path, phase1_clf_path):
     input_window_samples = 1000
     n_chans = 22
     trial_start_offset_seconds = -0.5
@@ -194,11 +162,11 @@ def run_model(dataset, fake_set, model,phase, n_preds_per_input, device, save_pa
 
     fake_train_set, fake_test_set = split_into_train_valid(windows_fake_set, use_final_eval=False, split_c=1)
 
-    if phase == '1':
-        fr_train_set = fake_train_set + real_train_set
-        clf = train_1phase(fr_train_set, real_test_set, model=model, device=device)
+    if phase == 1:
+        clf = train_1phase(real_train_set, real_test_set, model=model, device=device)
     else:
         clf = train_2phase(real_train_set, fake_train_set, model=model, device=device,
+                           phase1_clf_path=phase1_clf_path,
                            save_path=save_path)
 
     plot(clf, save_path)

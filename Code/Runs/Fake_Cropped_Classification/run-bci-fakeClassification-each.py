@@ -10,12 +10,12 @@ from Code.Classifications import GanClassification
 from Code.Models.deepNewUtils import deep4New3dutils
 
 # Run Info
-subject_id_list = [1]
+subject_id_list = [5, 6, 7, 8, 9]
 phase_number = '2'
 model_name = "deep4"
 
-normalize_type = '-zmax/'   # '-zmax'
-freq = '0-38/'
+normalize_type = '-stdmax/'   # '-zmax'
+freq = '0-f/'
 window_size = '-500'
 gan_epoch_dir = '/7500/'
 
@@ -48,6 +48,10 @@ for subject_id in subject_id_list:
         input_window_samples = 1000
         n_classes = 4
         n_chans = dataset[0][0].shape[0]
+
+        # Load model path
+        phase1_clf_path = '../../../Model_Params/BCI_Models' + normalize_type + freq + model_name + '-2/' + \
+                            str(subject_id) + '/'
 
         if model_name == 'deep4':
             model = create_model_deep4(n_chans, n_classes)
@@ -82,5 +86,6 @@ for subject_id in subject_id_list:
 
         GanClassification.run_model(dataset=dataset, fake_set=fake_set, model=model,
                                     phase=phase_number, n_preds_per_input=n_preds_per_input, device=device,
+                                    phase1_clf_path=phase1_clf_path,
                                     save_path=save_path)
 
