@@ -60,7 +60,8 @@ def get_data(data_load_path,
 
 
 subject_id_list = [2]
-normalizer_name = '-zmax/'       # 'tanhNormalized/'
+normalizer_name = '-zmax/'
+freq = '0-f/'
 
 # mapping to HGD tasks
 tasks = ['feet', 'left_hand', 'right_hand', 'tongue']
@@ -91,7 +92,7 @@ for subject_id in subject_id_list:
             # ---------------------
 
             # Save path
-            save_real_path = '../../Result/IMG-REAL' + normalizer_name + str(subject_id) + \
+            save_real_path = '../../Result/IMG-REAL' + normalizer_name + freq + str(subject_id) + \
                              '/' + tasks_name + '/'
 
             if not os.path.exists(save_real_path):
@@ -99,7 +100,7 @@ for subject_id in subject_id_list:
 
             # Load real data
             data_load_path = os.path.join(
-                '../../Data/Real_Data/BCI/bnci-raw/0-38/22channels' + normalizer_name + str(subject_id)) + '/'
+                '../../Data/Real_Data/BCI/bnci-raw/'+freq+'22channels' + normalizer_name + str(subject_id)) + '/'
 
             data, n_chans = get_data(data_load_path=data_load_path,
                                      time_sample=time_sample,
