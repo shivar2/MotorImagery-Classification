@@ -39,10 +39,10 @@ for subject_id in subject_id_list:
     n_chans = dataset[0][0].shape[0]
 
     # Load model path
-    model_load_path = '../../../Model_Params/Pretrained_Models/1' + normalize_type + freq + model_name + '/'
+    model_load_path = '../../../Model_Params/Pretrained_Models' + normalize_type + '22channels/' + freq + model_name + '-1/'
 
     if model_name == 'deep4':
-        model = create_model_deep4( n_chans, n_classes)
+        model = create_model_deep4(n_chans, n_classes)
 
     elif model_name == 'deep4New':
         model = create_model_newDeep4(input_window_samples, n_chans, n_classes)
@@ -57,9 +57,9 @@ for subject_id in subject_id_list:
     to_dense_prediction_model(model)
     n_preds_per_input = get_output_shape(model, n_chans, input_window_samples)[2]
 
-    # Load model
-    state_dict = torch.load(model_load_path+param_name, map_location=device)
-    model.load_state_dict(state_dict, strict=False)
+    # # Load model
+    # state_dict = torch.load(model_load_path+param_name, map_location=device)
+    # model.load_state_dict(state_dict, strict=False)
 
     # Path to saving Models
     # mkdir path to save
@@ -70,7 +70,7 @@ for subject_id in subject_id_list:
 
     TLClassification.run_model(dataset=dataset, model=model,
                                n_preds_per_input=n_preds_per_input,
-                               device=device,
+                               device=device, load_path=model_load_path, param_name=param_name,
                                double_channel=double_channel, save_path=save_path)
 
 
