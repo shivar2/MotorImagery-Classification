@@ -59,8 +59,8 @@ def get_data(data_load_path,
     return data, n_chans
 
 
-subject_id_list = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-normalizer_name = 'zmaxNormalized/'       # 'tanhNormalized/'
+subject_id_list = [2]
+normalizer_name = '-zmax/'       # 'tanhNormalized/'
 
 # mapping to HGD tasks
 tasks = ['feet', 'left_hand', 'right_hand', 'tongue']
@@ -72,8 +72,8 @@ batch_size = 24
 
 # GAN info
 sfreq = 250
-time_sample = 1000
-window_stride_samples = 467
+time_sample = 500
+window_stride_samples = 500
 noise = 100
 
 cuda = True if torch.cuda.is_available() else False
@@ -91,7 +91,7 @@ for subject_id in subject_id_list:
             # ---------------------
 
             # Save path
-            save_real_path = '../../Result/IMG-REAL/' + normalizer_name + str(subject_id) + \
+            save_real_path = '../../Result/IMG-REAL' + normalizer_name + str(subject_id) + \
                              '/' + tasks_name + '/'
 
             if not os.path.exists(save_real_path):
@@ -99,7 +99,7 @@ for subject_id in subject_id_list:
 
             # Load real data
             data_load_path = os.path.join(
-                '../../Data/Real_Data/BCI/bnci-raw/0-38/22channels-zmax/' + str(subject_id)) + '/'
+                '../../Data/Real_Data/BCI/bnci-raw/0-38/22channels' + normalizer_name + str(subject_id)) + '/'
 
             data, n_chans = get_data(data_load_path=data_load_path,
                                      time_sample=time_sample,
