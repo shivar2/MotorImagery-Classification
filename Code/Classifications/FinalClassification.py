@@ -266,7 +266,7 @@ def steps(real_train_valid, fake_train_set, save_path, model, load_path, device=
         device=device,
     )
     clf1.initialize()  # This is important!
-    clf1.load_params(f_params=load_path + "params_28.pt",
+    clf1.load_params(f_params=load_path + "params_22.pt",
                      f_history=load_path + "history.json")
 
     clf1.fit(train_set, y=None)

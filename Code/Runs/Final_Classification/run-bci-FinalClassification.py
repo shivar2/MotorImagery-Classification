@@ -12,9 +12,9 @@ from Code.Classifications import FinalClassification
 subject_id_list = [1]
 phase_number = '2'
 model_name = "deep4"
-freq = '0-38/'
+freq = '0-f/'
 
-normalize_type = '-zmax/'     # '/' for not normalize
+normalize_type = '-stdmax/'     # '/' for not normalize
 window_size = '-500'
 
 # TL

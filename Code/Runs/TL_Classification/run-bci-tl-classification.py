@@ -11,16 +11,16 @@ from Code.Classifications import TLClassification
 
 
 # Run Info
-subject_id_list = [1]
+subject_id_list = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 phase_number = '2'
 model_name = "deep4"
 
-freq = '0-38/'
+freq = '0-f/'
 
-normalize_type = '-zmax/'     # '/' for not normalize
+normalize_type = '/'     # '/' for not normalize
 
 # TL
-param_name = "params_28.pt"
+param_name = "params_26.pt"
 double_channel = False
 
 cuda, device = detect_device()
@@ -57,14 +57,14 @@ for subject_id in subject_id_list:
     to_dense_prediction_model(model)
     n_preds_per_input = get_output_shape(model, n_chans, input_window_samples)[2]
 
-    # # Load model
-    # state_dict = torch.load(model_load_path+param_name, map_location=device)
-    # model.load_state_dict(state_dict, strict=False)
+    # Load model
+    state_dict = torch.load(model_load_path+param_name, map_location=device)
+    model.load_state_dict(state_dict, strict=False)
 
     # Path to saving Models
     # mkdir path to save
     save_path = os.path.join('../../../Model_Params/TL_Classification' + normalize_type + freq +
-                             model_name + '/' + phase_number + '/' + str(subject_id)) + '/step_by_step/'
+                             model_name + '/' + phase_number + '/' + str(subject_id)) + '/not_freezing/'
     if not os.path.exists(save_path):
         os.makedirs(save_path)
 

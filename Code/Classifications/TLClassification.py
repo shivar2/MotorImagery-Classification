@@ -95,7 +95,6 @@ def create_classifier(model, valid_set, n_epochs, device, train_end_cp, double_c
     )
     return clf
 
-
 def train_StepByStep(train_set_all, save_path, model, double_channel=False, device='cpu'):
 
     train_set, valid_set = split_into_train_valid(train_set_all, use_final_eval=False)
@@ -180,113 +179,6 @@ def train_StepByStep(train_set_all, save_path, model, double_channel=False, devi
 
     clf6.fit(train_set_all, y=None)
     return clf6
-
-
-def train_2phase(train_set_all, save_path, model, double_channel=False, device='cpu'):
-
-    train_set, valid_set = split_into_train_valid(train_set_all, use_final_eval=False)
-
-    batch_size = 64
-
-    # For deep4 they should be:
-    lr = 1 * 0.01
-    weight_decay = 0.5 * 0.001
-
-    # PHASE 1
-    n_epochs = 800
-
-    # Checkpoint will save the history
-    cp = Checkpoint(monitor='valid_accuracy_best',
-                    f_params="params1.pt",
-                    f_optimizer="optimizers1.pt",
-                    f_history="history1.json",
-                    dirname=save_path, f_criterion=None)
-
-    # Early_stopping
-    early_stopping = EarlyStopping(monitor='valid_accuracy', lower_is_better=False, patience=80)
-
-    callbacks = [
-        "accuracy",
-        ('cp', cp),
-        ('patience', early_stopping),
-    ]
-
-    # model.apply(set_bn_eval)
-    model = freezing_model(model, layer=5)
-
-    clf1 = EEGTLClassifier(
-        model,
-        double_channel=double_channel,
-        is_freezing=True,
-        cropped=True,
-        max_epochs=n_epochs,
-        criterion=CroppedLoss,
-        criterion__loss_function=torch.nn.functional.nll_loss,
-        optimizer=torch.optim.AdamW,
-        # optimizer__lr=lr,
-        # optimizer__weight_decay=weight_decay,
-        train_split=predefined_split(valid_set),
-        iterator_train__shuffle=True,
-        batch_size=batch_size,
-        callbacks=callbacks,
-        device=device,
-    )
-    # Model training for a specified number of epochs. `y` is None as it is already supplied
-    # in the dataset.
-    clf1.fit(train_set, y=None)
-
-    # PHASE 2
-
-    # Best clf1 valid accuracy
-    best_valid_acc_epoch = np.argmax(clf1.history[:, 'valid_accuracy'])
-    target_train_loss = clf1.history[best_valid_acc_epoch, 'train_loss']
-
-    # Early_stopping
-    early_stopping2 = EarlyStopping(monitor='valid_loss',
-                                    divergence_threshold=target_train_loss,
-                                    patience=80)
-
-    # Checkpoint will save the model with the lowest valid_loss
-    cp2 = Checkpoint(monitor=None,
-                     f_params="params2.pt",
-                     f_optimizer="optimizers2.pt",
-                     dirname=save_path,
-                     f_criterion=None)
-
-    callbacks2 = [
-        "accuracy",
-        ('cp', cp2),
-        ('patience', early_stopping2)
-    ]
-
-    clf2 = EEGTLClassifier(
-        model,
-        double_channel=double_channel,
-        is_freezing=True,
-        cropped=True,
-        warm_start=True,
-        max_epochs=n_epochs,
-        criterion=CroppedLoss,
-        criterion__loss_function=torch.nn.functional.nll_loss,
-        optimizer=torch.optim.AdamW,
-        # optimizer__lr=lr,
-        # optimizer__weight_decay=weight_decay,
-        train_split=predefined_split(valid_set),
-        iterator_train__shuffle=True,
-        batch_size=batch_size,
-        callbacks=callbacks2,
-        device=device,
-    )
-
-    clf2.initialize()  # This is important!
-    clf2.load_params(f_params=save_path + "params1.pt",
-                     f_optimizer=save_path + "optimizers1.pt",
-                     f_history=save_path + "history1.json")
-
-    clf2.fit(train_set_all, y=None)
-    return clf2
-
-
 def steps(real_train_valid, save_path, model, load_path, param_name, device='cpu'):
     train_set, valid_set = split_into_train_valid(real_train_valid, use_final_eval=False)
     batch_size = 64
@@ -326,8 +218,8 @@ def steps(real_train_valid, save_path, model, load_path, param_name, device='cpu
         device=device,
     )
     clf1.initialize()  # This is important!
-    clf1.load_params(f_params=load_path + "params_28.pt",
-                     f_optimizer=load_path + "optimizer_28.pt",
+    clf1.load_params(f_params=load_path + "params_22.pt",
+                     f_optimizer=load_path + "optimizer_22.pt",
                      f_history=load_path + "history.json")
 
     model.requires_grad_(requires_grad=False)
@@ -437,6 +329,150 @@ def steps(real_train_valid, save_path, model, load_path, param_name, device='cpu
     return clf3
 
 
+
+def train_2phase(train_set_all, save_path, model, double_channel=False, device='cpu'):
+
+    train_set, valid_set = split_into_train_valid(train_set_all, use_final_eval=False)
+
+    batch_size = 64
+
+    # For deep4 they should be:
+    lr = 1 * 0.01
+    weight_decay = 0.5 * 0.001
+
+    # PHASE 1
+    n_epochs = 800
+
+    # Checkpoint will save the history
+    cp = Checkpoint(monitor='valid_accuracy_best',
+                    f_params="params1.pt",
+                    f_optimizer="optimizers1.pt",
+                    f_history="history1.json",
+                    dirname=save_path, f_criterion=None)
+
+    # Early_stopping
+    early_stopping = EarlyStopping(monitor='valid_accuracy', lower_is_better=False, patience=80)
+
+    callbacks = [
+        "accuracy",
+        ('cp', cp),
+        ('patience', early_stopping),
+    ]
+
+    # model.apply(set_bn_eval)
+    # model = freezing_model(model, layer=5)
+
+    clf1 = EEGTLClassifier(
+        model,
+        double_channel=double_channel,
+        is_freezing=True,
+        cropped=True,
+        max_epochs=n_epochs,
+        criterion=CroppedLoss,
+        criterion__loss_function=torch.nn.functional.nll_loss,
+        optimizer=torch.optim.AdamW,
+        # optimizer__lr=lr,
+        # optimizer__weight_decay=weight_decay,
+        train_split=predefined_split(valid_set),
+        iterator_train__shuffle=True,
+        batch_size=batch_size,
+        callbacks=callbacks,
+        device=device,
+    )
+    # Model training for a specified number of epochs. `y` is None as it is already supplied
+    # in the dataset.
+    clf1.fit(train_set, y=None)
+
+    # PHASE 2
+
+    # Best clf1 valid accuracy
+    best_valid_acc_epoch = np.argmax(clf1.history[:, 'valid_accuracy'])
+    target_train_loss = clf1.history[best_valid_acc_epoch, 'train_loss']
+
+    # Early_stopping
+    early_stopping2 = EarlyStopping(monitor='valid_loss',
+                                    divergence_threshold=target_train_loss,
+                                    patience=80)
+
+    # Checkpoint will save the model with the lowest valid_loss
+    cp2 = Checkpoint(monitor=None,
+                     f_params="params2.pt",
+                     f_optimizer="optimizers2.pt",
+                     dirname=save_path,
+                     f_criterion=None)
+
+    callbacks2 = [
+        "accuracy",
+        ('cp', cp2),
+        ('patience', early_stopping2)
+    ]
+
+    clf2 = EEGTLClassifier(
+        model,
+        double_channel=double_channel,
+        is_freezing=True,
+        cropped=True,
+        warm_start=True,
+        max_epochs=n_epochs,
+        criterion=CroppedLoss,
+        criterion__loss_function=torch.nn.functional.nll_loss,
+        optimizer=torch.optim.AdamW,
+        # optimizer__lr=lr,
+        # optimizer__weight_decay=weight_decay,
+        train_split=predefined_split(valid_set),
+        iterator_train__shuffle=True,
+        batch_size=batch_size,
+        callbacks=callbacks2,
+        device=device,
+    )
+
+    clf2.initialize()  # This is important!
+    clf2.load_params(f_params=save_path + "params1.pt",
+                     f_optimizer=save_path + "optimizers1.pt",
+                     f_history=save_path + "history1.json")
+
+    clf2.fit(train_set_all, y=None)
+    return clf2
+
+
+def train_1phase(train_set, valid_set, model, device='cpu'):
+    # For deep4 they should be:
+    lr = 1 * 0.01
+    weight_decay = 0.5 * 0.001
+
+    batch_size = 64
+    n_epochs = 20
+
+    callbacks = [
+        "accuracy",
+        ("lr_scheduler", LRScheduler('CosineAnnealingLR', T_max=n_epochs - 1)),
+    ]
+    # model.requires_grad_(requires_grad=False)
+    #
+    # model.conv_time = nn.Conv2d(1, 25, kernel_size=(10, 1), stride=(1, 1))
+    # model.conv_spat = nn.Conv2d(25, 25, kernel_size=(1, 22), stride=(1, 1), bias=False)
+
+    clf = EEGTLClassifier(
+        model,
+        cropped=True,
+        is_freezing=True,
+        warm_start=True,
+        max_epochs=n_epochs,
+        criterion=CroppedLoss,
+        criterion__loss_function=torch.nn.functional.nll_loss,
+        optimizer=torch.optim.AdamW,
+        train_split=predefined_split(valid_set),
+        optimizer__lr=lr,
+        optimizer__weight_decay=weight_decay,
+        iterator_train__shuffle=True,
+        batch_size=batch_size,
+        callbacks=callbacks,
+        device=device,
+    )
+    clf.fit(train_set, y=None)
+    return clf
+
+
 def run_model(dataset, model, double_channel, load_path, param_name, n_preds_per_input, device, save_path):
     input_window_samples = 1000
     n_classes = 4
@@ -455,8 +491,8 @@ def run_model(dataset, model, double_channel, load_path, param_name, n_preds_per
 
     train_set, test_set = split_into_train_valid(windows_dataset, use_final_eval=True)
 
-    # clf = train_2phase(train_set, model=model, save_path=save_path, double_channel=double_channel, device=device)
-    clf = steps(train_set, model=model, save_path=save_path, load_path=load_path, param_name=param_name, device=device)
+    clf = train_2phase(train_set, model=model, save_path=save_path, double_channel=double_channel, device=device)
+    # clf = train_2phase(train_set, test_set, model=model, device=device)
 
     plot(clf, save_path)
     torch.save(model, save_path + "model.pth")
