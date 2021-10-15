@@ -16,15 +16,15 @@ cuda = True if torch.cuda.is_available() else False
 Tensor = torch.cuda.FloatTensor if cuda else torch.FloatTensor
 
 
-subject_id_list = [3]
+subject_id_list = [1, 2,3,4,5,6,7,8,9]
 
-normalize_type = '-zmax/'   # '-zmax'
-freq = '0-38/'
+normalize_type = '-stdmax/'   # '-zmax'
+freq = '0-f/'
 gan_epoch_dir = '/7500/'
 
 
 # GAN info
-fake_num = 10
+fake_num = 3
 time_sample = 500
 window_size = '-500'
 
