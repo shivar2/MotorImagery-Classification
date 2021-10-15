@@ -219,7 +219,7 @@ def train_2phase(real_train_valid, fake_train_set, save_path, model, double_chan
     return clf3
 
 
-def steps(real_train_valid, fake_train_set, save_path, model, load_path, device='cpu'):
+def steps(real_train_valid, fake_train_set, save_path, model, cl_load, load_path, device='cpu'):
     train_set, valid_set = split_into_train_valid(real_train_valid, use_final_eval=False)
 
     fr_train_valid = fake_train_set + real_train_valid
@@ -227,6 +227,7 @@ def steps(real_train_valid, fake_train_set, save_path, model, load_path, device=
 
     batch_size = 64
     n_epochs = 800
+
     #step1
     # Checkpoint will save the history
     cp1 = Checkpoint(monitor='valid_accuracy_best',
@@ -245,16 +246,13 @@ def steps(real_train_valid, fake_train_set, save_path, model, load_path, device=
         ('patience', early_stopping1),
         ("train_end_cp", train_end_cp1),
     ]
-    model.requires_grad_(requires_grad=False)
-    model.conv_classifier = nn.Conv2d(200, 4, kernel_size=(2, 1), stride=(1, 1), dilation=(81, 1))
-    model.softmax = nn.LogSoftmax(dim=1)
-    model.squeeze = Expression(squeeze_final_output)
 
+    model = freezing_model(model, layer=5)
     clf1 = EEGTLClassifier(
         model,
         cropped=True,
         is_freezing=True,
-        # warm_start=True,
+        warm_start=True,
         max_epochs=n_epochs,
         criterion=CroppedLoss,
         criterion__loss_function=torch.nn.functional.nll_loss,
@@ -265,96 +263,19 @@ def steps(real_train_valid, fake_train_set, save_path, model, load_path, device=
         callbacks=callbacks1,
         device=device,
     )
-    clf1.initialize()  # This is important!
-    clf1.load_params(f_params=load_path + "params_22.pt",
-                     f_history=load_path + "history.json")
+    # clf1.initialize()  # This is important!
+    # clf1.load_params(f_params=cl_load + "params1.pt",
+    #                  f_optimizer=cl_load + "optimizers1.pt",
+    #                  f_history=cl_load + "history1.json")
+    clf1.fit(fr_train_set, y=None)
 
-    clf1.fit(train_set, y=None)
+    # PHASE 4
+    # model.requires_grad_(requires_grad=True)
 
-    # # PHASE 2
-
-    # Checkpoint will save the history
-    cp2 = Checkpoint(monitor='valid_accuracy_best',
-                    f_params="params2.pt",
-                    f_optimizer="optimizers2.pt",
-                    f_history="history2.json",
-                    dirname=save_path, f_criterion=None)
-
-    load_state2 = LoadInitState(train_end_cp1)
-    train_end_cp2 = TrainEndCheckpoint(dirname=save_path)
-
-    early_stopping2 = EarlyStopping(monitor='valid_accuracy', lower_is_better=False, patience=80)
-
-    callbacks2 = [
-        "accuracy",
-        ('cp', cp2),
-        ('patience', early_stopping2),
-        ("train_end_cp", train_end_cp2),
-        ("load_state", load_state2),
-    ]
-
-    clf2 = EEGTLClassifier(
-        model,
-        cropped=True,
-        warm_start=True,
-        is_freezing=True,
-        max_epochs=n_epochs,
-        criterion=CroppedLoss,
-        criterion__loss_function=torch.nn.functional.nll_loss,
-        optimizer=torch.optim.AdamW,
-        train_split=predefined_split(valid_set),
-        iterator_train__shuffle=True,
-        batch_size=batch_size,
-        callbacks=callbacks2,
-        device=device,
-    )
-
-    clf2.fit(fr_train_set, y=None)
-
-    # PHASE 3
-
-    # Checkpoint will save the history
-    cp3 = Checkpoint(monitor='valid_accuracy_best',
-                    f_params="params3.pt",
-                    f_optimizer="optimizers3.pt",
-                    f_history="history3.json",
-                    dirname=save_path, f_criterion=None)
-
-    load_state3 = LoadInitState(train_end_cp2)
-    train_end_cp3 = TrainEndCheckpoint(dirname=save_path)
-
-    early_stopping3 = EarlyStopping(monitor='valid_accuracy', lower_is_better=False, patience=80)
-
-    callbacks3 = [
-        "accuracy",
-        ('cp', cp3),
-        ('patience', early_stopping3),
-        ("train_end_cp", train_end_cp3),
-        ("load_state", load_state3),
-    ]
-
-    clf3 = EEGTLClassifier(
-        model,
-        cropped=True,
-        warm_start=True,
-        is_freezing=True,
-        max_epochs=n_epochs,
-        criterion=CroppedLoss,
-        criterion__loss_function=torch.nn.functional.nll_loss,
-        optimizer=torch.optim.AdamW,
-        train_split=predefined_split(valid_set),
-        iterator_train__shuffle=True,
-        batch_size=batch_size,
-        callbacks=callbacks3,
-        device=device,
-    )
-    model.requires_grad_(requires_grad=True)
-    clf3.fit(fr_train_set, y=None)
-
-    # PHASE4
+    # model.requires_grad_(requires_grad=True)
     # Best clf1 valid accuracy
-    best_valid_acc_epoch = np.argmax(clf3.history[:, 'valid_accuracy'])
-    target_train_loss = clf3.history[best_valid_acc_epoch, 'train_loss']
+    best_valid_acc_epoch = np.argmax(clf1.history[:, 'valid_accuracy'])
+    target_train_loss = clf1.history[best_valid_acc_epoch, 'train_loss']
 
     # Early_stopping
     early_stopping4 = EarlyStopping(monitor='valid_loss',
@@ -362,13 +283,12 @@ def steps(real_train_valid, fake_train_set, save_path, model, load_path, device=
                                     patience=80)
 
     # Checkpoint will save the model with the lowest valid_loss
-    cp4 = Checkpoint(
-                     f_params="params4.pt",
+    cp4 = Checkpoint(f_params="params4.pt",
                      f_optimizer="optimizers4.pt",
                      dirname=save_path,
                      f_criterion=None)
 
-    load_state4 = LoadInitState(train_end_cp3)
+    load_state4 = LoadInitState(train_end_cp1)
     callbacks4 = [
         "accuracy",
         ('cp', cp4),
@@ -381,7 +301,7 @@ def steps(real_train_valid, fake_train_set, save_path, model, load_path, device=
         cropped=True,
         is_freezing=True,
         warm_start=True,
-        max_epochs=n_epochs,
+        max_epochs=20,
         criterion=CroppedLoss,
         criterion__loss_function=torch.nn.functional.nll_loss,
         optimizer=torch.optim.AdamW,
@@ -391,11 +311,11 @@ def steps(real_train_valid, fake_train_set, save_path, model, load_path, device=
         callbacks=callbacks4,
         device=device,
     )
-    clf4.fit(fr_train_valid, y=None)
+    clf4.fit(real_train_valid, y=None)
     return clf4
 
 
-def run_model(dataset, fake_set, model, n_preds_per_input, double_channel, phase, save_path, load_path):
+def run_model(dataset, fake_set, model, n_preds_per_input, double_channel, phase, save_path, load_path, clf_load):
     input_window_samples = 1000
     if double_channel:
         n_chans = dataset[0][0].shape[0] * 2
@@ -430,7 +350,8 @@ def run_model(dataset, fake_set, model, n_preds_per_input, double_channel, phase
     else:
         # clf = train_2phase(real_train_set, fake_train_set, model=model, double_channel=double_channel, device=device,
         #                    save_path=save_path)
-        clf = steps(real_train_set, fake_train_set, model=model, save_path=save_path, load_path=load_path, device=device)
+        clf = steps(real_train_set, fake_train_set, model=model, save_path=save_path, load_path=load_path, cl_load=clf_load,
+                    device=device)
 
     plot(clf, save_path)
     torch.save(model, save_path + "model.pth")

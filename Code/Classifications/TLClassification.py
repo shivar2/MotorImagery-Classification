@@ -329,7 +329,6 @@ def steps(real_train_valid, save_path, model, load_path, param_name, device='cpu
     return clf3
 
 
-
 def train_2phase(train_set_all, save_path, model, double_channel=False, device='cpu'):
 
     train_set, valid_set = split_into_train_valid(train_set_all, use_final_eval=False)
@@ -352,15 +351,17 @@ def train_2phase(train_set_all, save_path, model, double_channel=False, device='
 
     # Early_stopping
     early_stopping = EarlyStopping(monitor='valid_accuracy', lower_is_better=False, patience=80)
+    train_end_cp1 = TrainEndCheckpoint(dirname=save_path)
 
     callbacks = [
         "accuracy",
         ('cp', cp),
         ('patience', early_stopping),
+        ("train_end_cp", train_end_cp1),
     ]
 
     # model.apply(set_bn_eval)
-    # model = freezing_model(model, layer=5)
+    model = freezing_model(model, layer=5)
 
     clf1 = EEGTLClassifier(
         model,
@@ -371,8 +372,8 @@ def train_2phase(train_set_all, save_path, model, double_channel=False, device='
         criterion=CroppedLoss,
         criterion__loss_function=torch.nn.functional.nll_loss,
         optimizer=torch.optim.AdamW,
-        # optimizer__lr=lr,
-        # optimizer__weight_decay=weight_decay,
+        optimizer__lr=lr,
+        optimizer__weight_decay=weight_decay,
         train_split=predefined_split(valid_set),
         iterator_train__shuffle=True,
         batch_size=batch_size,
@@ -401,10 +402,13 @@ def train_2phase(train_set_all, save_path, model, double_channel=False, device='
                      dirname=save_path,
                      f_criterion=None)
 
+    load_state2 = LoadInitState(train_end_cp1)
+
     callbacks2 = [
         "accuracy",
         ('cp', cp2),
-        ('patience', early_stopping2)
+        ('patience', early_stopping2),
+        ("load_state", load_state2),
     ]
 
     clf2 = EEGTLClassifier(
@@ -426,11 +430,6 @@ def train_2phase(train_set_all, save_path, model, double_channel=False, device='
         device=device,
     )
 
-    clf2.initialize()  # This is important!
-    clf2.load_params(f_params=save_path + "params1.pt",
-                     f_optimizer=save_path + "optimizers1.pt",
-                     f_history=save_path + "history1.json")
-
     clf2.fit(train_set_all, y=None)
     return clf2
 
@@ -441,7 +440,7 @@ def train_1phase(train_set, valid_set, model, device='cpu'):
     weight_decay = 0.5 * 0.001
 
     batch_size = 64
-    n_epochs = 20
+    n_epochs = 40
 
     callbacks = [
         "accuracy",

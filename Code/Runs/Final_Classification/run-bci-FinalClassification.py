@@ -9,16 +9,16 @@ from Code.base import load_data_object, load_fake_data, detect_device, create_mo
 from Code.Classifications import FinalClassification
 
 # Run Info
-subject_id_list = [1]
+subject_id_list = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 phase_number = '2'
 model_name = "deep4"
 freq = '0-f/'
 
-normalize_type = '-stdmax/'     # '/' for not normalize
+normalize_type = '-zmax/'     # '/' for not normalize
 window_size = '-500'
 
 # TL
-param_name = "params_28.pt"
+param_name = "params_15.pt"
 double_channel = False
 
 # Fake data info
@@ -39,7 +39,7 @@ for subject_id in subject_id_list:
 
     dataset = load_data_object(data_load_path)
 
-    fake_data_load_path = os.path.join('../../../Data/Fake_Data/' + gan_version + freq + str(subject_id)) + \
+    fake_data_load_path = os.path.join('../../../Data/f_fake/' + gan_version + freq + str(subject_id)) + \
                           gan_epoch_dir + 'Runs/'
 
     fake_set = load_fake_data(fake_data_load_path, fake_k)
@@ -61,12 +61,16 @@ for subject_id in subject_id_list:
     n_preds_per_input = get_output_shape(model, n_chans, input_window_samples)[2]
 
     # Load model
-    # state_dict = torch.load(model_load_path+param_name, map_location=device)
-    # model.load_state_dict(state_dict, strict=False)
+    state_dict = torch.load(model_load_path+param_name, map_location=device)
+    model.load_state_dict(state_dict, strict=False)
 
     # Path to saving Models
     # mkdir path to save
-    save_path = os.path.join('../../../Model_Params/Final_Classification' + window_size + normalize_type +
+    clf_load = os.path.join(
+        '../../../Model_Params/Final_Classification' + window_size + normalize_type +
+        freq + gan_version + model_name + '-' + phase_number + '/' +
+        str(subject_id)) + gan_epoch_dir + 'fake number ' + str(fake_k) + '/'
+    save_path = os.path.join('../../../Model_Params/Final_Classification_classifier_notfreeze' + window_size + normalize_type +
                                  freq + gan_version + model_name + '-' + phase_number + '/' +
                                  str(subject_id)) + gan_epoch_dir + 'fake number ' + str(fake_k) + '/'
 
@@ -76,6 +80,7 @@ for subject_id in subject_id_list:
     FinalClassification.run_model(dataset=dataset, fake_set=fake_set,
                                   model=model, n_preds_per_input=n_preds_per_input,
                                   double_channel=double_channel, phase=phase_number, save_path=save_path,
+                                  clf_load = clf_load,
                                   load_path=model_load_path)
 
 

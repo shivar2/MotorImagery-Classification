@@ -11,16 +11,16 @@ from Code.Classifications import TLClassification
 
 
 # Run Info
-subject_id_list = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+subject_id_list = []
 phase_number = '2'
 model_name = "deep4"
 
-freq = '0-f/'
+freq = '0-38/'
 
-normalize_type = '/'     # '/' for not normalize
+normalize_type = '-zmax/'     # '/' for not normalize
 
 # TL
-param_name = "params_26.pt"
+param_name = "params_28.pt"
 double_channel = False
 
 cuda, device = detect_device()
@@ -64,7 +64,7 @@ for subject_id in subject_id_list:
     # Path to saving Models
     # mkdir path to save
     save_path = os.path.join('../../../Model_Params/TL_Classification' + normalize_type + freq +
-                             model_name + '/' + phase_number + '/' + str(subject_id)) + '/not_freezing/'
+                             model_name + '/' + phase_number + '/' + str(subject_id)) + '/classifier/'
     if not os.path.exists(save_path):
         os.makedirs(save_path)
 
